@@ -1,0 +1,477 @@
+YUGITO 09 — PROTOTYPE 17 ENGINE PARITY LOCK
+FINAL VALIDATION REPORT
+Date: 2026-08-25
+
+== PYTHON SOURCE COMPILE ==
+[OK] legacy_reference/__init__.py
+[OK] legacy_reference/app_PC_latest.py
+[OK] legacy_reference/cards.py
+[OK] legacy_reference/game_engine.py
+[OK] legacy_reference/game_engine_PC_1.8.21.py
+[OK] tools/parity/check_gd_structure.py
+[OK] tools/parity/check_p15.py
+[OK] tools/parity/check_p16.py
+[OK] tools/parity/check_p17.py
+[OK] tools/parity/parity_harness.py
+[OK] tools/parity/parity_harness_p17.py
+ALL PYTHON SOURCES COMPILE (11 files)
+
+== GDSCRIPT STRUCTURE ==
+[OK] scripts/AppShell.gd
+[OK] scripts/Atmosphere.gd
+[OK] scripts/CardActor.gd
+[OK] scripts/GameSession.gd
+[OK] scripts/Main.gd
+[OK] scripts/MenuCard.gd
+[OK] scripts/ParityRNG.gd
+[OK] scripts/PreBattle.gd
+[OK] scripts/ReplacementModal.gd
+[OK] scripts/SynergyDB.gd
+[OK] tools/parity/P16BattleSmoke.gd
+[OK] tools/parity/ParitySmoke.gd
+ALL GDSCRIPT STRUCTURE CHECKS PASSED (12 files)
+
+== P15 LEGACY GATE ==
+YUGITO 09 / Prototype 15 — parity gate
+
+
+== test_data_parity ==
+[OK] fichiers cartes présents
+[OK] 70 données cartes Godot = PC — b2524b8241f3b3b630a759e30c8bb70025a77d446aae01df09fd5ea64b1aaa8a
+[OK] roster = 70 cartes
+
+== test_reference_snapshot_integrity ==
+[OK] snapshots moteur PC présents
+[OK] game_engine.py = snapshot PC 1.8.21 — 8bff61f2071188b5d6f9d7bb8070bba321ba7bab5aeef1ce61e8be990e5d9a62
+
+== test_state_schema_static ==
+[OK] export réserve : definition_max_hp
+[OK] import réserve : definition_max_hp
+[OK] export réserve : base_max_hp
+[OK] import réserve : base_max_hp
+[OK] export réserve : max_hp
+[OK] import réserve : max_hp
+[OK] export réserve : taijutsu
+[OK] import réserve : taijutsu
+[OK] export réserve : ninjutsu
+[OK] import réserve : ninjutsu
+[OK] export réserve : genjutsu
+[OK] import réserve : genjutsu
+[OK] export réserve : element_name
+[OK] import réserve : element_name
+[OK] export réserve : hp
+[OK] import réserve : hp
+[OK] export réserve : shield
+[OK] import réserve : shield
+[OK] export réserve : special_used
+[OK] import réserve : special_used
+[OK] export réserve : special_cooldown
+[OK] import réserve : special_cooldown
+[OK] export réserve : disabled_turns
+[OK] import réserve : disabled_turns
+[OK] export réserve : kankuro_decoy_used
+[OK] import réserve : kankuro_decoy_used
+[OK] export réserve : kankuro_defense_active
+[OK] import réserve : kankuro_defense_active
+[OK] export réserve : reactive_entry_guard
+[OK] import réserve : reactive_entry_guard
+[OK] export réserve : synergy_bonus_pct
+[OK] import réserve : synergy_bonus_pct
+[OK] export réserve : status_tags
+[OK] import réserve : status_tags
+[OK] export réserve : stat_buffs
+[OK] import réserve : stat_buffs
+[OK] export réserve : timed_modifiers
+[OK] import réserve : timed_modifiers
+[OK] schéma d'état versionné
+[OK] acteur logique virtuel disponible
+[OK] synergie PV : base imprimée + exception clone Gengetsu
+
+== test_a2_static ==
+[OK] A2 validée survit au départ source/cible
+[OK] A2 retrouve sa source par identité
+[OK] A2 cible d'abord l'identité
+[OK] suivi de slot limité au Switch A2 réactif
+[OK] A1 Switch -> A2 du Ninja entrant planifiable
+[OK] étape A2 explicitement marquée delayed
+[OK] Switch A2 programmé remplace le tirage lors d'un K.O.
+
+== test_damage_order_static ==
+[OK] ordre dégâts : réductions -> anti-zéro -> Kimimaro -> bouclier
+[OK] inciblabilité vérifiée avant Trancheur
+[OK] Mifune ne contourne plus l'inciblabilité
+[OK] Mifune conserve conversion/destruction des boucliers
+
+== test_haku_static ==
+[OK] Haku armé à toute entrée depuis réserve
+[OK] Haku ne teste sa parade que sur attaque programmée A2
+
+== test_rng_static ==
+[OK] RNG déterministe branché au combat
+[OK] aucun randf global dans Main
+[OK] LCG portable défini
+
+== test_pc_reference_behaviour ==
+[OK] deck PC de test construit — ['haku', 'tenten', 'ino', 'kiba', 'kankuro', 'konohamaru', 'shino', 'suigetsu']
+[OK] deck PC de test légal
+[OK] deck PC de test construit — ['sakura', 'shino', 'karin', 'ino', 'kankuro', 'kiba', 'konohamaru', 'suigetsu']
+[OK] deck PC de test légal
+[OK] PC : Switch A1 vers Haku — Tenten ↔ Haku.
+[OK] PC : Haku arme Miroirs après Switch A1
+[OK] PC : sortie d'Ino en réserve
+[OK] PC : retour d'Ino
+[OK] PC : même CardInstance après réserve
+[OK] PC : PV/bouclier/buff persistent
+[OK] deck PC de test construit — ['mifune', 'tenten', 'ino', 'kankuro', 'kiba', 'konohamaru', 'shino', 'suigetsu']
+[OK] deck PC de test légal
+[OK] deck PC de test construit — ['obito', 'sakura', 'shino', 'ino', 'kankuro', 'kiba', 'konohamaru', 'suigetsu']
+[OK] deck PC de test légal
+[OK] PC : Mifune ne traverse pas Obito intangible
+[OK] deck PC de test construit — ['tenten', 'ino', 'kiba', 'kankuro', 'konohamaru', 'shino', 'suigetsu', 'anko']
+[OK] deck PC de test légal
+[OK] deck PC de test construit — ['nagato', 'sakura', 'shino', 'ino', 'kankuro', 'kiba', 'konohamaru', 'suigetsu']
+[OK] deck PC de test légal
+[OK] PC : fallback anti-zéro après réduction — hp_damage=200
+[OK] deck PC de test construit — ['haku', 'tenten', 'ino', 'kiba', 'kankuro', 'konohamaru', 'shino', 'suigetsu']
+[OK] deck PC de test légal
+[OK] deck PC de test construit — ['sakura', 'shino', 'karin', 'ino', 'kankuro', 'kiba', 'konohamaru', 'suigetsu']
+[OK] deck PC de test légal
+[OK] PC : K.O. du sortant A2
+[OK] PC : Switch A2 d'urgence remplace le tirage
+[OK] PC : Switch A2 d'urgence consommé
+[OK] PC : sortant envoyé au cimetière
+
+ALL PARITY GATES PASSED
+
+== P16 LEGACY GATE ==
+YUGITO 09 / Prototype 16 — parity gate
+
+
+== test_data_parity ==
+[OK] fichiers cartes présents
+[OK] 70 données cartes Godot = PC — b2524b8241f3b3b630a759e30c8bb70025a77d446aae01df09fd5ea64b1aaa8a
+[OK] roster = 70 cartes
+
+== test_reference_snapshot_integrity ==
+[OK] snapshots moteur PC présents
+[OK] game_engine.py = snapshot PC 1.8.21 — 8bff61f2071188b5d6f9d7bb8070bba321ba7bab5aeef1ce61e8be990e5d9a62
+
+== test_state_schema_static ==
+[OK] export réserve : definition_max_hp
+[OK] import réserve : definition_max_hp
+[OK] export réserve : base_max_hp
+[OK] import réserve : base_max_hp
+[OK] export réserve : max_hp
+[OK] import réserve : max_hp
+[OK] export réserve : taijutsu
+[OK] import réserve : taijutsu
+[OK] export réserve : ninjutsu
+[OK] import réserve : ninjutsu
+[OK] export réserve : genjutsu
+[OK] import réserve : genjutsu
+[OK] export réserve : element_name
+[OK] import réserve : element_name
+[OK] export réserve : hp
+[OK] import réserve : hp
+[OK] export réserve : shield
+[OK] import réserve : shield
+[OK] export réserve : special_used
+[OK] import réserve : special_used
+[OK] export réserve : special_cooldown
+[OK] import réserve : special_cooldown
+[OK] export réserve : disabled_turns
+[OK] import réserve : disabled_turns
+[OK] export réserve : kankuro_decoy_used
+[OK] import réserve : kankuro_decoy_used
+[OK] export réserve : kankuro_defense_active
+[OK] import réserve : kankuro_defense_active
+[OK] export réserve : reactive_entry_guard
+[OK] import réserve : reactive_entry_guard
+[OK] export réserve : synergy_bonus_pct
+[OK] import réserve : synergy_bonus_pct
+[OK] export réserve : status_tags
+[OK] import réserve : status_tags
+[OK] export réserve : stat_buffs
+[OK] import réserve : stat_buffs
+[OK] export réserve : timed_modifiers
+[OK] import réserve : timed_modifiers
+[OK] schéma d'état versionné
+[OK] acteur logique virtuel disponible
+[OK] synergie PV : base imprimée + exception clone Gengetsu
+
+== test_a2_static ==
+[OK] A2 validée survit au départ source/cible
+[OK] A2 retrouve sa source par identité
+[OK] A2 cible d'abord l'identité
+[OK] suivi de slot limité au Switch A2 réactif
+[OK] A1 Switch -> A2 du Ninja entrant planifiable
+[OK] étape A2 explicitement marquée delayed
+[OK] Switch A2 programmé remplace le tirage lors d'un K.O.
+
+== test_damage_order_static ==
+[OK] ordre dégâts : réductions -> anti-zéro -> Kimimaro -> bouclier
+[OK] inciblabilité vérifiée avant Trancheur
+[OK] Mifune ne contourne plus l'inciblabilité
+[OK] Mifune conserve conversion/destruction des boucliers
+
+== test_haku_static ==
+[OK] Haku armé à toute entrée depuis réserve
+[OK] Haku ne teste sa parade que sur attaque programmée A2
+
+== test_rng_static ==
+[OK] RNG déterministe branché au combat
+[OK] aucun randf global dans Main
+[OK] LCG portable défini
+
+== test_pc_reference_behaviour ==
+[OK] deck PC de test construit — ['haku', 'tenten', 'ino', 'kiba', 'kankuro', 'konohamaru', 'shino', 'suigetsu']
+[OK] deck PC de test légal
+[OK] deck PC de test construit — ['sakura', 'shino', 'karin', 'ino', 'kankuro', 'kiba', 'konohamaru', 'suigetsu']
+[OK] deck PC de test légal
+[OK] PC : Switch A1 vers Haku — Tenten ↔ Haku.
+[OK] PC : Haku arme Miroirs après Switch A1
+[OK] PC : sortie d'Ino en réserve
+[OK] PC : retour d'Ino
+[OK] PC : même CardInstance après réserve
+[OK] PC : PV/bouclier/buff persistent
+[OK] deck PC de test construit — ['mifune', 'tenten', 'ino', 'kankuro', 'kiba', 'konohamaru', 'shino', 'suigetsu']
+[OK] deck PC de test légal
+[OK] deck PC de test construit — ['obito', 'sakura', 'shino', 'ino', 'kankuro', 'kiba', 'konohamaru', 'suigetsu']
+[OK] deck PC de test légal
+[OK] PC : Mifune ne traverse pas Obito intangible
+[OK] deck PC de test construit — ['tenten', 'ino', 'kiba', 'kankuro', 'konohamaru', 'shino', 'suigetsu', 'anko']
+[OK] deck PC de test légal
+[OK] deck PC de test construit — ['nagato', 'sakura', 'shino', 'ino', 'kankuro', 'kiba', 'konohamaru', 'suigetsu']
+[OK] deck PC de test légal
+[OK] PC : fallback anti-zéro après réduction — hp_damage=200
+[OK] deck PC de test construit — ['haku', 'tenten', 'ino', 'kiba', 'kankuro', 'konohamaru', 'shino', 'suigetsu']
+[OK] deck PC de test légal
+[OK] deck PC de test construit — ['sakura', 'shino', 'karin', 'ino', 'kankuro', 'kiba', 'konohamaru', 'suigetsu']
+[OK] deck PC de test légal
+[OK] PC : K.O. du sortant A2
+[OK] PC : Switch A2 d'urgence remplace le tirage
+[OK] PC : Switch A2 d'urgence consommé
+[OK] PC : sortant envoyé au cimetière
+
+== test_p16_harness_and_ino_static ==
+[OK] Ino : lien vivant par UID
+[OK] Ino : possession sans faux STUN
+[OK] Ino : stats dynamiques du vrai corps
+[OK] Ino : élément dynamique du vrai corps
+[OK] Ino : aucune spéciale volée
+[OK] Ino : durée en vrais tours complets
+[OK] Ino : 50 % succès / échec = STUN 3 tours
+[OK] Ino : états du corps tickés avec Ino
+[OK] CardActor : corps contrôlé bloqué/inciblable
+[OK] CardActor : Transfert actif bloque la spéciale
+[OK] Ino : cooldown 3 tours sans tour fantôme
+[OK] Smoke Godot P16 livré
+[OK] Harness : RNG portable PC=Godot
+[OK] Harness : scénarios A2 torture + Ino succès/échec
+[OK] Fixture PC P16 générée
+[OK] Fixture PC : scénarios attendus — ['a2_torture', 'ino_live_body', 'ino_failure_3_turn_stun']
+[OK] Fixture PC : checkpoints détaillés
+
+== test_p16_pc_scenarios ==
+[OK] PC : torture A2 jusqu'au remplacement
+[OK] PC : Counter-Switch puis K.O.
+[OK] PC : restitution Ino sans reset
+[OK] PC : Ino utilise réellement le corps de Tenten
+[OK] PC : échec Ino = exactement 3 tours STUN
+
+ALL PARITY GATES PASSED
+
+== P16 PC HARNESS ==
+/mnt/data/yugito09_p17/tools/parity/fixtures/pc_expected_p16.json
+[OK] a2_torture — 6 checkpoints — seed 17
+[OK] ino_live_body — 5 checkpoints — seed 1
+[OK] ino_failure_3_turn_stun — 6 checkpoints — seed 1000
+
+== P17 PC HARNESS ==
+/mnt/data/yugito09_p17/tools/parity/fixtures/pc_expected_p17.json
+[OK] shikamaru_break
+[OK] rescue_chain_chiyo_kabuto
+[OK] source_link_cleanup
+[OK] kakashi_copy_resource
+[OK] gengetsu_fixed_explosion
+[OK] kurenai_target_only
+[OK] fixed_ignores_untargetable
+[OK] karin_self_cost
+[OK] jinton_execute
+[OK] choji_guards_true_special_attacks
+[OK] mei_guard_centering
+[OK] tobi_bomb_switch
+[OK] zetsu_switch_a1_only
+[OK] shield_destruction_semantics
+[OK] konohamaru_fixed_counter
+
+== P17 MASTER GATE ==
+YUGITO 09 / Prototype 17 — engine parity gate
+
+
+== test_reference_and_legacy_gates ==
+[OK] fichiers cartes présents
+[OK] 70 données cartes Godot = PC — b2524b8241f3b3b630a759e30c8bb70025a77d446aae01df09fd5ea64b1aaa8a
+[OK] roster = 70 cartes
+[OK] snapshots moteur PC présents
+[OK] game_engine.py = snapshot PC 1.8.21 — 8bff61f2071188b5d6f9d7bb8070bba321ba7bab5aeef1ce61e8be990e5d9a62
+[OK] export réserve : definition_max_hp
+[OK] import réserve : definition_max_hp
+[OK] export réserve : base_max_hp
+[OK] import réserve : base_max_hp
+[OK] export réserve : max_hp
+[OK] import réserve : max_hp
+[OK] export réserve : taijutsu
+[OK] import réserve : taijutsu
+[OK] export réserve : ninjutsu
+[OK] import réserve : ninjutsu
+[OK] export réserve : genjutsu
+[OK] import réserve : genjutsu
+[OK] export réserve : element_name
+[OK] import réserve : element_name
+[OK] export réserve : hp
+[OK] import réserve : hp
+[OK] export réserve : shield
+[OK] import réserve : shield
+[OK] export réserve : special_used
+[OK] import réserve : special_used
+[OK] export réserve : special_cooldown
+[OK] import réserve : special_cooldown
+[OK] export réserve : disabled_turns
+[OK] import réserve : disabled_turns
+[OK] export réserve : kankuro_decoy_used
+[OK] import réserve : kankuro_decoy_used
+[OK] export réserve : kankuro_defense_active
+[OK] import réserve : kankuro_defense_active
+[OK] export réserve : reactive_entry_guard
+[OK] import réserve : reactive_entry_guard
+[OK] export réserve : synergy_bonus_pct
+[OK] import réserve : synergy_bonus_pct
+[OK] export réserve : status_tags
+[OK] import réserve : status_tags
+[OK] export réserve : stat_buffs
+[OK] import réserve : stat_buffs
+[OK] export réserve : timed_modifiers
+[OK] import réserve : timed_modifiers
+[OK] schéma d'état versionné
+[OK] acteur logique virtuel disponible
+[OK] synergie PV : base imprimée + exception clone Gengetsu
+[OK] A2 validée survit au départ source/cible
+[OK] A2 retrouve sa source par identité
+[OK] A2 cible d'abord l'identité
+[OK] suivi de slot limité au Switch A2 réactif
+[OK] A1 Switch -> A2 du Ninja entrant planifiable
+[OK] étape A2 explicitement marquée delayed
+[OK] Switch A2 programmé remplace le tirage lors d'un K.O.
+[OK] ordre dégâts : réductions -> anti-zéro -> Kimimaro -> bouclier
+[OK] inciblabilité vérifiée avant Trancheur
+[OK] Mifune ne contourne plus l'inciblabilité
+[OK] Mifune conserve conversion/destruction des boucliers
+[OK] Haku armé à toute entrée depuis réserve
+[OK] Haku ne teste sa parade que sur attaque programmée A2
+[OK] RNG déterministe branché au combat
+[OK] aucun randf global dans Main
+[OK] LCG portable défini
+[OK] Ino : lien vivant par UID
+[OK] Ino : possession sans faux STUN
+[OK] Ino : stats dynamiques du vrai corps
+[OK] Ino : élément dynamique du vrai corps
+[OK] Ino : aucune spéciale volée
+[OK] Ino : durée en vrais tours complets
+[OK] Ino : 50 % succès / échec = STUN 3 tours
+[OK] Ino : états du corps tickés avec Ino
+[OK] CardActor : corps contrôlé bloqué/inciblable
+[OK] CardActor : Transfert actif bloque la spéciale
+[OK] Ino : cooldown 3 tours sans tour fantôme
+[OK] Smoke Godot P16 livré
+[OK] Harness : RNG portable PC=Godot
+[OK] Harness : scénarios A2 torture + Ino succès/échec
+[OK] Fixture PC P16 générée
+[OK] Fixture PC : scénarios attendus — ['a2_torture', 'ino_live_body', 'ino_failure_3_turn_stun']
+[OK] Fixture PC : checkpoints détaillés
+[OK] PC : torture A2 jusqu'au remplacement
+[OK] PC : Counter-Switch puis K.O.
+[OK] PC : restitution Ino sans reset
+[OK] PC : Ino utilise réellement le corps de Tenten
+[OK] PC : échec Ino = exactement 3 tours STUN
+
+== test_fixed_damage_semantics_static ==
+[OK] dégâts fixes/DOT ne sont pas bloqués par l'inciblabilité
+[OK] Kurenai n'annule plus les AOE/DOT dans le pipeline de dégâts
+[OK] Kurenai annule uniquement une spéciale explicitement ciblée
+[OK] protection Kurenai consommée à l'annulation ciblée
+
+== test_gengetsu_karin_jinton_static ==
+[OK] Gengetsu : explosion = dégâts fixes normaux, pas attaque absolue
+[OK] Karin : coût propre traverse bouclier/Doton mais conserve les survivances
+[OK] Jinton : branche exécution séparée
+[OK] Jinton exécution : PV directs, sans bouclier/Doton
+[OK] Jinton non-exécution : 1000 fixes normaux
+
+== test_true_special_guarding_static ==
+[OK] Choji peut intercepter la spéciale de A 3e Raikage
+[OK] Choji peut intercepter la spéciale de Omoi
+[OK] Choji peut intercepter la spéciale de Karui
+[OK] Choji peut intercepter la spéciale de Chôjûrô
+[OK] Choji peut intercepter la spéciale de Jûgo
+[OK] A 3e : 50 % PV = vraie attaque, ignore bouclier sans bypass absolu
+[OK] Karui : inesquivable mais conserve défenses/inciblabilité
+
+== test_mei_centering_static ==
+[OK] Mei : zone centrée sur le slot initial
+[OK] Mei : impact principal interceptable par Choji
+[OK] Mei : splashs calculés autour de la cible initiale
+
+== test_links_shadows_copy_static ==
+[OK] Shikamaru : liens d'ombres séparés du STUN générique
+[OK] Shikamaru : rupture liée aux vrais dégâts HP
+[OK] Kisame : Prison aqueuse liée à l'UID source
+[OK] Hidan : Jashin lié à l'UID source
+[OK] Kakashi : action COPIE distincte dans le HUD
+[OK] Kakashi : ressource de copie indépendante de Raikiri
+
+== test_survival_order_static ==
+[OK] ordre létal : Doton -> survies propres -> Chiyo -> Kabuto
+
+== test_tobi_zetsu_static ==
+[OK] Tobi : bombes plafonnées à 5 par cible
+[OK] Tobi : chaque bombe = 320 dégâts fixes
+[OK] Tobi : bombes explosent avant le Switch
+[OK] Tobi : mort définitive nettoie toutes ses bombes
+[OK] Tobi : prédiction vérifiée sur attaques normales et spéciales, A1/A2 via même résolveur
+[OK] Tobi : prédiction ratée supprime la pile prédite
+[OK] Zetsu : Switch A2 adverse révélé aux deux camps
+[OK] Zetsu : STUN 2T uniquement sur Switch A1
+
+== test_shield_destruction_static ==
+[OK] Asuma : détruit bouclier visible + caché Kurenai
+[OK] Obito : détruit les deux boucliers de la cible effective après Choji
+[OK] Kabuto : n'efface plus physiquement le bouclier
+
+== test_konohamaru_counter_static ==
+[OK] Konohamaru : riposte 350 passe par les dégâts fixes normaux
+[OK] Konohamaru : aucun retrait direct de PV hors pipeline
+
+== test_p17_fixture_and_pc_runtime ==
+[OK] fixture PC P17 présente
+[OK] P17 : 15 scénarios PC ciblés
+[OK] fixture P17 = scénarios rejoués — ['shikamaru_break', 'rescue_chain_chiyo_kabuto', 'source_link_cleanup', 'kakashi_copy_resource', 'gengetsu_fixed_explosion', 'kurenai_target_only', 'fixed_ignores_untargetable', 'karin_self_cost', 'jinton_execute', 'choji_guards_true_special_attacks', 'mei_guard_centering', 'tobi_bomb_switch', 'zetsu_switch_a1_only', 'shield_destruction_semantics', 'konohamaru_fixed_counter']
+[OK] fixture P17 déterministe bit-à-bit
+[OK] couverture P17 attendue
+
+ALL P17 PARITY GATES PASSED
+
+== SANITY ==
+[OK] 70 cards loaded
+[OK] Godot card data reference hash
+[OK] PC engine snapshot hash
+[OK] no merge conflict markers
+[OK] no transient backup/cache files
+[OK] no direct damage bypass outside central final application
+[OK] project metadata = P17
+[OK] shell metadata = P17
+
+== GODOT RUNTIME ==
+[NOT RUN] No Godot executable is installed in this environment.
+
+FINAL STATUS: ALL AVAILABLE P15/P16/P17 PC + STATIC GATES PASSED

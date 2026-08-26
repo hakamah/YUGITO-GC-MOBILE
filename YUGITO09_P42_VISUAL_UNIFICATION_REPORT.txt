@@ -1,0 +1,79 @@
+YUGITO 2.0 — PROTOTYPE 42 GLASS UI UNIFICATION
+================================================
+
+OBJECTIF
+Supprimer l'écart de direction artistique entre l'accueil P41.2 et le reste du jeu.
+
+RÉFÉRENCE
+- Le menu P41.2 Full HD Video Glass reste la référence stricte.
+- Audit visuel réalisé sur la vidéo écran utilisateur 1920x1078 / 30 FPS.
+- Problème observé : écrans internes encore très bleu-noir / prototype.
+
+RUBRIQUE 1 — SHELL / JOUER
+- Le fond vidéo Full HD est désormais le fond de toute l'application menu, pas seulement l'accueil.
+- Header flottant en verre, navigation en verre, profil en verre.
+- Grand contenu central frosted glass avec blur screen-space.
+- Footer translucide.
+- Écran Jouer conserve ses 3 modes mais utilise le nouveau langage verre.
+
+RUBRIQUE 2 — SHIFUMI
+- Même vidéo Full HD en arrière-plan.
+- Header et zone centrale en verre dépoli.
+- Cartes Pierre / Feuille / Ciseaux glassifiées.
+- Timer glassifié.
+- Fonctionnement Shifumi inchangé.
+
+RUBRIQUE 3 — DRAFT / CHOIX DES 3
+- Même scène vidéo + frosted glass.
+- Panneaux de draft, historiques, choix IA et slots de titulaires modernisés via le thème global.
+- Les YugitoMenuCard passent sur un cadre verre plus léger.
+- Illustrations restent nettes et plus visibles.
+
+RUBRIQUE 4 — COLLECTION
+- Fond vidéo commun + grand verre.
+- Recherche en glass input.
+- Filtres et fiches utilisent des panneaux transparents.
+- Cartes de collection modernisées.
+- Fiche longue et synergies conservées.
+
+RUBRIQUE 5 — CRÉATEUR DE DECK
+- Même DA Collection.
+- Recherche glassifiée.
+- Quotas / total étoiles / slots du deck restent fonctionnels.
+- Cartes et boutons modernisés.
+
+RUBRIQUE 6 — GUIDE
+- Grand codex dans le verre.
+- Navigation chapitres entièrement glassifiée.
+- Texte et contenu Classic inchangés.
+
+RUBRIQUE 7 — PARAMÈTRES
+- Panneaux frosted.
+- Sliders harmonisés.
+- Boutons affichage/audio translucides.
+
+RUBRIQUE 8 — COMBAT
+- Fond fixe 1920x1080 dérivé du même décor Full HD que l'accueil pour préserver les performances mobile.
+- HUD supérieur frosted glass.
+- Grande arène frosted glass.
+- Plan du tour frosted glass.
+- Boutons d'actions plus lumineux et transparents.
+- Les cartes de combat restent volontairement plus contrastées pour préserver la lecture des stats/états.
+
+RUBRIQUE 9 — MODALES
+- Overlay beaucoup moins noir.
+- Fenêtre de remplacement en verre.
+- Cartes proposées en verre.
+- Arrière-plan toujours bloqué.
+
+PERFORMANCE
+- Une seule vidéo Full HD tourne dans le shell menu/pré-combat.
+- Le combat utilise une image fixe cohérente, pas une seconde vidéo.
+- Cache P39 conservé.
+
+VALIDATION
+- Gate esthétique P42 : 36/36 PASS
+- QA gameplay P40 : 422/422 PASS
+- Structure GDScript : PASS
+- Compilation Python : PASS
+- Runtime visuel Godot non disponible dans cet environnement : validation finale à faire sur l'appareil mobile.

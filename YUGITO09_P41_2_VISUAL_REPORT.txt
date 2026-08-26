@@ -1,0 +1,35 @@
+YUGITO 2.0 — PROTOTYPE 41.2 FULL HD VIDEO GLASS
+================================================
+
+SOURCE
+- Nouveau fond utilisateur : MP4 1920x1080.
+- Conversion en Theora OGV natif Godot.
+- Vidéo interne : 1920x1080, 25 FPS, ~8.3 Mo.
+- Piste audio retirée : la musique du menu YUGITO reste gérée séparément.
+
+ACCUEIL
+- VideoStreamPlayer plein écran, autoplay + boucle.
+- Aucun voile sombre global : luminosité Full HD conservée.
+- Logo net au-dessus du verre.
+- Menu central frosted glass conservé.
+
+VRAI VERRE DÉPOLI
+- Suppression du double fond animé basse résolution.
+- Le verre échantillonne directement la vidéo Full HD déjà rendue derrière lui via hint_screen_texture.
+- Blur local via textureLod/mipmaps.
+- Le voile givré ne s'applique qu'au panneau.
+- Textes et icônes sont rendus après le blur et restent nets.
+
+NETTOYAGE
+- Ancienne séquence 33 frames supprimée.
+- AnimatedHomeBackground.gd supprimé.
+- Nouveau HomeVideoBackground.gd pour le flux vidéo natif.
+
+VALIDATION
+- Gate visuel P41.2 : 15/15 PASS
+- QA gameplay automatisée P40 : 422/422 PASS
+- Structure GDScript : PASS
+- Compilation Python : PASS
+
+NOTE
+Le runtime Godot n'est pas disponible dans cet environnement. Le décodage vidéo Android et le rendu esthétique final doivent être confirmés sur le Godot mobile de l'utilisateur.

@@ -1,0 +1,35 @@
+YUGITO Auth Server 1.4.10 — Godot P47 contract
+Base URL: https://yugito-auth-server.onrender.com
+
+POST /api/device/start
+body: {"platform":"windows|android-godot|..."}
+200: {"ok":true,"device_code":"...","verification_url":"...","expires_in":600,"interval":2}
+
+GET /api/device/status?device_code=...
+200 pending: {"ok":true,"status":"pending"}
+200 auth: {"ok":true,"status":"authenticated","session_token":"...","account":{...}}
+410: {"ok":false,"status":"expired"}
+
+GET /api/account/me
+Authorization: Bearer <session>
+200: {"ok":true,"account":{account_id,pseudo,email,name,picture,google_linked,elo}}
+401: session invalid
+
+POST /api/account/claim-pseudo
+Authorization: Bearer <session>
+body: {"pseudo":"...", "recovery":{pseudo,account_id,email} optional}
+200: {"ok":true,"account":{...},"session_token":"..."}
+
+POST /api/account/sync-elo
+Authorization: Bearer <session>
+body: {"elo":100,"profile":{elo,ranked_matches,wins,losses,best_elo,winrate}}
+200: {"ok":true,"account":{...},"session_token":"..."}
+
+POST /api/logout
+Authorization: Bearer <session>
+200: {"ok":true}
+
+GET /health
+200 includes native_google=true, drive_identity=true, stateless_sessions=true.
+
+Session secrets are never embedded in project assets.

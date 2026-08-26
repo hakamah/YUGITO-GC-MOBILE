@@ -1,0 +1,126 @@
+{
+  "prototype": 18,
+  "scenarios": [
+    {
+      "name": "chidori_absolute_matrix",
+      "survivor_case_hp_damage": 1965,
+      "visible_shield_destroyed": true,
+      "hidden_shield_preserved": 444,
+      "absolute_cases": {
+        "onoki": {
+          "dead": true,
+          "visible_shield": 0,
+          "hidden_shield": 444
+        },
+        "danzo": {
+          "dead": true,
+          "visible_shield": 0,
+          "hidden_shield": 444
+        },
+        "obito": {
+          "dead": true,
+          "visible_shield": 0,
+          "hidden_shield": 444
+        }
+      }
+    },
+    {
+      "name": "mifune_defense_matrix",
+      "damage": {
+        "tenten": 750,
+        "sasuke": 1023,
+        "sasori": 1450,
+        "onoki": 1700,
+        "danzo": 1400,
+        "orochimaru": 1000,
+        "hidan": 750,
+        "kakuzu": 1200,
+        "choji": 1250,
+        "kimimaro": 375,
+        "kurotsuchi": 950
+      },
+      "onoki_dodge_ignored": true
+    },
+    {
+      "name": "control_immunity_bee_madara",
+      "matrix": {
+        "sai": {
+          "killer_bee": {
+            "disabled_turns": 0,
+            "sealed_turns": 0,
+            "is_disabled": false
+          },
+          "madara": {
+            "disabled_turns": 0,
+            "sealed_turns": 0,
+            "is_disabled": false
+          }
+        },
+        "shizune": {
+          "killer_bee": {
+            "disabled_turns": 2,
+            "sealed_turns": 0,
+            "is_disabled": false
+          },
+          "madara": {
+            "disabled_turns": 0,
+            "sealed_turns": 0,
+            "is_disabled": false
+          }
+        },
+        "kushina": {
+          "killer_bee": {
+            "disabled_turns": 0,
+            "sealed_turns": 5,
+            "is_disabled": true
+          },
+          "madara": {
+            "disabled_turns": 0,
+            "sealed_turns": 0,
+            "is_disabled": false
+          }
+        }
+      }
+    },
+    {
+      "name": "poison_stack_pipeline",
+      "hp_after_start": 1093,
+      "shield_after_start": 0,
+      "anko_turns_after_tick": 3,
+      "haku_turns_after_tick": 3
+    },
+    {
+      "name": "temari_reserve_state",
+      "offered": [
+        "kankuro",
+        "shino",
+        "kiba"
+      ],
+      "blown_not_immediate_option": true,
+      "victim_hp_in_reserve": 717,
+      "victim_states_persist": true,
+      "replacement": "kankuro"
+    },
+    {
+      "name": "start_turn_order_gengetsu",
+      "poison_prevents_explosion": true,
+      "enemy_hp_unchanged": [
+        3000,
+        3000,
+        3000
+      ],
+      "cooldown_after_same_start_tick": 3,
+      "cooldown_next_own_start": 2
+    },
+    {
+      "name": "tsunade_start_heal",
+      "healed": 200,
+      "hp_after": 900
+    },
+    {
+      "name": "tobi_after_start_effects",
+      "tobi_dead": true,
+      "bomb_choice_required": false
+    }
+  ]
+}

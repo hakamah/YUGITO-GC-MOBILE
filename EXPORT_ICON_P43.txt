@@ -1,0 +1,18 @@
+YUGITO P43 — ICÔNES D'EXPORT
+============================
+Le nouveau logo rouge fourni est maintenant la source officielle dans le projet.
+
+Utilisation automatique dans le projet :
+- project.godot -> config/icon="res://assets/ui/YUGITO.png"
+- UI -> res://assets/ui/YUGITO.png
+- res://assets/ui/menu_yugito_logo.png
+
+Ressources export prêtes :
+- res://assets/export/yugito.ico : Windows EXE / raccourci / installateur
+- res://assets/export/yugito_icon_512.png : source haute résolution / Android
+- yugito_icon_192/144/96/72/48.png : tailles Android usuelles
+- res://YUGITO.ico : copie directe pratique pour un installateur externe
+
+Le projet actuel ne contient pas le script de l'ancien installateur Windows Classic ;
+son icône ne peut donc pas être modifiée ici. La ressource YUGITO.ico est fournie
+pour l'utiliser lors de la prochaine génération de l'installateur/raccourci.

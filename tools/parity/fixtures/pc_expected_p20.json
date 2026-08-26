@@ -1,0 +1,47 @@
+{
+  "prototype": 20,
+  "scenarios": [
+    {
+      "choji_loss": 294,
+      "effective_slot": 1,
+      "name": "choji_effective_visual_target",
+      "original_target_loss": 0,
+      "requested_slot": 0,
+      "visual_event_slot": 1
+    },
+    {
+      "cooldown": 4,
+      "free_slot": 0,
+      "initial_turns": [
+        0,
+        3,
+        3
+      ],
+      "links_after_real_hp_damage": [
+        0,
+        0,
+        0
+      ],
+      "links_after_shield_only": [
+        0,
+        1,
+        1
+      ],
+      "name": "shikamaru_three_turn_links"
+    },
+    {
+      "after_one_own_turn": 1,
+      "clone": {
+        "gen": 0,
+        "hp": 4800,
+        "nin": 0,
+        "tai": 0,
+        "turns": 2
+      },
+      "cooldown": 4,
+      "name": "gengetsu_clone_play_state",
+      "restored_hp": 1200,
+      "restored_shield": 275
+    }
+  ]
+}

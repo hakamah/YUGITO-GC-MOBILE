@@ -1,0 +1,125 @@
+[
+  {
+    "roadmap": 307,
+    "name": "Duel avec chaque carte",
+    "mode": "reference+static",
+    "coverage": 70
+  },
+  {
+    "roadmap": 308,
+    "name": "70 spéciales",
+    "mode": "definition+implementation audit",
+    "coverage": 70
+  },
+  {
+    "roadmap": 309,
+    "name": "70 passifs",
+    "mode": "definition+implementation audit",
+    "coverage": 70
+  },
+  {
+    "roadmap": 310,
+    "name": "Entrée normale / Switch A1 / Switch A2 / remplacement KO",
+    "mode": "cross-system static+fixtures"
+  },
+  {
+    "roadmap": 311,
+    "name": "Survies vs Chidori/Kabuto/Chiyo/Kurotsuchi",
+    "mode": "defense matrix"
+  },
+  {
+    "roadmap": 312,
+    "name": "Inciblabilités vs normales/fixes/absolues",
+    "mode": "targetability matrix"
+  },
+  {
+    "roadmap": 313,
+    "name": "Poisons simultanés",
+    "mode": "start-turn pipeline"
+  },
+  {
+    "roadmap": 314,
+    "name": "Boucliers + Kurenai + Mifune + Obito",
+    "mode": "defense matrix"
+  },
+  {
+    "roadmap": 315,
+    "name": "Jashin + immortalité Hidan",
+    "mode": "linked survival audit"
+  },
+  {
+    "roadmap": 316,
+    "name": "Shikamaru interrompu par dégâts HP réels",
+    "mode": "fixture+static"
+  },
+  {
+    "roadmap": 317,
+    "name": "Ino + poison/buff/shield/stun + restitution",
+    "mode": "state persistence audit"
+  },
+  {
+    "roadmap": 318,
+    "name": "Temari + bombes/Jashin/prison/tracker",
+    "mode": "reserve state audit"
+  },
+  {
+    "roadmap": 319,
+    "name": "Zetsu + Tobi + Switch A2",
+    "mode": "A2 chain audit"
+  },
+  {
+    "roadmap": 320,
+    "name": "Ao tue le lanceur avant spéciale",
+    "mode": "pre-special reaction audit"
+  },
+  {
+    "roadmap": 321,
+    "name": "Chidori contre chaque défense",
+    "mode": "absolute attack matrix"
+  },
+  {
+    "roadmap": 322,
+    "name": "Mifune contre chaque défense",
+    "mode": "defense matrix"
+  },
+  {
+    "roadmap": 323,
+    "name": "Madara contre chaque contrôle",
+    "mode": "control immunity matrix"
+  },
+  {
+    "roadmap": 324,
+    "name": "Killer Bee contre blocages/STUN",
+    "mode": "control immunity matrix"
+  },
+  {
+    "roadmap": 325,
+    "name": "KO par DOT début de tour",
+    "mode": "KO pipeline audit"
+  },
+  {
+    "roadmap": 326,
+    "name": "KO par passif de mort",
+    "mode": "KO pipeline audit"
+  },
+  {
+    "roadmap": 327,
+    "name": "KO réserve vide",
+    "mode": "replacement audit"
+  },
+  {
+    "roadmap": 328,
+    "name": "3 KO successifs + remplacements",
+    "mode": "FIFO replacement audit"
+  },
+  {
+    "roadmap": 329,
+    "name": "Surplus joueur avec survie",
+    "mode": "overflow audit"
+  },
+  {
+    "roadmap": 330,
+    "name": "Scénarios enregistrés non-régression",
+    "mode": "regression suite"
+  }
+]

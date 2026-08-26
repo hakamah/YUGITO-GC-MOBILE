@@ -1,0 +1,62 @@
+YUGITO 09 / P25 — FINAL VALIDATION
+====================================
+
+YUGITO 09 / Prototype 25 — Byakugan tracker parity gate
+
+[OK] P24 conservé : remplacement 30 s
+[OK] P24 conservé : auto-choix timeout
+[OK] P24 conservé : timeout limité aux remplacements obligatoires
+[OK] PC : Neji/Hinata ouvrent le sélecteur tracker après la cible
+[OK] PC : choix tracker mémorisé dans le descripteur
+[OK] PC : Ao/Neji/Hinata partagent le verrou de réserve
+[OK] Godot : Neji/Hinata ouvrent un vrai choix tracker
+[OK] Godot : contexte privé Byakugan dédié
+[OK] Godot : toute la réserve ennemie est proposée
+[OK] Godot : tracker_id choisi est stocké avec la cible offensive
+[OK] Godot : ancien choix automatique Neji/Hinata supprimé
+[OK] Godot : verrou tracker centralisé par descripteur
+[OK] Godot : tracker armé avant impact Neji/Hinata
+[OK] Godot : prochaine entrée forcée par ID exact
+[OK] Godot : consommation uniquement quand la carte forcée entre
+[OK] Godot : badge tracker nettoyé après consommation
+[OK] PC runtime : tracker explicite force le prochain Switch puis se consomme
+[OK] HUD identifié P25
+[OK] project.godot identifié P25
+[OK] Smoke Godot P25 livré
+
+ALL P25 PARITY GATES PASSED
+
+### GDScript structure
+[OK] scripts/AppShell.gd
+[OK] scripts/Atmosphere.gd
+[OK] scripts/CardActor.gd
+[OK] scripts/GameSession.gd
+[OK] scripts/Main.gd
+[OK] scripts/MenuCard.gd
+[OK] scripts/ParityRNG.gd
+[OK] scripts/PreBattle.gd
+[OK] scripts/ReplacementModal.gd
+[OK] scripts/SynergyDB.gd
+[OK] tools/parity/P16BattleSmoke.gd
+[OK] tools/parity/P18ControlSmoke.gd
+[OK] tools/parity/P19KOSmoke.gd
+[OK] tools/parity/P20ClassicVisualSmoke.gd
+[OK] tools/parity/P21A2SecretStatusSmoke.gd
+[OK] tools/parity/P22TurnPlanSmoke.gd
+[OK] tools/parity/P23CombatTimerSmoke.gd
+[OK] tools/parity/P24ReplacementTimeoutSmoke.gd
+[OK] tools/parity/P25ByakuganTrackerSmoke.gd
+[OK] tools/parity/ParitySmoke.gd
+ALL GDSCRIPT STRUCTURE CHECKS PASSED (20 files)
+
+### Python compilation
+[OK] all parity/reference Python sources compile
+
+### Card/reference hashes
+b2524b8241f3b3b630a759e30c8bb70025a77d446aae01df09fd5ea64b1aaa8a  data/cards.json
+8bff61f2071188b5d6f9d7bb8070bba321ba7bab5aeef1ce61e8be990e5d9a62  legacy_reference/game_engine.py
+
+### Godot runtime
+[LIMIT] Godot executable unavailable; P25 smoke delivered but not executed here.
+
+FINAL STATUS: P25 TRACKER GATE + STRUCTURE + PYTHON PASSED

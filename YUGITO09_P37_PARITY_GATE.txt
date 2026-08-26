@@ -1,0 +1,44 @@
+YUGITO 09 — PROTOTYPE 37 COMPLETE CLASSIC GUIDE
+================================================
+Scope: roadmap 286 -> 294.
+
+286 Guide de combat complet : PASS
+287 Roue des éléments : PASS
+288 A1/A2 + exemple visuel : PASS
+289 Hiraishin gratuit : PASS
+290 Switch A1 / Switch A2 : PASS
+291 Inciblable / esquive / bouclier / réduction / survie : PASS
+292 Cooldowns : PASS
+293 Synergies : PASS
+294 Dégâts fixes / vraie attaque / surplus : PASS
+
+check_p37.py: 16/16 PASS
+GDScript structural check:
+[OK] scripts/AppShell.gd
+[OK] scripts/Atmosphere.gd
+[OK] scripts/CardActor.gd
+[OK] scripts/GameSession.gd
+[OK] scripts/Main.gd
+[OK] scripts/MenuCard.gd
+[OK] scripts/ParityRNG.gd
+[OK] scripts/PreBattle.gd
+[OK] scripts/ReplacementModal.gd
+[OK] scripts/SynergyDB.gd
+[OK] tools/parity/P16BattleSmoke.gd
+[OK] tools/parity/P18ControlSmoke.gd
+[OK] tools/parity/P19KOSmoke.gd
+[OK] tools/parity/P20ClassicVisualSmoke.gd
+[OK] tools/parity/P21A2SecretStatusSmoke.gd
+[OK] tools/parity/P22TurnPlanSmoke.gd
+[OK] tools/parity/P23CombatTimerSmoke.gd
+[OK] tools/parity/P24ReplacementTimeoutSmoke.gd
+[OK] tools/parity/P25ByakuganTrackerSmoke.gd
+[OK] tools/parity/P26LinkFieldStatusSmoke.gd
+[OK] tools/parity/P31_1ShikamaruMobileSmoke.gd
+[OK] tools/parity/P33CharacterAuditSmoke.gd
+[OK] tools/parity/P36SynergySmoke.gd
+[OK] tools/parity/ParitySmoke.gd
+ALL GDSCRIPT STRUCTURE CHECKS PASSED (24 files)
+
+Python compilation: PASS
+Godot runtime/headless: non disponible dans cet environnement.

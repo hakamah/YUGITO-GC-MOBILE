@@ -1,0 +1,39 @@
+YUGITO 09 / P27 — STATUS UI LOCK
+================================
+Base: P26 R2 FIELD LOCK / PERSISTENT STATE
+
+P26 authority retained:
+- reserve preserves complete instance/state;
+- STUN/poison/shield/buffs/debuffs/cooldowns persist;
+- Shikamaru shadows / Kisame water prison / Kushina seal / Jashin lock voluntary Switch;
+- Temari forced expulsion remains the exception and preserves received state.
+
+Roadmap 153-172 audit/lock:
+[OK] 153 Enracine: visible countdown band
+[OK] 154 Haku ice prison: dedicated visual
+[OK] 155 Kisame water prison: dedicated KISAME water-prison visual
+[OK] 156 Shikamaru shadows: persistent source-target visual system retained
+[OK] 157 Jashin: visible turn counter
+[OK] 158 poison families distinguished: Shino/Hanzo/Torune/Shizune/Anko/Sasori
+[OK] 159 Kushina seal: band + countdown
+[OK] 160 Sexy Jutsu: visible state/transformation
+[OK] 161 untargetabilities distinguished: Obito/Zabuza/Gengetsu/Konan/Tobi/Zetsu
+[OK] 162 Counter-Switch armed: explicit indicator
+[OK] 163 Yamato Counter gift: separate indicator
+[OK] 164 Kankuro puppet defense: persistent indicator
+[OK] 165 Kurotsuchi Doton protection consumed: explicit indicator
+[OK] 166 Kakuzu hearts: heart x2/x1 indicator
+[OK] 167 Mu division: JINTON OFF indicator
+[OK] 168 Hiramekarei: exact stock indicator
+[OK] 169 Tobi bombs: small per-stack icons x1..x5
+[OK] 170 Tobi prediction: owner-private indication
+[OK] 171 Ino possession: white/untargetable controlled body
+[OK] 172 Ino: controlled identity/art/stats/element displayed
+
+Validation:
+[OK] tools/parity/check_p27.py
+[OK] all parity/reference Python sources compile
+[OK] all GDScript structural checks pass
+[LIMIT] Godot executable unavailable in environment; runtime smoke not executed here.
+
+FINAL STATUS: P27 STATUS UI 153-172 LOCKED

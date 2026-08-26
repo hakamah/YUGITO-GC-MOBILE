@@ -1,0 +1,243 @@
+YUGITO 09 / PROTOTYPE 35 — DEEP CHARACTER AUDIT
+================================================
+
+BASE
+- Rebuilt from the last physically available P33 archive.
+- P34 changes that had only been announced are explicitly re-applied here.
+- P35 is therefore a self-contained, verifiable continuation.
+
+SCOPE
+- Massive character audit: roadmap 227 -> 266 in one pass.
+- 40 characters covered.
+- 149 targeted assertions against Godot source + PC reference snapshot.
+- GDScript structural check: PASS (23 files).
+- Python parity/reference compilation: PASS.
+
+VISUAL / MOBILE FIXES
+- Persistent Prison / Ombres / Jashin long lines removed.
+- Relations now use compact local SOURCE / CIBLE markers.
+- Shikamaru cast no longer draws large shadow lines through card art.
+- Fresh A2 Ombres carry an explicit first-tick guard.
+- OMBRE DES NARA remains a 3T -> 2T -> 1T control state.
+- Ino source body remains untargetable; possessed enemy body remains targetable.
+- Stale HUD label BUILD 30 corrected to BUILD 35.
+
+CHARACTER AUDIT
+227 Kankuro       PASS
+228 Kiba          PASS
+229 Shino         PASS
+230 Suigetsu      PASS
+231 Tenten        PASS
+232 Karin         PASS
+233 Onoki         PASS
+234 Gengetsu      PASS
+235 Tobirama      PASS
+236 Zabuza        PASS
+237 Shisui        PASS
+238 Konohamaru    PASS
+239 Haku          PASS
+240 3e Raikage    PASS
+241 Chiyo         PASS
+242 Hanzo         PASS
+243 Kakuzu        PASS
+244 Mei           PASS
+245 Ino           PASS
+246 Kurenai       PASS
+247 Sai           PASS
+248 Ao            PASS
+249 Torune        PASS
+250 Mifune        PASS
+251 Asuma         PASS
+252 Kushina       PASS
+253 Rin           PASS
+254 Shizune       PASS
+255 Kimimaro      PASS
+256 Chojuro       PASS
+257 Konan         PASS
+258 Jugo          PASS
+259 Kurotsuchi    PASS
+260 Mu            PASS
+261 Omoi          PASS
+262 Karui         PASS
+263 Anko           PASS
+264 Yamato        PASS
+265 Zetsu         PASS
+266 Tobi          PASS
+
+IMPORTANT REFERENCE NOTE
+- The roadmap wording is sometimes summarized.
+- When wording conflicts with the embedded Classic PC source snapshot, P35 keeps the actual PC behavior.
+- Example checked during this audit: Orochimaru's graveyard special in the PC engine supports an explicit grave-card selection; P35 does not regress that behavior merely to match a simplified roadmap sentence.
+
+VALIDATION
+- tools/parity/check_p35.py : 149/149 PASS
+- tools/parity/check_gd_structure.py : PASS (23 files)
+- python -m py_compile tools/parity/*.py legacy_reference/*.py : PASS
+- Godot runtime/headless execution could not be run in this environment.
+
+FINAL STATUS
+ALL P35 DEEP CHARACTER AUDIT GATES PASSED
+
+
+--- DETAILED P35 GATE OUTPUT ---
+[OK] P35 metadata project
+[OK] P35 metadata battle
+[OK] HUD build label no longer stale P30
+[OK] persistent links = local markers, no corridor Line2D
+[OK] Shikamaru cast has no long lines
+[OK] Ombres fresh A2 guard exists
+[OK] Ombres band remains explicit 3→2→1
+[OK] Ino source untargetable / possessed target targetable
+[OK] 227 Kankuro Karasu one KO full HP
+[OK] 227 Kankuro defense persistent 250
+[OK] 228 Kiba entry +150 first TAI
+[OK] 228 Kiba consumes first TAI after strike
+[OK] 228 Kiba Gatsuga base Tai condition
+[OK] 229 Shino NIN hit debuff -100 temporary
+[OK] 229 Shino special permanent poison
+[OK] 229 Shino poison tick 100
+[OK] 230 Suigetsu TAI -150 unless lightning
+[OK] 230 Suigetsu special heals 150
+[OK] 231 Tenten +25 TAI each TAI strike
+[OK] 231 Makibishi field non-stack boolean
+[OK] 231 Makibishi every entry 7% max HP shield bypass
+[OK] 232 Karin +600 every two own turns
+[OK] 232 Karin ally full heal / self -1000
+[OK] 232 Karin cooldown3
+[OK] 233 Onoki lethal dodge once
+[OK] 233 Onoki Jinton compare NIN
+[OK] 233 Onoki Jinton -1000 NIN permanent
+[OK] 234 Gengetsu alternating untargetable
+[OK] 234 Gengetsu clone 4800 2T
+[OK] 234 Gengetsu clone explosion 1300 AOE
+[OK] 234 Gengetsu cooldown4 after return
+[OK] 235 Tobirama every second attack 25%
+[OK] 235 Tobirama 650 fixed AOE
+[OK] 236 Zabuza alternating untargetable
+[OK] 236 Zabuza special migrated attack config
+[OK] 237 Shisui 1/3 dodge
+[OK] 237 Shisui AOE stun2
+[OK] 238 Konohamaru 1/2 dodge
+[OK] 238 Konohamaru counter 350 on dodge
+[OK] 238 Sexy Jutsu 2T + cooldown4
+[OK] 239 Haku entry guard armed
+[OK] 239 Haku guard only programmed/A2 2of3
+[OK] 239 Haku ice prison 3T -200/t
+[OK] 240 3e recoil 20% only normal damage
+[OK] 240 3e special half current hp no recoil branch
+[OK] 241 Chiyo ally rescue once
+[OK] 241 Chiyo death-before-use random full heal
+[OK] 241 Chiyo puppets +250 and -20%
+[OK] 242 Hanzo mist 5 allies /10 enemies
+[OK] 242 Hanzo permanent 5% poison
+[OK] 243 Kakuzu two full revivals
+[OK] 243 Kakuzu no weakness / always advantage
+[OK] 243 Kakuzu special force advantage
+[OK] 244 Mei fire counter on TAI received
+[OK] 244 Mei 900 main /450 splash
+[OK] 245 Ino 50% success
+[OK] 245 Ino failure exactly 3 turns
+[OK] 245 Ino duration by stars
+[OK] 245 Ino cooldown3
+[OK] 245 Ino true body state retained
+[OK] 246 Kurenai first attack -200 each cycle
+[OK] 246 Kurenai cleanse + hidden 600 + special cancel
+[OK] 247 Sai attacker -200 art 2T
+[OK] 247 Sai prison 3T
+[OK] 248 Ao anticipation before specials
+[OK] 248 Ao tracker
+[OK] 249 Torune contact 50/t
+[OK] 249 Torune special 100/t stacks with contact
+[OK] 250 Mifune ignores Choji redirect
+[OK] 250 Mifune respects untargetable
+[OK] 250 Mifune shield half converted then destroyed
+[OK] 250 Mifune +500/+750 by initial defense
+[OK] 251 Asuma smoke under20 two turns
+[OK] 251 Asuma smoke explosion 20% remaining
+[OK] 251 Asuma special destroys shields +400
+[OK] 252 Kushina death seals killer4
+[OK] 252 Kushina special seal5 +20% maxHP
+[OK] 253 Rin under25 one-time Isobu +1000
+[OK] 253 Rin stat boosts 250/300/200
+[OK] 253 Rin special 550 fixed
+[OK] 254 Shizune death halves killer arts3T
+[OK] 254 Shizune special stun2 + poison30 permanent
+[OK] 255 Kimimaro -25% all damage
+[OK] 255 Kimimaro fury +15% / -10% maxHP each turn
+[OK] 256 Chojuro ±200 every strike
+[OK] 256 Chojuro stock +50 per complete turn
+[OK] 256 Chojuro release stock and reusable
+[OK] 257 Konan alternating untargetable starts flagged
+[OK] 257 Konan permanent mine active
+[OK] 258 Jugo stages at 30/60% loss
+[OK] 258 Jugo stats/images state
+[OK] 258 Jugo special sex 1.5/0.5
+[OK] 259 Kurotsuchi per-ally lethal save once
+[OK] 259 Kurotsuchi shield350 all
+[OK] 260 Mu division full once -450 NIN
+[OK] 260 Mu Jinton disabled after division
+[OK] 260 Mu Jinton -1000 NIN
+[OK] 261 Omoi 1/3 cancel normal
+[OK] 261 Omoi +20% final otherwise
+[OK] 261 Omoi special same mechanic + paralysis
+[OK] 262 Karui family death +300 HP/arts 2T
+[OK] 262 Karui duration refresh nonstack
+[OK] 262 Karui 400 fixed undodgeable except untargetable
+[OK] 263 Anko under25 heal600 +10% arts
+[OK] 263 Anko permutation armed
+[OK] 263 Anko poison100x4
+[OK] 264 Yamato gift only reactive A2 switch
+[OK] 264 Yamato Mokuton 20% max + root3
+[OK] 265 Zetsu reveals enemy Switch A2
+[OK] 265 Zetsu A1 entry stun2 only
+[OK] 265 Zetsu alternating targetability
+[OK] 265 Zetsu heals ally 25% actual attack loss
+[OK] 265 Zetsu special intercept A2 or 300
+[OK] 266 Tobi alternating intangible
+[OK] 266 Tobi mandatory bomb at own start
+[OK] 266 Tobi max5 / 320 each
+[OK] 266 Tobi A1/A2 prediction descriptor
+[OK] 266 Tobi failed prediction deletes predicted stack
+[OK] 266 Tobi death clears all owned bombs
+[OK] PC snapshot contains shisui
+[OK] PC snapshot contains konohamaru
+[OK] PC snapshot contains haku
+[OK] PC snapshot contains a3_raikage
+[OK] PC snapshot contains chiyo
+[OK] PC snapshot contains hanzo
+[OK] PC snapshot contains kakuzu
+[OK] PC snapshot contains mei
+[OK] PC snapshot contains ino
+[OK] PC snapshot contains kurenai
+[OK] PC snapshot contains sai
+[OK] PC snapshot contains ao
+[OK] PC snapshot contains torune
+[OK] PC snapshot contains mifune
+[OK] PC snapshot contains asuma
+[OK] PC snapshot contains kushina
+[OK] PC snapshot contains rin
+[OK] PC snapshot contains shizune
+[OK] PC snapshot contains kimimaro
+[OK] PC snapshot contains chojuro
+[OK] PC snapshot contains konan
+[OK] PC snapshot contains jugo
+[OK] PC snapshot contains kurotsuchi
+[OK] PC snapshot contains mu
+[OK] PC snapshot contains omoi
+[OK] PC snapshot contains karui
+[OK] PC snapshot contains anko
+[OK] PC snapshot contains yamato
+[OK] PC snapshot contains zetsu
+[OK] PC snapshot contains tobi
+
+149/149 checks passed
+ALL P35 DEEP CHARACTER AUDIT GATES PASSED
+
+STDERR:
+Spreadsheet runtime warmup failed during python startup
+Traceback (most recent call last):
+  File "/tmp/tmp.L2TH2Y5coc/artifact_tool_v2-2.8.22/artifact_tool/patches/warm_spreadsheet_runtime_on_startup.py", line 26, in warm_spreadsheet_runtime_on_startup
+  File "/tmp/tmp.L2TH2Y5coc/artifact_tool_v2-2.8.22/artifact_tool/spreadsheet_warmup.py", line 772, in warm_spreadsheet_runtime
+  File "/tmp/tmp.L2TH2Y5coc/artifact_tool_v2-2.8.22/artifact_tool/rpc/connection.py", line 37, in get_or_create_client
+  File "/tmp/tmp.L2TH2Y5coc/artifact_tool_v2-2.8.22/artifact_tool/rpc/daemon.py", line 124, in start_daemon
+TimeoutError: Timed out waiting for artifact tool daemon socket. Set ARTIFACT_TOOL_RPC_DAEMON_STARTUP_TIMEOUT_S=<seconds> to increase the limit.

@@ -1,0 +1,349 @@
+YUGITO 09 / P21 — FINAL VALIDATION
+====================================
+Note: check_p21 rejoue les invariants fonctionnels P15→P19 et les fixtures P20 pertinentes.
+Les anciens gates standalone ne sont pas lancés car leurs tests de métadonnées exigent leur ancien numéro de build.
+
+### Master parity gate P21
+YUGITO 09 / Prototype 21 — A2 + secret status parity gate
+
+
+== test_legacy_p20_without_obsolete_status_layout ==
+[OK] fichiers cartes présents
+[OK] 70 données cartes Godot = PC — b2524b8241f3b3b630a759e30c8bb70025a77d446aae01df09fd5ea64b1aaa8a
+[OK] roster = 70 cartes
+[OK] snapshots moteur PC présents
+[OK] game_engine.py = snapshot PC 1.8.21 — 8bff61f2071188b5d6f9d7bb8070bba321ba7bab5aeef1ce61e8be990e5d9a62
+[OK] export réserve : definition_max_hp
+[OK] import réserve : definition_max_hp
+[OK] export réserve : base_max_hp
+[OK] import réserve : base_max_hp
+[OK] export réserve : max_hp
+[OK] import réserve : max_hp
+[OK] export réserve : taijutsu
+[OK] import réserve : taijutsu
+[OK] export réserve : ninjutsu
+[OK] import réserve : ninjutsu
+[OK] export réserve : genjutsu
+[OK] import réserve : genjutsu
+[OK] export réserve : element_name
+[OK] import réserve : element_name
+[OK] export réserve : hp
+[OK] import réserve : hp
+[OK] export réserve : shield
+[OK] import réserve : shield
+[OK] export réserve : special_used
+[OK] import réserve : special_used
+[OK] export réserve : special_cooldown
+[OK] import réserve : special_cooldown
+[OK] export réserve : disabled_turns
+[OK] import réserve : disabled_turns
+[OK] export réserve : kankuro_decoy_used
+[OK] import réserve : kankuro_decoy_used
+[OK] export réserve : kankuro_defense_active
+[OK] import réserve : kankuro_defense_active
+[OK] export réserve : reactive_entry_guard
+[OK] import réserve : reactive_entry_guard
+[OK] export réserve : synergy_bonus_pct
+[OK] import réserve : synergy_bonus_pct
+[OK] export réserve : status_tags
+[OK] import réserve : status_tags
+[OK] export réserve : stat_buffs
+[OK] import réserve : stat_buffs
+[OK] export réserve : timed_modifiers
+[OK] import réserve : timed_modifiers
+[OK] schéma d'état versionné
+[OK] acteur logique virtuel disponible
+[OK] synergie PV : base imprimée + exception clone Gengetsu
+[OK] A2 validée survit au départ source/cible
+[OK] A2 retrouve sa source par identité
+[OK] A2 cible d'abord l'identité
+[OK] suivi de slot limité au Switch A2 réactif
+[OK] A1 Switch -> A2 du Ninja entrant planifiable
+[OK] étape A2 explicitement marquée delayed
+[OK] Switch A2 programmé remplace le tirage lors d'un K.O.
+[OK] ordre dégâts : réductions -> anti-zéro -> Kimimaro -> bouclier
+[OK] inciblabilité vérifiée avant Trancheur
+[OK] Mifune ne contourne plus l'inciblabilité
+[OK] Mifune conserve conversion/destruction des boucliers
+[OK] Haku armé à toute entrée depuis réserve
+[OK] Haku ne teste sa parade que sur attaque programmée A2
+[OK] RNG déterministe branché au combat
+[OK] aucun randf global dans Main
+[OK] LCG portable défini
+[OK] Ino : lien vivant par UID
+[OK] Ino : possession sans faux STUN
+[OK] Ino : stats dynamiques du vrai corps
+[OK] Ino : élément dynamique du vrai corps
+[OK] Ino : aucune spéciale volée
+[OK] Ino : durée en vrais tours complets
+[OK] Ino : 50 % succès / échec = STUN 3 tours
+[OK] Ino : états du corps tickés avec Ino
+[OK] CardActor : corps contrôlé bloqué/inciblable
+[OK] CardActor : Transfert actif bloque la spéciale
+[OK] Ino : cooldown 3 tours sans tour fantôme
+[OK] Smoke Godot P16 livré
+[OK] Harness : RNG portable PC=Godot
+[OK] Harness : scénarios A2 torture + Ino succès/échec
+[OK] Fixture PC P16 générée
+[OK] Fixture PC : scénarios attendus — ['a2_torture', 'ino_live_body', 'ino_failure_3_turn_stun']
+[OK] Fixture PC : checkpoints détaillés
+[OK] PC : torture A2 jusqu'au remplacement
+[OK] PC : Counter-Switch puis K.O.
+[OK] PC : restitution Ino sans reset
+[OK] PC : Ino utilise réellement le corps de Tenten
+[OK] PC : échec Ino = exactement 3 tours STUN
+[OK] dégâts fixes/DOT ne sont pas bloqués par l'inciblabilité
+[OK] Kurenai n'annule plus les AOE/DOT dans le pipeline de dégâts
+[OK] Kurenai annule uniquement une spéciale explicitement ciblée
+[OK] protection Kurenai consommée à l'annulation ciblée
+[OK] Gengetsu : explosion = dégâts fixes normaux, pas attaque absolue
+[OK] Karin : coût propre traverse bouclier/Doton mais conserve les survivances
+[OK] Jinton : branche exécution séparée
+[OK] Jinton exécution : PV directs, sans bouclier/Doton
+[OK] Jinton non-exécution : 1000 fixes normaux
+[OK] Choji peut intercepter la spéciale de A 3e Raikage
+[OK] Choji peut intercepter la spéciale de Omoi
+[OK] Choji peut intercepter la spéciale de Karui
+[OK] Choji peut intercepter la spéciale de Chôjûrô
+[OK] Choji peut intercepter la spéciale de Jûgo
+[OK] A 3e : 50 % PV = vraie attaque, ignore bouclier sans bypass absolu
+[OK] Karui : inesquivable mais conserve défenses/inciblabilité
+[OK] Mei : zone centrée sur le slot initial
+[OK] Mei : impact principal interceptable par Choji
+[OK] Mei : splashs calculés autour de la cible initiale
+[OK] Shikamaru : liens d'ombres séparés du STUN générique
+[OK] Shikamaru : rupture liée aux vrais dégâts HP
+[OK] Kisame : Prison aqueuse liée à l'UID source
+[OK] Hidan : Jashin lié à l'UID source
+[OK] Kakashi : action COPIE distincte dans le HUD
+[OK] Kakashi : ressource de copie indépendante de Raikiri
+[OK] ordre létal : Doton -> survies propres -> Chiyo -> Kabuto
+[OK] Tobi : bombes plafonnées à 5 par cible
+[OK] Tobi : chaque bombe = 320 dégâts fixes
+[OK] Tobi : bombes explosent avant le Switch
+[OK] Tobi : mort définitive nettoie toutes ses bombes
+[OK] Tobi : prédiction vérifiée sur attaques normales et spéciales, A1/A2 via même résolveur
+[OK] Tobi : prédiction ratée supprime la pile prédite
+[OK] Zetsu : Switch A2 adverse révélé aux deux camps
+[OK] Zetsu : STUN 2T uniquement sur Switch A1
+[OK] Asuma : détruit bouclier visible + caché Kurenai
+[OK] Obito : détruit les deux boucliers de la cible effective après Choji
+[OK] Kabuto : n'efface plus physiquement le bouclier
+[OK] Konohamaru : riposte 350 passe par les dégâts fixes normaux
+[OK] Konohamaru : aucun retrait direct de PV hors pipeline
+[OK] fixture PC P17 présente
+[OK] P17 : 15 scénarios PC ciblés
+[OK] fixture P17 = scénarios rejoués — ['shikamaru_break', 'rescue_chain_chiyo_kabuto', 'source_link_cleanup', 'kakashi_copy_resource', 'gengetsu_fixed_explosion', 'kurenai_target_only', 'fixed_ignores_untargetable', 'karin_self_cost', 'jinton_execute', 'choji_guards_true_special_attacks', 'mei_guard_centering', 'tobi_bomb_switch', 'zetsu_switch_a1_only', 'shield_destruction_semantics', 'konohamaru_fixed_counter']
+[OK] fixture P17 déterministe bit-à-bit
+[OK] couverture P17 attendue
+[OK] ordre contrôles : Madara > scellement > Killer Bee > STUN
+[OK] disponibilité spéciale réutilise les immunités d'action
+[OK] Sai : Bee/Madara résistent à la prison
+[OK] Chidori détruit le bouclier visible
+[OK] Chidori ignore mais ne détruit pas le bouclier caché Kurenai
+[OK] Mifune : liste défensive identique PC
+[OK] Mifune : Trancheur ignore l'esquive létale Ônoki
+[OK] Temari : sauvegarde l'instance complète en réserve
+[OK] Temari : offre calculée avant de réajouter la carte soufflée
+[OK] Temari : remplacement dédié suspend la résolution
+[OK] Temari : choix de remplacement distinct d'un K.O.
+[OK] Temari : remplaçant = Switch/réserve, pas nouvelle instance de mort
+[OK] ordre début de tour = Classic (DOT -> brume -> prison -> clone -> passifs -> Hashirama -> Tobi)
+[OK] Tsunade : +200 au début du tour sous 50 %
+[OK] Gengetsu : recharge sans tour fantôme après destruction/retour
+[OK] fixture PC P18 présente
+[OK] fixture identifiée Prototype 18
+[OK] P18 : 8 scénarios PC ciblés
+[OK] fixture P18 = scénarios rejoués — ['chidori_absolute_matrix', 'mifune_defense_matrix', 'control_immunity_bee_madara', 'poison_stack_pipeline', 'temari_reserve_state', 'start_turn_order_gengetsu', 'tsunade_start_heal', 'tobi_after_start_effects']
+[OK] fixture P18 déterministe bit-à-bit
+[OK] couverture P18 attendue
+[OK] aucun nouveau retrait arithmétique direct de PV hors pipeline — []
+[OK] P19 : file de K.O. stockée par UID stable
+[OK] P19 : un seul dispatcher de remplacement peut être armé
+[OK] K.O. définitif : liens terrain nettoyés avant remplacement
+[OK] K.O. définitif : remplacement sérialisé
+[OK] suppression des timers concurrents actor->remplacement
+[OK] une même mort n'entre qu'une fois dans la file
+[OK] dispatcher résout l'UID au dernier moment, sans référence freed
+[OK] ordre FIFO des K.O./remplacements
+[OK] A2/A1 ne reprend qu'après tous les remplacements de la chaîne
+[OK] Temari : bombes Tobi explosent avant l'entrée en réserve
+[OK] Temari : tracker Ao/Neji/Hinata lu avant l'offre
+[OK] Temari : tracker force l'unique remplaçant légal
+[OK] Temari : instance soufflée reste une vraie réserve, pas un K.O.
+[OK] Chidori : clone Gengetsu restauré avant matrice de survies
+[OK] Chidori absolu traverse Doton
+[OK] Chidori absolu traverse survies personnelles/Chiyo/Kabuto
+[OK] Mifune ignore uniquement l'esquive létale Ônoki
+[OK] Mifune conserve les autres survies personnelles
+[OK] Chidori peut tuer Chiyo mais son passif de mort reste déclenchable
+[OK] ordre boucliers : visible puis caché Kurenai
+[OK] Mifune additionne les deux stocks de bouclier
+[OK] Mifune convertit 50 % puis détruit visible+caché
+[OK] surplus calculé sur le dégât de vraie attaque avant survie personnelle
+[OK] Doton/Ônoki annulent avant les survies qui conservent le surplus
+[OK] danzo : survie conserve le surplus joueur
+[OK] hidan : survie conserve le surplus joueur
+[OK] kakuzu : survie conserve le surplus joueur
+[OK] kankuro : survie conserve le surplus joueur
+[OK] fixture PC P19 présente
+[OK] fixture identifiée Prototype 19
+[OK] P19 : 9 nouveaux scénarios PC ciblés
+[OK] fixture P19 = scénarios rejoués — ['chidori_survival_gauntlet', 'mifune_survival_gauntlet', 'shield_stack_order', 'temari_links_and_tracker', 'source_death_cleanup_without_reserve', 'three_ko_replacement_queue', 'dot_death_passives', 'overflow_with_survival', 'ko_empty_reserve']
+[OK] fixture P19 déterministe bit-à-bit
+[OK] couverture P19 attendue
+[OK] K.O. sans réserve : slot libéré sans fenêtre de remplacement
+[OK] K.O. sans réserve : victoire vérifiée puis résolution reprise
+[OK] Smoke Godot P19 livré
+[OK] Smoke P19 couvre liens, survies, boucliers et surplus
+[OK] fixture PC P20 présente
+[OK] fixture identifiée Prototype 20
+[OK] fixture P20 déterministe bit-à-bit
+[OK] couverture comportementale P20 — ['choji_effective_visual_target', 'shikamaru_three_turn_links', 'gengetsu_clone_play_state']
+[OK] Choji : cible visuelle calculée avec la même garde que le moteur
+[OK] Choji : spéciales dédiées interceptables couvertes
+[OK] Choji : exceptions Classic Mifune/Chidori conservées
+[OK] animation résout la cible effective avant de tracer
+[OK] feedback Expansion Akimichi visible
+[OK] trait d'attaque redirigé vers Choji
+[OK] impact visuel suit lui aussi la cible effective
+[OK] animation Classic : projectile mobile le long de la courbe
+[OK] animation Classic : courbe + glow
+[OK] Gengetsu : illustration clone réellement sélectionnée
+[OK] Gengetsu : identité/statistiques clone 4800/0/0/0 visibles
+[OK] Gengetsu : activation clone rafraîchit immédiatement la carte
+[OK] Gengetsu : retour à l'original immédiatement visible
+[OK] Gengetsu : compte à rebours d'explosion en gros bandeau
+[OK] Gengetsu : panneau latéral affiche aussi le clone
+[OK] illustration dynamique portée : naruto_passif
+[OK] illustration dynamique portée : gai_stade%d
+[OK] illustration dynamique portée : jugo_stade%d
+[OK] illustration dynamique portée : jiraiya_sage
+[OK] illustration dynamique portée : konohamaru_sexy
+[OK] illustration dynamique portée : gengetsu_clone
+[OK] asset dynamique présent : naruto_passif_field.png
+[OK] asset dynamique présent : gai_stade1_field.png
+[OK] asset dynamique présent : gai_stade2_field.png
+[OK] asset dynamique présent : gai_stade3_field.png
+[OK] asset dynamique présent : jugo_stade1_field.png
+[OK] asset dynamique présent : jugo_stade2_field.png
+[OK] asset dynamique présent : jiraiya_sage_field.png
+[OK] asset dynamique présent : konohamaru_sexy_field.png
+[OK] asset dynamique présent : gengetsu_clone_field.png
+[OK] asset dynamique présent : ino_ghost_field.png
+[OK] asset dynamique présent : ino_white_overlay_field.png
+[OK] Draft/Collection/Deck : même ratio 252×396 que le combat
+[OK] Collection utilise le ratio de combat
+[OK] Deck utilise YugitoMenuCard au ratio de combat
+[OK] Draft + choix des 3 utilisent le ratio de combat
+[OK] pré-combat reste scrollable avec les cartes plus hautes
+
+== test_p21_fixture_runtime ==
+[OK] fixture PC P21 présente
+[OK] fixture identifiée Prototype 21
+[OK] fixture P21 déterministe bit-à-bit
+[OK] couverture P21 A2 + secret
+[OK] PC : Shikamaru A2 = cible libre + deux Ombres 3T + CD4
+[OK] PC : bombe Tobi réellement posée mais cible/nombre secrets
+
+== test_shikamaru_a2_godot_static ==
+[OK] A2 joueur résolue dans la file avec flag delayed
+[OK] contexte A2 conservé jusqu'à la résolution
+[OK] Shikamaru : la cible LIBRE ne déclenche plus la prédiction Tobi
+[OK] Shikamaru A1/A2 passent par le même helper
+[OK] Shikamaru : cible sélectionnée explicitement laissée libre
+[OK] Shikamaru : immunités Bee/Madara conservées
+[OK] Shikamaru : vrais liens 3T vers la source
+[OK] journal distingue explicitement la résolution Shikamaru A2
+
+== test_tobi_secret_ui_static ==
+[OK] UI : seules NOS bombes sur l'ennemi sont visibles
+[OK] UI : bombes du Tobi ennemi sur nos cartes masquées
+[OK] FX bombes utilisent le compteur filtré, pas le total secret
+[OK] badges bombes utilisent le compteur filtré
+[OK] prédiction Tobi filtrée côté UI
+[OK] journal ennemi ne révèle plus cible/nombre de bombe
+[OK] journal ennemi ne révèle plus la prédiction exacte
+
+== test_classic_band_layout_static ==
+[OK] bandeaux Classic sans doublon badge — rows.append({"text":"STUN 
+[OK] bandeaux Classic sans doublon badge — rows.append({"text":"OMBRES 
+[OK] bandeaux Classic sans doublon badge — rows.append({"text":"SCELLÉ 
+[OK] bandeaux Classic sans doublon badge — rows.append({"text":"PRISON GLACE 
+[OK] bandeaux Classic sans doublon badge — rows.append({"text":"TOBI • 
+[OK] bandeaux Classic sans doublon badge — rows.append({"text":"PALOURDE • INCIBLABLE
+[OK] bandeaux Classic sans doublon badge — rows.append({"text":"CORPS CONTRÔLÉ
+[OK] bandeaux Classic sans doublon badge — rows.append({"text":"CLONE EXPLOSIF
+[OK] bandeaux repositionnés aux proportions Tkinter 29/30/37/38 %
+[OK] un seul bandeau de contrôle principal
+[OK] ancien empilement vertical P20 supprimé
+[OK] inciblabilité = petit label de voile, pas gros bandeau empilé
+[OK] Jashin replacé près du bas comme Tkinter
+
+== test_metadata_p21 ==
+[OK] Battle identifié P21
+[OK] menu identifié BUILD 21
+[OK] project.godot identifié P21
+
+== test_p21_smoke_delivered ==
+[OK] Smoke Godot P21 livré
+[OK] Smoke P21 couvre _apply_shikamaru_shadows
+[OK] Smoke P21 couvre _visible_tobi_bomb_count
+[OK] Smoke P21 couvre _visible_tobi_prediction_armed
+
+ALL P21 PARITY GATES PASSED
+
+### GDScript structure
+[OK] scripts/AppShell.gd
+[OK] scripts/Atmosphere.gd
+[OK] scripts/CardActor.gd
+[OK] scripts/GameSession.gd
+[OK] scripts/Main.gd
+[OK] scripts/MenuCard.gd
+[OK] scripts/ParityRNG.gd
+[OK] scripts/PreBattle.gd
+[OK] scripts/ReplacementModal.gd
+[OK] scripts/SynergyDB.gd
+[OK] tools/parity/P16BattleSmoke.gd
+[OK] tools/parity/P18ControlSmoke.gd
+[OK] tools/parity/P19KOSmoke.gd
+[OK] tools/parity/P20ClassicVisualSmoke.gd
+[OK] tools/parity/P21A2SecretStatusSmoke.gd
+[OK] tools/parity/ParitySmoke.gd
+ALL GDSCRIPT STRUCTURE CHECKS PASSED (16 files)
+
+### Python compilation
+[OK] check_gd_structure.py
+[OK] check_p15.py
+[OK] check_p16.py
+[OK] check_p17.py
+[OK] check_p18.py
+[OK] check_p19.py
+[OK] check_p20.py
+[OK] check_p21.py
+[OK] parity_harness.py
+[OK] parity_harness_p17.py
+[OK] parity_harness_p18.py
+[OK] parity_harness_p19.py
+[OK] parity_harness_p20.py
+[OK] parity_harness_p21.py
+ALL PYTHON PARITY SCRIPTS COMPILE: 14
+
+### Card/reference hashes
+b2524b8241f3b3b630a759e30c8bb70025a77d446aae01df09fd5ea64b1aaa8a data/cards.json
+
+### Secret-state source audit
+scripts/CardActor.gd:855:        return int(status_tags.get("tobi_bombs_ally", 0))
+scripts/Main.gd:2441:    _explode_tobi_bombs(_opponent_team(actor.team_name), actor, "BOMBES TOBI • SORTIE")
+scripts/Main.gd:2679:    return "tobi_bombs_%s" % owner_team
+scripts/Main.gd:2684:    var total: int = int(target.status_tags.get("tobi_bombs_ally",0)) + int(target.status_tags.get("tobi_bombs_enemy",0))
+scripts/Main.gd:2686:        target.status_tags["tobi_bombs"] = total
+scripts/Main.gd:2688:        target.status_tags.erase("tobi_bombs")
+scripts/Main.gd:2708:func _explode_tobi_bombs(owner_team: String, target: YugitoCardActor, label: String) -> int:
+scripts/Main.gd:2739:    _explode_tobi_bombs(owner_team, attacker, "C'ÉTAIT PRÉVU ! • BOMBES TOBI")
+scripts/Main.gd:3319:    _explode_tobi_bombs(_opponent_team(outgoing.team_name), outgoing, "BOMBES TOBI • SWITCH")
+
+### Git conflict markers
+[OK] no git conflict markers
+
+FINAL: ALL P21 VALIDATION GATES PASSED

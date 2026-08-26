@@ -1,0 +1,43 @@
+YUGITO 09 — PROTOTYPE 39 PERFORMANCE LOCK
+==========================================
+Scope: roadmap 302 -> 306.
+
+302 60/120/144 Hz + frame pacing safeguards: PASS
+303 Floating / animation delta-based: PASS
+304 Badge/status rebuild suppression: PASS
+305 Texture/audio cache: PASS
+306 Small FX/audio node pooling: PASS
+
+check_p39.py: 19/19 PASS
+
+GDScript structural check:
+[OK] scripts/AppShell.gd
+[OK] scripts/AssetCache.gd
+[OK] scripts/Atmosphere.gd
+[OK] scripts/CardActor.gd
+[OK] scripts/GameSession.gd
+[OK] scripts/Main.gd
+[OK] scripts/MenuCard.gd
+[OK] scripts/ParityRNG.gd
+[OK] scripts/PreBattle.gd
+[OK] scripts/ReplacementModal.gd
+[OK] scripts/SynergyDB.gd
+[OK] tools/parity/P16BattleSmoke.gd
+[OK] tools/parity/P18ControlSmoke.gd
+[OK] tools/parity/P19KOSmoke.gd
+[OK] tools/parity/P20ClassicVisualSmoke.gd
+[OK] tools/parity/P21A2SecretStatusSmoke.gd
+[OK] tools/parity/P22TurnPlanSmoke.gd
+[OK] tools/parity/P23CombatTimerSmoke.gd
+[OK] tools/parity/P24ReplacementTimeoutSmoke.gd
+[OK] tools/parity/P25ByakuganTrackerSmoke.gd
+[OK] tools/parity/P26LinkFieldStatusSmoke.gd
+[OK] tools/parity/P31_1ShikamaruMobileSmoke.gd
+[OK] tools/parity/P33CharacterAuditSmoke.gd
+[OK] tools/parity/P36SynergySmoke.gd
+[OK] tools/parity/ParitySmoke.gd
+ALL GDSCRIPT STRUCTURE CHECKS PASSED (25 files)
+
+Python compilation: PASS
+Godot runtime/headless: non disponible dans cet environnement.
+Important: the 60/120/144 Hz runtime feel must still be verified on actual hardware during QA.

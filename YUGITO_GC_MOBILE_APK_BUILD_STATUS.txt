@@ -1,0 +1,43 @@
+YUGITO GC MOBILE — APK BUILD STATUS
+====================================
+
+ÉTAT DU PROJET
+Le port Android Godot P47M est prêt :
+- paysage uniquement ;
+- adaptation tactile issue de l'audit YUGITO Mobile 1.7.12 ;
+- package indépendant com.hakamah.yugitogc ;
+- nouveau logo / adaptive icon ;
+- export_presets.cfg Android ;
+- scripts d'export local ;
+- workflow GitHub Actions automatisé.
+
+TENTATIVE DE BUILD DANS L'ENVIRONNEMENT CHATGPT
+ÉCHEC OUTIL, PAS ÉCHEC PROJET.
+
+Outils présents :
+- Java 21
+- keytool
+
+Outils Android/Godot absents :
+- godot
+- godot4
+- sdkmanager
+- apksigner
+- aapt2
+- zipalign
+- gradle
+
+Conséquence :
+Impossible de produire honnêtement le binaire APK final dans ce conteneur.
+Godot a besoin du moteur 4.7.2 + export templates Android ; un export Android
+local standard nécessite également la chaîne Android adaptée.
+
+Aucune fausse APK n'a été fabriquée à partir du vieux WebView/Tkinter.
+
+MOYENS DE BUILD DÉJÀ FOURNIS
+1. tools/build_android_gc.cmd
+2. tools/build_android_gc.sh
+3. .github/workflows/build-yugito-gc-android.yml
+
+Sortie prévue :
+build/android/YUGITO_GC_Mobile.apk

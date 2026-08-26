@@ -1,0 +1,34 @@
+YUGITO 2.0 — PROTOTYPE 41 MODERN GLASS HOME
+=============================================
+
+OBJECTIF
+Refonte visuelle moderne autour de la DA du fond village/sakura fourni par l'utilisateur.
+
+ACCUEIL
+- GIF source 540x294, 33 frames, 100 ms/frame.
+- Conversion en 33 WEBP internes (~1.9 MB total), lecture Godot à 10 FPS.
+- Fond animé plein écran avec KEEP_ASPECT_COVERED.
+- Vignette cinématique et voile de contraste.
+- Plaque principale en verre transparent centrée : 1124x676 (~70% de l'écran 1600x900).
+- Header de marque compact.
+- 2 cartes principales Solo / Multijoueur.
+- 6 cartes secondaires Collection / Deck / Guide / Boutique / Amis / Paramètres.
+- Hover/focus/clic conservés, compatibles souris/clavier/manette.
+
+DA GLOBALE
+- Boutons AppShell plus transparents et moins opaques.
+- Combat : panneaux/boutons allégés, bordures plus fines, profondeur subtile.
+- Pré-combat / Draft : boutons plus verre/translucides.
+- Le responsive P38 et le cache P39 sont conservés.
+
+PERFORMANCE
+- Les 33 images sont chargées via AssetCache.
+- Animation pilotée par delta à 10 FPS, indépendante du framerate.
+- WEBP utilisé plutôt que 33 PNG (~1.9 MB au lieu de ~7.9 MB).
+
+VALIDATION
+- P41 visual gate: 15/15 PASS
+- P40 full automated QA: 422/422 PASS
+- GDScript structural gate: PASS
+- Python compile: PASS
+- Runtime Godot visuel non exécutable dans cet environnement : validation esthétique finale à faire sur l'appareil Godot mobile.

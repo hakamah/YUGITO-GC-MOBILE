@@ -1,0 +1,28 @@
+YUGITO 09 / P30 — FINAL VALIDATION
+================================
+
+[OK] 30s prebattle timer
+[OK] RPS timeout
+[OK] RPS delayed reveal
+[OK] RPS tween fluidity
+[OK] draft timer
+[OK] draft autopick
+[OK] left history
+[OK] right history
+[OK] AI pick reveal
+[OK] pick reason
+[OK] preview confirm split
+[OK] unlock stays available
+[OK] starter timer
+[OK] starter autopick
+[OK] starter slots
+[OK] enemy starters hidden
+[OK] Isobu artwork
+[OK] P30 metadata
+ALL P30 PREBATTLE / DRAFT UX GATES PASSED
+
+### Python compilation
+[OK] all parity/reference Python sources compile
+
+### Godot runtime
+[LIMIT] Godot executable unavailable in this environment; P30 is statically gated but must still be visually smoke-tested in Godot.

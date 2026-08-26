@@ -1,0 +1,44 @@
+YUGITO 09 — PROTOTYPE 38 ERGONOMY / RESPONSIVE LOCK
+===================================================
+Scope: roadmap 295 -> 301.
+
+295 Tooltips globalisés : PASS
+296 Feedback sonore hover/clic avec anti-spam : PASS
+297 Modales réellement bloquantes : PASS
+298 Contenu modal au-dessus du fond : PASS
+299 Focus clavier/manette restauré : PASS
+300 Adaptation 16:9 / 16:10 / ultrawide / basse résolution : PASS (virtual canvas safe scaling)
+301 UI fixe 1600x900 sécurisée via canvas_items + aspect keep : PASS
+
+check_p38.py: 27/27 PASS
+
+GDScript structural check:
+[OK] scripts/AppShell.gd
+[OK] scripts/Atmosphere.gd
+[OK] scripts/CardActor.gd
+[OK] scripts/GameSession.gd
+[OK] scripts/Main.gd
+[OK] scripts/MenuCard.gd
+[OK] scripts/ParityRNG.gd
+[OK] scripts/PreBattle.gd
+[OK] scripts/ReplacementModal.gd
+[OK] scripts/SynergyDB.gd
+[OK] tools/parity/P16BattleSmoke.gd
+[OK] tools/parity/P18ControlSmoke.gd
+[OK] tools/parity/P19KOSmoke.gd
+[OK] tools/parity/P20ClassicVisualSmoke.gd
+[OK] tools/parity/P21A2SecretStatusSmoke.gd
+[OK] tools/parity/P22TurnPlanSmoke.gd
+[OK] tools/parity/P23CombatTimerSmoke.gd
+[OK] tools/parity/P24ReplacementTimeoutSmoke.gd
+[OK] tools/parity/P25ByakuganTrackerSmoke.gd
+[OK] tools/parity/P26LinkFieldStatusSmoke.gd
+[OK] tools/parity/P31_1ShikamaruMobileSmoke.gd
+[OK] tools/parity/P33CharacterAuditSmoke.gd
+[OK] tools/parity/P36SynergySmoke.gd
+[OK] tools/parity/ParitySmoke.gd
+ALL GDSCRIPT STRUCTURE CHECKS PASSED (24 files)
+
+Python compilation: PASS
+Godot runtime/headless: non disponible dans cet environnement.
+NOTE MOBILE: le rendu conserve désormais la totalité du canvas 1600x900 par mise à l'échelle uniforme. Sur des ratios très différents, des bandes peuvent apparaître au lieu de couper l'UI, ce qui est volontaire pour la sécurité d'usage.

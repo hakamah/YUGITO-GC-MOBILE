@@ -1,0 +1,55 @@
+YUGITO 2.0 — PROTOTYPE 44 SOLO COMPLETION
+===========================================
+
+OBJECTIF
+Fermer les principaux écarts encore présents dans l'expérience Solo Godot
+avant de passer aux systèmes connectés.
+
+1. ÉCRAN DE FIN DE DUEL
+- Overlay DUEL TERMINÉ.
+- VICTOIRE / DÉFAITE clairement affiché.
+- Motif de fin de duel.
+- Tour final, PV joueur, PV IA, cimetières et nombre d'événements.
+- Boutons REJOUER / JOURNAL / MENU.
+- Sons victoire/défaite conservés.
+
+2. REJOUER
+- Le bouton REJOUER recrée Battle.tscn.
+- GameSession n'est pas effacée : même deck / mêmes titulaires.
+- Pas besoin de refaire Shifumi/Draft pour rejouer immédiatement.
+
+3. JOURNAL DU DUEL
+- Le petit panneau de droite n'est plus un simple dernier message.
+- Toutes les écritures battle_log_label ont été routées vers un historique réel.
+- 164 points d'écriture journalisés dans le moteur actuel.
+- Historique limité aux 300 derniers événements.
+- Fenêtre JOURNAL DU DUEL scrollable.
+- Événements les plus récents affichés en premier.
+- Accessible pendant le duel et depuis l'écran de fin.
+
+4. INSPECTION NINJA
+- Bouton FICHE dans le panneau de sélection.
+- Fonctionne sur Ninja allié ou ennemi sélectionné.
+- Affiche PV / TAI / NIN / GEN / bouclier / synergie / rôles.
+- Affiche le texte complet du passif.
+- Affiche le texte complet de la spéciale.
+- Affiche les états actifs et compteurs runtime.
+- Fenêtre indépendante de la sélection offensive.
+
+5. SÉCURITÉ UI
+- Les overlays Journal/Fiche/Fin bloquent les clics vers le terrain.
+- Journal passe au-dessus de l'écran de fin quand on l'ouvre après le duel.
+
+VALIDATION
+- P44 Solo Completion gate : 31/31 PASS
+- P40 gameplay regression QA : 422/422 PASS
+- GDScript structural gate : PASS
+- Python compilation : PASS
+
+RUNTIME
+Le runtime Godot n'est toujours pas disponible dans cet environnement.
+Les nouveaux overlays doivent donc être vérifiés visuellement sur Godot mobile.
+
+ROADMAP SUIVANTE
+P45 : AudioManager global
+P46+ : Compte/Profil/Google → Multijoueur/ELO → Amis/Messages → Boutique/YT/Collection possédée → distribution/updater.

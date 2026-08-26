@@ -1,0 +1,88 @@
+YUGITO 09 / P26 R2 — FINAL VALIDATION
+======================================
+
+Correction d'autorité après revue de règle :
+- réserve = conservation intégrale de l'instance ;
+- STUN / poisons / boucliers / buffs / debuffs / cooldowns persistent et reprennent au retour ;
+- Ombres Shikamaru / Prison aqueuse Kisame / Scellement Kushina / Jashin verrouillent la cible sur le terrain ;
+- Switch manuel, IA et Switch A1/A2 programmé revalident ce verrou ;
+- Grande Rafale de Temari est l'exception : expulsion autorisée sans nettoyage de l'état reçu ;
+- Makibishi est désormais affiché comme état de terrain, pas comme état personnel de Tenten.
+
+GATE P26 R2
+-----------
+YUGITO 09 / Prototype 26 R2 — field-lock + persistent-state gate
+
+[OK] P25 conservé : tracker Byakugan explicite
+[OK] P25 conservé : réserve forcée centralisée
+[OK] P23/P24 conservés : timers 30 s
+[OK] bouclier persistant
+[OK] STUN persistant
+[OK] poisons/verrous/tags persistants
+[OK] buffs/debuffs persistants
+[OK] modificateurs temporisés persistants
+[OK] Enraciné bloque le Switch
+[OK] Ombres de Shikamaru bloquent le Switch
+[OK] Prison aqueuse bloque le Switch
+[OK] Scellement de Kushina bloque le Switch
+[OK] Jashin bloque le Switch
+[OK] Switch A1/A2 revalidé au moment de sa résolution
+[OK] Switch manuel refusé avant ouverture de la réserve
+[OK] IA ne tente pas de Switch illégal
+[OK] bouton Réserve désactivé sur cible verrouillée
+[OK] Temari utilise l’exception preserve_target_links
+[OK] Temari sauvegarde ensuite l’instance complète
+[OK] nettoyage cible conditionnel, pas automatique
+[OK] branche de nettoyage Ombres disponible hors exception
+[OK] branche de nettoyage Prison disponible hors exception
+[OK] branche de nettoyage Jashin disponible hors exception
+[OK] Scellement Kushina jamais effacé par simple sortie
+[OK] 145/146 : badges dynamiques + compteur +N
+[OK] 147 : couche dédiée aux états de terrain
+[OK] 148 : indicateur permanent Makibishi
+[OK] 148 : Makibishi n’est plus attaché à Tenten
+[OK] 149 : inciblabilité transparente
+[OK] 150 : voile STUN présent
+[OK] 151 : boucliers visibles/cachés séparés
+[OK] 152 : cooldown T x/y présent
+[OK] HUD/menu identifiés P26
+[OK] project.godot identifié P26
+
+ALL P26 R2 GATES PASSED
+
+GDSCRIPT STRUCTURE
+------------------
+[OK] scripts/AppShell.gd
+[OK] scripts/Atmosphere.gd
+[OK] scripts/CardActor.gd
+[OK] scripts/GameSession.gd
+[OK] scripts/Main.gd
+[OK] scripts/MenuCard.gd
+[OK] scripts/ParityRNG.gd
+[OK] scripts/PreBattle.gd
+[OK] scripts/ReplacementModal.gd
+[OK] scripts/SynergyDB.gd
+[OK] tools/parity/P16BattleSmoke.gd
+[OK] tools/parity/P18ControlSmoke.gd
+[OK] tools/parity/P19KOSmoke.gd
+[OK] tools/parity/P20ClassicVisualSmoke.gd
+[OK] tools/parity/P21A2SecretStatusSmoke.gd
+[OK] tools/parity/P22TurnPlanSmoke.gd
+[OK] tools/parity/P23CombatTimerSmoke.gd
+[OK] tools/parity/P24ReplacementTimeoutSmoke.gd
+[OK] tools/parity/P25ByakuganTrackerSmoke.gd
+[OK] tools/parity/P26LinkFieldStatusSmoke.gd
+[OK] tools/parity/ParitySmoke.gd
+ALL GDSCRIPT STRUCTURE CHECKS PASSED (21 files)
+
+PYTHON COMPILE
+--------------
+[OK] tools/parity + legacy_reference compile
+
+LEGACY NOTE
+-----------
+[INFO] P15-P18 functional gates pass. Historical P19+ scripts embed old metadata assertions and are not used as current-version master gates.
+
+GODOT RUNTIME
+-------------
+[LIMIT] Godot executable unavailable; P26 smoke delivered but not executed here.

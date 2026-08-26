@@ -1,0 +1,467 @@
+YUGITO 09 — PROTOTYPE 40 QA REGRESSION LOCK
+=============================================
+
+SCOPE
+Roadmap QA 307 -> 330.
+
+AUTOMATED QA
+- 70/70 card definitions loaded.
+- 70/70 cards booted into a deterministic reference duel.
+- 70/70 special definitions present.
+- 70/70 passive definitions present.
+- 70/70 IDs present in Classic PC reference.
+- 70/70 IDs present in Godot implementation surface.
+- PC deterministic fixtures P18: 8 scenarios exact.
+- PC deterministic fixtures P19: 9 scenarios exact.
+- PC deterministic fixtures P20: 3 scenarios exact.
+- Cross-system QA for points 310 -> 330.
+- P40 gate: 422/422 PASS.
+
+IMPORTANT HISTORICAL-GATE FINDING
+Two older tests became syntactically obsolete, not gameplay regressions:
+1. P20 expected the exact source string ["killer_bee", "madara"]; current code used the semantically identical ["killer_bee","madara"].
+2. P21 expected old Draft card widths Vector2(200,0); P30 UX intentionally changed those widths while retaining the combat aspect ratio.
+P40 tests semantic/current behavior instead of these obsolete exact-string/layout assumptions.
+
+RUNTIME / MOBILE
+Godot executable available in this environment: False
+Godot runtime smoke executed here: NO
+Therefore physical/mobile items are deliberately NOT marked as runtime-validated.
+See P40_RUNTIME_QA_CHECKLIST.md.
+
+STRUCTURAL
+GDScript structural gate: PASS
+Python compile: PASS
+Legacy P18 regression gate: PASS
+
+FINAL AUTOMATED STATUS
+P40 automated/static/reference QA: PASS
+Runtime/device QA: PENDING USER/REAL GODOT EXECUTION
+
+--- P40 DETAILED OUTPUT ---
+[OK] 307 duel boot reference — hashirama
+[OK] 307 duel boot reference — madara
+[OK] 307 duel boot reference — nagato
+[OK] 307 duel boot reference — obito
+[OK] 307 duel boot reference — itachi
+[OK] 307 duel boot reference — jiraiya
+[OK] 307 duel boot reference — killer_bee
+[OK] 307 duel boot reference — gai
+[OK] 307 duel boot reference — minato
+[OK] 307 duel boot reference — naruto
+[OK] 307 duel boot reference — sasuke
+[OK] 307 duel boot reference — a_raikage
+[OK] 307 duel boot reference — danzo
+[OK] 307 duel boot reference — gaara
+[OK] 307 duel boot reference — sarutobi
+[OK] 307 duel boot reference — kakashi
+[OK] 307 duel boot reference — kisame
+[OK] 307 duel boot reference — orochimaru
+[OK] 307 duel boot reference — tsunade
+[OK] 307 duel boot reference — deidara
+[OK] 307 duel boot reference — hidan
+[OK] 307 duel boot reference — kabuto
+[OK] 307 duel boot reference — neji
+[OK] 307 duel boot reference — rock_lee
+[OK] 307 duel boot reference — sakura
+[OK] 307 duel boot reference — sasori
+[OK] 307 duel boot reference — shikamaru
+[OK] 307 duel boot reference — temari
+[OK] 307 duel boot reference — choji
+[OK] 307 duel boot reference — hinata
+[OK] 307 duel boot reference — kankuro
+[OK] 307 duel boot reference — kiba
+[OK] 307 duel boot reference — shino
+[OK] 307 duel boot reference — suigetsu
+[OK] 307 duel boot reference — tenten
+[OK] 307 duel boot reference — karin
+[OK] 307 duel boot reference — onoki
+[OK] 307 duel boot reference — gengetsu
+[OK] 307 duel boot reference — tobirama
+[OK] 307 duel boot reference — zabuza
+[OK] 307 duel boot reference — shisui
+[OK] 307 duel boot reference — konohamaru
+[OK] 307 duel boot reference — haku
+[OK] 307 duel boot reference — a3_raikage
+[OK] 307 duel boot reference — chiyo
+[OK] 307 duel boot reference — hanzo
+[OK] 307 duel boot reference — kakuzu
+[OK] 307 duel boot reference — mei
+[OK] 307 duel boot reference — ino
+[OK] 307 duel boot reference — kurenai
+[OK] 307 duel boot reference — sai
+[OK] 307 duel boot reference — ao
+[OK] 307 duel boot reference — torune
+[OK] 307 duel boot reference — mifune
+[OK] 307 duel boot reference — asuma
+[OK] 307 duel boot reference — kushina
+[OK] 307 duel boot reference — rin
+[OK] 307 duel boot reference — shizune
+[OK] 307 duel boot reference — kimimaro
+[OK] 307 duel boot reference — chojuro
+[OK] 307 duel boot reference — konan
+[OK] 307 duel boot reference — jugo
+[OK] 307 duel boot reference — kurotsuchi
+[OK] 307 duel boot reference — mu
+[OK] 307 duel boot reference — omoi
+[OK] 307 duel boot reference — karui
+[OK] 307 duel boot reference — anko
+[OK] 307 duel boot reference — yamato
+[OK] 307 duel boot reference — zetsu
+[OK] 307 duel boot reference — tobi
+[OK] 308 special definition — hashirama
+[OK] 309 passive definition — hashirama
+[OK] PC reference contains — hashirama
+[OK] Godot implementation surface — hashirama
+[OK] 308 special definition — madara
+[OK] 309 passive definition — madara
+[OK] PC reference contains — madara
+[OK] Godot implementation surface — madara
+[OK] 308 special definition — nagato
+[OK] 309 passive definition — nagato
+[OK] PC reference contains — nagato
+[OK] Godot implementation surface — nagato
+[OK] 308 special definition — obito
+[OK] 309 passive definition — obito
+[OK] PC reference contains — obito
+[OK] Godot implementation surface — obito
+[OK] 308 special definition — itachi
+[OK] 309 passive definition — itachi
+[OK] PC reference contains — itachi
+[OK] Godot implementation surface — itachi
+[OK] 308 special definition — jiraiya
+[OK] 309 passive definition — jiraiya
+[OK] PC reference contains — jiraiya
+[OK] Godot implementation surface — jiraiya
+[OK] 308 special definition — killer_bee
+[OK] 309 passive definition — killer_bee
+[OK] PC reference contains — killer_bee
+[OK] Godot implementation surface — killer_bee
+[OK] 308 special definition — gai
+[OK] 309 passive definition — gai
+[OK] PC reference contains — gai
+[OK] Godot implementation surface — gai
+[OK] 308 special definition — minato
+[OK] 309 passive definition — minato
+[OK] PC reference contains — minato
+[OK] Godot implementation surface — minato
+[OK] 308 special definition — naruto
+[OK] 309 passive definition — naruto
+[OK] PC reference contains — naruto
+[OK] Godot implementation surface — naruto
+[OK] 308 special definition — sasuke
+[OK] 309 passive definition — sasuke
+[OK] PC reference contains — sasuke
+[OK] Godot implementation surface — sasuke
+[OK] 308 special definition — a_raikage
+[OK] 309 passive definition — a_raikage
+[OK] PC reference contains — a_raikage
+[OK] Godot implementation surface — a_raikage
+[OK] 308 special definition — danzo
+[OK] 309 passive definition — danzo
+[OK] PC reference contains — danzo
+[OK] Godot implementation surface — danzo
+[OK] 308 special definition — gaara
+[OK] 309 passive definition — gaara
+[OK] PC reference contains — gaara
+[OK] Godot implementation surface — gaara
+[OK] 308 special definition — sarutobi
+[OK] 309 passive definition — sarutobi
+[OK] PC reference contains — sarutobi
+[OK] Godot implementation surface — sarutobi
+[OK] 308 special definition — kakashi
+[OK] 309 passive definition — kakashi
+[OK] PC reference contains — kakashi
+[OK] Godot implementation surface — kakashi
+[OK] 308 special definition — kisame
+[OK] 309 passive definition — kisame
+[OK] PC reference contains — kisame
+[OK] Godot implementation surface — kisame
+[OK] 308 special definition — orochimaru
+[OK] 309 passive definition — orochimaru
+[OK] PC reference contains — orochimaru
+[OK] Godot implementation surface — orochimaru
+[OK] 308 special definition — tsunade
+[OK] 309 passive definition — tsunade
+[OK] PC reference contains — tsunade
+[OK] Godot implementation surface — tsunade
+[OK] 308 special definition — deidara
+[OK] 309 passive definition — deidara
+[OK] PC reference contains — deidara
+[OK] Godot implementation surface — deidara
+[OK] 308 special definition — hidan
+[OK] 309 passive definition — hidan
+[OK] PC reference contains — hidan
+[OK] Godot implementation surface — hidan
+[OK] 308 special definition — kabuto
+[OK] 309 passive definition — kabuto
+[OK] PC reference contains — kabuto
+[OK] Godot implementation surface — kabuto
+[OK] 308 special definition — neji
+[OK] 309 passive definition — neji
+[OK] PC reference contains — neji
+[OK] Godot implementation surface — neji
+[OK] 308 special definition — rock_lee
+[OK] 309 passive definition — rock_lee
+[OK] PC reference contains — rock_lee
+[OK] Godot implementation surface — rock_lee
+[OK] 308 special definition — sakura
+[OK] 309 passive definition — sakura
+[OK] PC reference contains — sakura
+[OK] Godot implementation surface — sakura
+[OK] 308 special definition — sasori
+[OK] 309 passive definition — sasori
+[OK] PC reference contains — sasori
+[OK] Godot implementation surface — sasori
+[OK] 308 special definition — shikamaru
+[OK] 309 passive definition — shikamaru
+[OK] PC reference contains — shikamaru
+[OK] Godot implementation surface — shikamaru
+[OK] 308 special definition — temari
+[OK] 309 passive definition — temari
+[OK] PC reference contains — temari
+[OK] Godot implementation surface — temari
+[OK] 308 special definition — choji
+[OK] 309 passive definition — choji
+[OK] PC reference contains — choji
+[OK] Godot implementation surface — choji
+[OK] 308 special definition — hinata
+[OK] 309 passive definition — hinata
+[OK] PC reference contains — hinata
+[OK] Godot implementation surface — hinata
+[OK] 308 special definition — kankuro
+[OK] 309 passive definition — kankuro
+[OK] PC reference contains — kankuro
+[OK] Godot implementation surface — kankuro
+[OK] 308 special definition — kiba
+[OK] 309 passive definition — kiba
+[OK] PC reference contains — kiba
+[OK] Godot implementation surface — kiba
+[OK] 308 special definition — shino
+[OK] 309 passive definition — shino
+[OK] PC reference contains — shino
+[OK] Godot implementation surface — shino
+[OK] 308 special definition — suigetsu
+[OK] 309 passive definition — suigetsu
+[OK] PC reference contains — suigetsu
+[OK] Godot implementation surface — suigetsu
+[OK] 308 special definition — tenten
+[OK] 309 passive definition — tenten
+[OK] PC reference contains — tenten
+[OK] Godot implementation surface — tenten
+[OK] 308 special definition — karin
+[OK] 309 passive definition — karin
+[OK] PC reference contains — karin
+[OK] Godot implementation surface — karin
+[OK] 308 special definition — onoki
+[OK] 309 passive definition — onoki
+[OK] PC reference contains — onoki
+[OK] Godot implementation surface — onoki
+[OK] 308 special definition — gengetsu
+[OK] 309 passive definition — gengetsu
+[OK] PC reference contains — gengetsu
+[OK] Godot implementation surface — gengetsu
+[OK] 308 special definition — tobirama
+[OK] 309 passive definition — tobirama
+[OK] PC reference contains — tobirama
+[OK] Godot implementation surface — tobirama
+[OK] 308 special definition — zabuza
+[OK] 309 passive definition — zabuza
+[OK] PC reference contains — zabuza
+[OK] Godot implementation surface — zabuza
+[OK] 308 special definition — shisui
+[OK] 309 passive definition — shisui
+[OK] PC reference contains — shisui
+[OK] Godot implementation surface — shisui
+[OK] 308 special definition — konohamaru
+[OK] 309 passive definition — konohamaru
+[OK] PC reference contains — konohamaru
+[OK] Godot implementation surface — konohamaru
+[OK] 308 special definition — haku
+[OK] 309 passive definition — haku
+[OK] PC reference contains — haku
+[OK] Godot implementation surface — haku
+[OK] 308 special definition — a3_raikage
+[OK] 309 passive definition — a3_raikage
+[OK] PC reference contains — a3_raikage
+[OK] Godot implementation surface — a3_raikage
+[OK] 308 special definition — chiyo
+[OK] 309 passive definition — chiyo
+[OK] PC reference contains — chiyo
+[OK] Godot implementation surface — chiyo
+[OK] 308 special definition — hanzo
+[OK] 309 passive definition — hanzo
+[OK] PC reference contains — hanzo
+[OK] Godot implementation surface — hanzo
+[OK] 308 special definition — kakuzu
+[OK] 309 passive definition — kakuzu
+[OK] PC reference contains — kakuzu
+[OK] Godot implementation surface — kakuzu
+[OK] 308 special definition — mei
+[OK] 309 passive definition — mei
+[OK] PC reference contains — mei
+[OK] Godot implementation surface — mei
+[OK] 308 special definition — ino
+[OK] 309 passive definition — ino
+[OK] PC reference contains — ino
+[OK] Godot implementation surface — ino
+[OK] 308 special definition — kurenai
+[OK] 309 passive definition — kurenai
+[OK] PC reference contains — kurenai
+[OK] Godot implementation surface — kurenai
+[OK] 308 special definition — sai
+[OK] 309 passive definition — sai
+[OK] PC reference contains — sai
+[OK] Godot implementation surface — sai
+[OK] 308 special definition — ao
+[OK] 309 passive definition — ao
+[OK] PC reference contains — ao
+[OK] Godot implementation surface — ao
+[OK] 308 special definition — torune
+[OK] 309 passive definition — torune
+[OK] PC reference contains — torune
+[OK] Godot implementation surface — torune
+[OK] 308 special definition — mifune
+[OK] 309 passive definition — mifune
+[OK] PC reference contains — mifune
+[OK] Godot implementation surface — mifune
+[OK] 308 special definition — asuma
+[OK] 309 passive definition — asuma
+[OK] PC reference contains — asuma
+[OK] Godot implementation surface — asuma
+[OK] 308 special definition — kushina
+[OK] 309 passive definition — kushina
+[OK] PC reference contains — kushina
+[OK] Godot implementation surface — kushina
+[OK] 308 special definition — rin
+[OK] 309 passive definition — rin
+[OK] PC reference contains — rin
+[OK] Godot implementation surface — rin
+[OK] 308 special definition — shizune
+[OK] 309 passive definition — shizune
+[OK] PC reference contains — shizune
+[OK] Godot implementation surface — shizune
+[OK] 308 special definition — kimimaro
+[OK] 309 passive definition — kimimaro
+[OK] PC reference contains — kimimaro
+[OK] Godot implementation surface — kimimaro
+[OK] 308 special definition — chojuro
+[OK] 309 passive definition — chojuro
+[OK] PC reference contains — chojuro
+[OK] Godot implementation surface — chojuro
+[OK] 308 special definition — konan
+[OK] 309 passive definition — konan
+[OK] PC reference contains — konan
+[OK] Godot implementation surface — konan
+[OK] 308 special definition — jugo
+[OK] 309 passive definition — jugo
+[OK] PC reference contains — jugo
+[OK] Godot implementation surface — jugo
+[OK] 308 special definition — kurotsuchi
+[OK] 309 passive definition — kurotsuchi
+[OK] PC reference contains — kurotsuchi
+[OK] Godot implementation surface — kurotsuchi
+[OK] 308 special definition — mu
+[OK] 309 passive definition — mu
+[OK] PC reference contains — mu
+[OK] Godot implementation surface — mu
+[OK] 308 special definition — omoi
+[OK] 309 passive definition — omoi
+[OK] PC reference contains — omoi
+[OK] Godot implementation surface — omoi
+[OK] 308 special definition — karui
+[OK] 309 passive definition — karui
+[OK] PC reference contains — karui
+[OK] Godot implementation surface — karui
+[OK] 308 special definition — anko
+[OK] 309 passive definition — anko
+[OK] PC reference contains — anko
+[OK] Godot implementation surface — anko
+[OK] 308 special definition — yamato
+[OK] 309 passive definition — yamato
+[OK] PC reference contains — yamato
+[OK] Godot implementation surface — yamato
+[OK] 308 special definition — zetsu
+[OK] 309 passive definition — zetsu
+[OK] PC reference contains — zetsu
+[OK] Godot implementation surface — zetsu
+[OK] 308 special definition — tobi
+[OK] 309 passive definition — tobi
+[OK] PC reference contains — tobi
+[OK] Godot implementation surface — tobi
+[OK] PC fixture P18 deterministic — 8 scenarios
+[OK] PC fixture P19 deterministic — 9 scenarios
+[OK] PC fixture P20 deterministic — 3 scenarios
+[OK] 310 reserve exports full instance
+[OK] 310 Switch A1/A2 supported
+[OK] 310 KO replacement serialized
+[OK] 311 Chidori absolute strips defenses
+[OK] 311 Chidori bypasses Chiyo/Kabuto/Kurotsuchi survival path
+[OK] 311 survival order has Kankuro/Chiyo/Kabuto/Kurotsuchi
+[OK] 312 explicit untargetable gate
+[OK] 312 absolute exceptions exist
+[OK] 312 normal target selection checks untargetable
+[OK] 313 poison pipeline — torune_contact_poison
+[OK] 313 poison pipeline — anko_poison
+[OK] 313 poison pipeline — shino_poisoned
+[OK] 313 poison pipeline — hanzo_poisoned
+[OK] 313 poison pipeline — shizune_poison
+[OK] 313 DOT start turn before passives
+[OK] 314 hidden Kurenai shield represented
+[OK] 314 Mifune shield conversion
+[OK] 314 Obito untargetable/Kamui path
+[OK] 315 Jashin link state
+[OK] 315 Hidan survival state
+[OK] 316 Shikamaru shadow 3 turns
+[OK] 316 shadow break source function
+[OK] 316 fresh A2 guard
+[OK] 316 visual immunity Bee/Madara semantic
+[OK] 317 Ino possession UID links
+[OK] 317 Ino state export/import reserve path
+[OK] 317 Ino source untargetable
+[OK] 318 Temari full-state reserve export
+[OK] 318 Temari bombs before reserve
+[OK] 318 Temari tracker forced replacement
+[OK] 319 Zetsu announces Switch A2
+[OK] 319 Tobi predictions carry A1/A2 descriptor
+[OK] 319 Switch A2 descriptor exists
+[OK] 320 Ao pre-special anticipation
+[OK] 320 special can be cancelled before execution
+[OK] 321 Chidori absolute defense function
+[OK] 321 Chidori matrix token — shield
+[OK] 321 Chidori matrix token — onoki
+[OK] 321 Chidori matrix token — kurotsuchi
+[OK] 321 Chidori matrix token — chiyo
+[OK] 321 Chidori matrix token — kabuto
+[OK] 321 Chidori matrix token — hidan
+[OK] 321 Chidori matrix token — kakuzu
+[OK] 321 Chidori matrix token — kankuro
+[OK] 321 Chidori matrix token — gengetsu
+[OK] 322 Mifune dedicated trancheur flag
+[OK] 322 Mifune matrix token — onoki
+[OK] 322 Mifune matrix token — choji
+[OK] 322 Mifune matrix token — shield
+[OK] 322 Mifune matrix token — kurenai
+[OK] 322 Mifune matrix token — survival
+[OK] 323 Madara can_act immunity first
+[OK] 323 control represented — sealed_turns
+[OK] 323 control represented — disabled_turns
+[OK] 323 control represented — shadow_turns
+[OK] 323 control represented — kisame_prisoned_by_uid
+[OK] 324 Killer Bee ignores generic disabled
+[OK] 324 seal checked before Killer Bee
+[OK] 325 DOT damage uses fixed status pipeline
+[OK] 325 KO replacement dispatcher exists
+[OK] 326 death passives centralized
+[OK] 327 empty reserve handled
+[OK] 328 FIFO pending UID queue
+[OK] 328 resolution waits replacement chain
+[OK] 329 player overflow function
+[OK] 329 overflow carries pre-survival damage
+[OK] 330 QA matrix has 24 roadmap items
+[OK] 330 runtime checklist shipped
+[OK] 330 historical fixtures P18/P19/P20 retained
+
+P40 AUTOMATED QA: 422/422 checks passed
+ALL P40 AUTOMATED QA GATES PASSED
+

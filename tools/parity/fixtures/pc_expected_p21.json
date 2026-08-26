@@ -1,0 +1,24 @@
+{
+  "prototype": 21,
+  "scenarios": [
+    {
+      "a2_consumed": true,
+      "cooldown": 4,
+      "free_slot": 0,
+      "name": "shikamaru_delayed_a2",
+      "resolved_before_enemy_actions": true,
+      "shadow_turns": [
+        0,
+        3,
+        3
+      ]
+    },
+    {
+      "actual_stack": 1,
+      "count_hidden": true,
+      "generic_log": "Tobi place secrètement une bombe sur le terrain ennemi.",
+      "name": "tobi_secret_bomb_reference",
+      "target_hidden": true
+    }
+  ]
+}

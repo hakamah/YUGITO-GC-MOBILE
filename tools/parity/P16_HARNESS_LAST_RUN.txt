@@ -1,0 +1,4 @@
+/mnt/data/yugito09_p16/tools/parity/fixtures/pc_expected_p16.json
+[OK] a2_torture — 6 checkpoints — seed 17
+[OK] ino_live_body — 5 checkpoints — seed 1
+[OK] ino_failure_3_turn_stun — 6 checkpoints — seed 1000

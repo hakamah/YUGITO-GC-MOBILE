@@ -1,0 +1,122 @@
+YUGITO 2.0 — PROTOTYPE 47 GOOGLE AUTH
+=======================================
+
+OBJECTIF
+Brancher le client Godot sur le véritable système de comptes Google/YUGITO
+du client PC, sans créer une identité parallèle.
+
+SERVEUR DE RÉFÉRENCE
+Base :
+  https://yugito-auth-server.onrender.com
+
+Contrat serveur audité :
+- YUGITO Auth Server 1.4.10
+- Google = identité canonique
+- persistance identité dans Google Drive appData
+- sessions signées
+- durée Device Flow : 10 minutes
+- intervalle de polling renvoyé par le serveur (actuellement 2 s)
+
+ROUTES PORTÉES
+POST /api/device/start
+GET  /api/device/status?device_code=...
+GET  /api/account/me
+POST /api/account/claim-pseudo
+POST /api/account/sync-elo
+POST /api/logout
+GET  /health
+
+AUTHMANAGER GODOT
+Nouvel Autoload :
+  res://scripts/AuthManager.gd
+
+Flux :
+1. Le joueur appuie sur SE CONNECTER AVEC GOOGLE.
+2. Godot POST /api/device/start.
+3. Le serveur renvoie device_code + verification_url.
+4. Godot ouvre la page Google sécurisée via OS.shell_open().
+5. Le jeu continue de tourner et interroge /api/device/status.
+6. Google validé :
+   a) compte existant avec pseudo -> session YUGITO immédiate ;
+   b) nouveau compte -> écran choix du pseudo.
+7. Le pseudo est envoyé à /api/account/claim-pseudo.
+8. La session et le profil sont appliqués à IdentityManager.
+
+ÉCRAN COMPTE
+- État GOOGLE REQUIS.
+- État CONNEXION / attente de validation.
+- Bouton RÉOUVRIR GOOGLE.
+- Bouton ANNULER.
+- État PSEUDO REQUIS.
+- Champ pseudo + validation réelle.
+- État CONNECTÉ.
+- Pseudo, email, account_id, ELO.
+- Bouton VÉRIFIER SESSION.
+- Bouton DÉCONNECTER.
+- Bouton PROFIL SHINOBI.
+
+RESTAURATION SESSION
+Au démarrage :
+- AuthManager charge la session locale.
+- GET /api/account/me la vérifie.
+- Session valide -> compte restauré.
+- HTTP 401 -> session locale supprimée.
+- Serveur temporairement indisponible -> profil cache conservé en hors-ligne.
+
+SÉCURITÉ LOCALE
+La session YUGITO n'est PAS enregistrée dans yugito_profile_cache.json.
+Fichier séparé :
+  user://yugito_auth_session.bin
+
+Ce fichier utilise FileAccess.open_encrypted_with_pass().
+Le mot de passe local est dérivé de l'identifiant unique de l'appareil.
+Aucun GOOGLE_CLIENT_SECRET, secret OAuth ou ID token Google n'est embarqué
+dans les scripts Godot.
+
+PSEUDO
+Règles alignées sur le serveur 1.4.10 :
+- 3 à 20 caractères
+- lettres / chiffres / espaces / - / _
+- ne peut pas commencer ou finir par - ou _
+
+RÉCUPÉRATION PC/MOBILE
+Lors du claim pseudo, Godot peut joindre le recovery non-secret accepté par
+le serveur :
+- dernier pseudo connu
+- account_id connu
+- email Google connu
+Si le serveur restaure le même account_id, les statistiques locales connues
+restent attachées au bon compte.
+
+ELO
+La P47 expose déjà sync_ranked_profile() vers /api/account/sync-elo.
+Cette API sera utilisée par P48 lorsque les matchs classés seront reconnectés.
+
+VALIDATION STATIQUE
+- P47 Google Auth : 55/55 PASS
+- P46 Identity/Profile : 59/59 PASS
+- P45 Global Audio : 37/37 PASS
+- P44 Solo Completion : 31/31 PASS
+- P40 Gameplay Regression : 422/422 PASS
+- Structure GDScript : PASS (29 fichiers)
+- Compilation Python : PASS
+
+LIMITES DE VALIDATION
+L'environnement de build ne possède pas le runtime Godot et n'a pas d'accès
+réseau DNS sortant utilisable pour tester le Render en direct.
+La connexion réelle doit donc maintenant être essayée sur l'appareil Godot :
+le premier test important est SE CONNECTER AVEC GOOGLE -> page Google ->
+retour YUGITO -> compte/pseudo récupéré.
+
+ROADMAP
+P48 : Multijoueur / ELO
+- identité AuthManager comme source du pseudo/account_id
+- liste/création de salons
+- matchmaking classique
+- matchmaking classé
+- partie privée
+- résultat classé -> IdentityManager + AuthManager.sync_ranked_profile()
+
+P49 : Amis / Messages / Invitations
+P50 : Boutique YT / Collection possédée
+P51 : Distribution / Updater Windows

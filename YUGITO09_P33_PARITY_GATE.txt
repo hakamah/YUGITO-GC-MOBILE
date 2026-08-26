@@ -1,0 +1,74 @@
+YUGITO 09 / P33 — CHARACTER AUDIT III
+=======================================
+
+Roadmap 217→226 : Hidan, Kabuto, Neji, Rock Lee, Sakura, Sasori, Shikamaru, Temari, Choji, Hinata.
+Hotfix UX inclus : liens de statut dans le corridor inter-rangées; Ino source blanche/inciblable, corps possédé ciblable.
+
+[OK] liens routés hors illustrations
+[OK] liens sans gros glow
+[OK] Ino source reste inciblable
+[OK] corps adverse possédé redevient ciblable
+[OK] voile blanc déplacé sur Ino active
+[OK] 217 Hidan survit une fois à 200 PV
+[OK] 217 Jashin 5T lié UID Hidan
+[OK] 218 Kabuto sauve un autre allié une fois
+[OK] 218 Kabuto remet full HP
+[OK] 218 Scalpel bypass absolu
+[OK] 219 Neji premier contact unique
+[OK] 219 Neji bloque spéciale
+[OK] 219 Neji tracker réserve
+[OK] 220 Lee deux premières TAI +150
+[OK] 220 Lee tenue +300 TAI permanent allié
+[OK] 221 Sakura soin propre 25%
+[OK] 221 Sakura diffuse 10% quand elle est touchée
+[OK] 221 Sakura aura 25% sur autres alliés
+[OK] 221 Sakura KO spécial heal 200
+[OK] 222 Sasori riposte Tai max une fois/cycle
+[OK] 222 Sasori -100 TAI permanent +50 fixe
+[OK] 222 Sasori spéciale delayed 100
+[OK] 223 Shikamaru +150 GEN cible plus étoilée
+[OK] 223 Shikamaru cible libre + autres Ombres 3T
+[OK] 223 Shikamaru cooldown4 + rupture HP
+[OK] 224 Temari +100 NIN sans avantage
+[OK] 224 Temari AOE +250 + expulsion réserve
+[OK] 225 Choji interception permanente
+[OK] 225 Choji pilule +500 TAI 3T
+[OK] 226 Hinata riposte 100 et -35% art 2T
+[OK] 226 Hinata spéciale bouclier + tracker
+[OK] snapshot PC couvre bloc 217-226
+[OK] P33 metadata
+
+33/33 checks passed
+ALL P33 CHARACTER AUDIT III GATES PASSED
+
+### GDScript structure
+[OK] scripts/AppShell.gd
+[OK] scripts/Atmosphere.gd
+[OK] scripts/CardActor.gd
+[OK] scripts/GameSession.gd
+[OK] scripts/Main.gd
+[OK] scripts/MenuCard.gd
+[OK] scripts/ParityRNG.gd
+[OK] scripts/PreBattle.gd
+[OK] scripts/ReplacementModal.gd
+[OK] scripts/SynergyDB.gd
+[OK] tools/parity/P16BattleSmoke.gd
+[OK] tools/parity/P18ControlSmoke.gd
+[OK] tools/parity/P19KOSmoke.gd
+[OK] tools/parity/P20ClassicVisualSmoke.gd
+[OK] tools/parity/P21A2SecretStatusSmoke.gd
+[OK] tools/parity/P22TurnPlanSmoke.gd
+[OK] tools/parity/P23CombatTimerSmoke.gd
+[OK] tools/parity/P24ReplacementTimeoutSmoke.gd
+[OK] tools/parity/P25ByakuganTrackerSmoke.gd
+[OK] tools/parity/P26LinkFieldStatusSmoke.gd
+[OK] tools/parity/P31_1ShikamaruMobileSmoke.gd
+[OK] tools/parity/P33CharacterAuditSmoke.gd
+[OK] tools/parity/ParitySmoke.gd
+ALL GDSCRIPT STRUCTURE CHECKS PASSED (23 files)
+
+### Python compilation
+[OK] all parity/reference Python sources compile
+
+### Godot runtime
+[LIMIT] Godot executable unavailable in this environment; smoke P33 delivered but not executed here.

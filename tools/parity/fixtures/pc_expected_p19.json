@@ -1,0 +1,202 @@
+{
+  "prototype": 19,
+  "scenarios": [
+    {
+      "name": "chidori_survival_gauntlet",
+      "personal_survivals_bypassed": {
+        "onoki": {
+          "dead": true,
+          "survival_used": false,
+          "hearts_left": 2,
+          "karasu_used": false,
+          "mu_division_used": false
+        },
+        "danzo": {
+          "dead": true,
+          "survival_used": false,
+          "hearts_left": 2,
+          "karasu_used": false,
+          "mu_division_used": false
+        },
+        "orochimaru": {
+          "dead": true,
+          "survival_used": false,
+          "hearts_left": 2,
+          "karasu_used": false,
+          "mu_division_used": false
+        },
+        "hidan": {
+          "dead": true,
+          "survival_used": false,
+          "hearts_left": 2,
+          "karasu_used": false,
+          "mu_division_used": false
+        },
+        "kakuzu": {
+          "dead": true,
+          "survival_used": false,
+          "hearts_left": 2,
+          "karasu_used": false,
+          "mu_division_used": false
+        },
+        "kankuro": {
+          "dead": true,
+          "survival_used": false,
+          "hearts_left": 2,
+          "karasu_used": false,
+          "mu_division_used": false
+        },
+        "mu": {
+          "dead": true,
+          "survival_used": false,
+          "hearts_left": 2,
+          "karasu_used": false,
+          "mu_division_used": false
+        }
+      },
+      "chiyo_death_heal_still_fires": true,
+      "external_chiyo_kabuto_bypassed": true,
+      "gengetsu_clone_restores": true
+    },
+    {
+      "name": "mifune_survival_gauntlet",
+      "matrix": {
+        "onoki": {
+          "alive": false,
+          "hp": 0
+        },
+        "danzo": {
+          "alive": true,
+          "hp": 1
+        },
+        "orochimaru": {
+          "alive": true,
+          "hp": 250
+        },
+        "hidan": {
+          "alive": true,
+          "hp": 200
+        },
+        "kakuzu": {
+          "alive": true,
+          "hp": 1000
+        },
+        "kankuro": {
+          "alive": true,
+          "hp": 1400
+        },
+        "mu": {
+          "alive": true,
+          "hp": 1800
+        },
+        "chiyo": {
+          "alive": false,
+          "hp": 0
+        }
+      },
+      "doton_saves": true,
+      "chiyo_kabuto_save": {
+        "chiyo": true,
+        "kabuto": true
+      },
+      "untargetable_blocks": true
+    },
+    {
+      "name": "shield_stack_order",
+      "fixed_visible_then_hidden": true,
+      "hp_after_two_hits": 1300,
+      "mifune_extra_from_900_shield": 450
+    },
+    {
+      "name": "temari_links_and_tracker",
+      "target_links_persist_in_reserve": true,
+      "forced_option": "konohamaru",
+      "tracker_consumed": true
+    },
+    {
+      "name": "source_death_cleanup_without_reserve",
+      "jashin_cleared": true,
+      "kisame_prison_cleared": true
+    },
+    {
+      "name": "three_ko_replacement_queue",
+      "graveyard": [
+        "sakura",
+        "shino",
+        "karin"
+      ],
+      "offers": [
+        {
+          "slot": 0,
+          "options": [
+            "ino",
+            "konohamaru",
+            "kiba"
+          ],
+          "choice": "ino"
+        },
+        {
+          "slot": 1,
+          "options": [
+            "suigetsu",
+            "konohamaru",
+            "kiba"
+          ],
+          "choice": "suigetsu"
+        },
+        {
+          "slot": 2,
+          "options": [
+            "kankuro",
+            "konohamaru",
+            "kiba"
+          ],
+          "choice": "kankuro"
+        }
+      ],
+      "serialized": true
+    },
+    {
+      "name": "dot_death_passives",
+      "kushina": "dead_without_killer_debuff",
+      "shizune": "dead_without_killer_debuff",
+      "chiyo_death_heal": true
+    },
+    {
+      "name": "overflow_with_survival",
+      "personal_survival_overflow": {
+        "danzo": {
+          "alive": true,
+          "card_hp": 1,
+          "player_overflow": 900
+        },
+        "hidan": {
+          "alive": true,
+          "card_hp": 200,
+          "player_overflow": 900
+        },
+        "kankuro": {
+          "alive": true,
+          "card_hp": 1400,
+          "player_overflow": 900
+        },
+        "kakuzu": {
+          "alive": true,
+          "card_hp": 1000,
+          "player_overflow": 900
+        }
+      },
+      "chiyo_kabuto_overflow": {
+        "chiyo": 900,
+        "kabuto": 900
+      },
+      "onoki_overflow": 0,
+      "doton_overflow": 0
+    },
+    {
+      "name": "ko_empty_reserve",
+      "single_hole_no_modal": true,
+      "full_wipe_winner": 1
+    }
+  ]
+}

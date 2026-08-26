@@ -1,0 +1,171 @@
+{
+  "prototype": 17,
+  "scenarios": [
+    {
+      "name": "shikamaru_break",
+      "cooldown": 4,
+      "initial_shadow_links": [
+        0,
+        1,
+        1
+      ],
+      "after_shield_only": [
+        0,
+        1,
+        1
+      ],
+      "after_real_hp_damage": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "rescue_chain_chiyo_kabuto",
+      "checkpoints": [
+        {
+          "hit": 1,
+          "field": "tenten",
+          "target_hp": 1100,
+          "chiyo_used": true,
+          "kabuto_used": false,
+          "graveyard": [],
+          "pending_replacement": false
+        },
+        {
+          "hit": 2,
+          "field": "tenten",
+          "target_hp": 1100,
+          "chiyo_used": true,
+          "kabuto_used": true,
+          "graveyard": [],
+          "pending_replacement": false
+        },
+        {
+          "hit": 3,
+          "field": null,
+          "target_hp": 0,
+          "chiyo_used": true,
+          "kabuto_used": true,
+          "graveyard": [
+            "tenten"
+          ],
+          "pending_replacement": true
+        }
+      ]
+    },
+    {
+      "name": "source_link_cleanup",
+      "kisame_prison_cleared": true,
+      "hidan_jashin_cleared": true
+    },
+    {
+      "name": "kakashi_copy_resource",
+      "copied_special": "naruto",
+      "copy_used": true,
+      "raikiri_still_unused": true
+    },
+    {
+      "name": "gengetsu_fixed_explosion",
+      "enemy_hp_losses": [
+        300,
+        300,
+        300
+      ],
+      "restored_hp": 1111,
+      "restored_shield": 222,
+      "cooldown": 4,
+      "player_overflow": 0
+    },
+    {
+      "name": "kurenai_target_only",
+      "protection_survives_aoe": true,
+      "hidden_shield_after_100": 500,
+      "targeted_special_cancelled": true
+    },
+    {
+      "name": "fixed_ignores_untargetable",
+      "shield_absorbed": 300,
+      "hp_damage": 200
+    },
+    {
+      "name": "karin_self_cost",
+      "karin_dead": true,
+      "shield_untouched": 900,
+      "doton_not_spent": true,
+      "ally_full_heal": true
+    },
+    {
+      "name": "jinton_execute",
+      "chiyo_rescued": true,
+      "doton_not_spent": true,
+      "shield_bypassed": true,
+      "mu_nin_penalty": -1000
+    },
+    {
+      "name": "choji_guards_true_special_attacks",
+      "results": {
+        "karui": {
+          "target_loss": 0,
+          "choji_loss": 400
+        },
+        "chojuro": {
+          "target_loss": 0,
+          "choji_loss": 700
+        },
+        "jugo": {
+          "target_loss": 0,
+          "choji_loss": 250
+        },
+        "a3_raikage": {
+          "target_loss": 0,
+          "choji_loss": 550
+        },
+        "omoi": {
+          "target_loss": 0,
+          "choji_loss": 600
+        }
+      }
+    },
+    {
+      "name": "mei_guard_centering",
+      "original_target_loss": 0,
+      "choji_loss": 1350,
+      "main_plus_adjacent_splash": true
+    },
+    {
+      "name": "tobi_bomb_switch",
+      "bomb_damage": 320,
+      "shield_absorbed": 100,
+      "hp_damage": 220,
+      "bombs_cleared": true,
+      "switch_completed": true
+    },
+    {
+      "name": "zetsu_switch_a1_only",
+      "a1_stun_turns": 2,
+      "a2_stun_turns": 0
+    },
+    {
+      "name": "shield_destruction_semantics",
+      "asuma_both_layers_destroyed": true,
+      "asuma_hp_damage": 400,
+      "obito_effective_target_is_choji": true,
+      "obito_selected_target_shields_preserved": [
+        444,
+        111
+      ],
+      "kabuto_shields_preserved_while_bypassed": [
+        777,
+        333
+      ]
+    },
+    {
+      "name": "konohamaru_fixed_counter",
+      "attack_dodged": true,
+      "counter_fixed_damage": 350,
+      "shield_absorbed": 200,
+      "hp_damage": 150
+    }
+  ]
+}

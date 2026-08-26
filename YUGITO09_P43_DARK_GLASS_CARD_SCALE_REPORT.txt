@@ -1,0 +1,44 @@
+YUGITO 2.0 — PROTOTYPE 43 DARK GLASS READABILITY
+=================================================
+
+DEMANDE UTILISATEUR
+1. Ne pas modifier le menu P41.2.
+2. Agrandir les cartes Collection / Créateur de deck / Draft / choix des 3.
+3. Garder la vidéo de fond mais assombrir les verres des écrans internes.
+4. Remplacer partout le logo YUGITO par le nouveau logo rouge fourni.
+
+MENU
+- Fonction _show_home strictement inchangée par rapport à P42.
+- Vidéo Full HD et composition P41.2 conservées.
+
+CARTES PLUS GRANDES
+- Collection : 4 -> 3 colonnes, cartes 286 x 420.
+- Créateur de deck : 4 -> 3 colonnes, cartes 270 x 400.
+- Draft : 4 -> 3 colonnes, cartes 228 x 350.
+- Choix des 3 Ninjas : 5 -> 4 colonnes, cartes 246 x 374.
+- MenuCard accepte maintenant une hauteur explicite.
+- Valeurs de stats et textes PASSIF/SPÉ légèrement agrandis.
+- Les zones restent scrollables : aucune carte n'est supprimée.
+
+VERRES ASSOMBRIS
+- Collection / Deck / Guide / Options / Jouer : verre bleu-noir transparent.
+- Shifumi / Draft / choix des 3 : verre sombre avec vidéo toujours visible.
+- Combat : arène, HUD supérieur et Plan du tour plus sombres.
+- Modales de remplacement : fond/verre assombris.
+- La vidéo / le décor restent derrière les panneaux : aucune nouvelle image de fond ajoutée.
+
+LOGO / ICÔNES
+- res://assets/ui/YUGITO.png remplacé par le nouveau logo.
+- res://assets/ui/menu_yugito_logo.png remplacé.
+- project.godot utilise config/icon="res://assets/ui/YUGITO.png".
+- Windows : res://assets/export/yugito.ico + res://YUGITO.ico.
+- Android : icônes PNG 48 / 72 / 96 / 144 / 192 / 512 px.
+- Le projet Godot fourni ne contient pas le script de l'ancien installateur Windows Classic.
+  Une ressource ICO prête est donc incluse pour le prochain export/installateur/raccourci.
+
+VALIDATION
+- P43 Dark Glass / Card Scale : 27/27 PASS
+- P40 gameplay regression QA : 422/422 PASS
+- GDScript structural gate : PASS
+- Python compilation : PASS
+- Runtime esthétique à confirmer sur Godot mobile.

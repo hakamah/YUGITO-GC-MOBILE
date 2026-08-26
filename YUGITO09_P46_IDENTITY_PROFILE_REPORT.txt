@@ -1,0 +1,117 @@
+YUGITO 2.0 — PROTOTYPE 46 IDENTITY PROFILE
+============================================
+
+OBJECTIF
+Porter dans Godot la couche Compte / Profil / identité du client PC
+avant de brancher le vrai Google Auth en P47.
+
+RÉFÉRENCE PC RETROUVÉE
+Le client Tkinter utilise un profil classé contenant :
+- pseudo YUGITO unique
+- ELO
+- parties classées
+- victoires
+- défaites
+- taux de victoire
+- meilleur ELO
+L'identité autoritaire est liée à Google depuis Classic 1.1.4.
+
+IDENTITY MANAGER
+Nouvel Autoload :
+  res://scripts/IdentityManager.gd
+
+États prévus :
+- google_required
+- connecting
+- pseudo_required
+- connected
+- offline_cache
+- error
+
+Le manager expose :
+- display_name()
+- profile()
+- public_identity_payload()
+- server_profile_payload()
+- apply_server_account()
+- apply_ranked_profile()
+- register_ranked_result()
+- validate_pseudo()
+- clear_cached_identity()
+
+PROFIL LOCAL NON SECRET
+Chemin :
+  user://yugito_profile_cache.json
+
+Le cache contient uniquement :
+- account_id
+- pseudo
+- email
+- ELO
+- parties / victoires / défaites
+- meilleur ELO
+- date de dernière synchronisation
+
+IMPORTANT :
+Aucun session_token / token Google / secret n'est enregistré dans ce cache.
+La vraie session sécurisée sera la responsabilité de P47.
+
+PSEUDO
+Règles reprises du PC :
+- 3 à 20 caractères
+- lettres
+- chiffres
+- espaces
+- tiret -
+- underscore _
+
+INTERFACE
+- Le cartouche profil du header est maintenant dynamique et cliquable.
+- Plus de HAKAMAH/ELO 100 codé en dur comme identité runtime.
+- Nouvel écran PROFIL SHINOBI.
+- Nouvel écran COMPTE YUGITO • GOOGLE.
+- Profil affiche :
+  ELO / parties classées / V-D / winrate / meilleur ELO.
+- État du compte, e-mail Google, ID YUGITO et source du profil sont visibles.
+- CTA Google préparé pour P47.
+- Le menu visuel d'accueil n'a pas été redesigné par cette étape.
+
+COMBAT
+- Nom du joueur dans le HUD = IdentityManager.display_name().
+- Nom du joueur dans le titre de tour = IdentityManager.display_name().
+- Résumé de fin de duel = identité dynamique.
+- IA reste identifiée comme IA.
+
+PRÉPARATION P47
+La P46 ne prétend pas connecter Google.
+Le bouton Google est volontairement isolé derrière _google_auth_placeholder().
+P47 pourra donc remplacer cette seule frontière UI par le Device Flow réel
+du serveur YUGITO déjà utilisé par le client PC.
+
+VALIDATION
+- P46 Identity/Profile : 59/59 PASS
+- P45 Global Audio : 37/37 PASS
+- P44 Solo Completion : 31/31 PASS
+- P40 Gameplay Regression : 422/422 PASS
+- Structure GDScript : PASS (28 fichiers)
+- Compilation Python : PASS
+
+LIMITATION ENVIRONNEMENT
+Le runtime Godot n'est pas installé dans cet environnement.
+L'écran Profil/Compte devra donc être vérifié visuellement sur Godot mobile.
+
+ROADMAP
+P47 : vrai Google/YUGITO Auth
+  - start_device
+  - ouverture du flux sécurisé
+  - polling device_status
+  - compte existant
+  - pseudo requis pour nouveau compte
+  - claim_pseudo
+  - restauration session
+  - déconnexion
+Puis :
+P48 Multijoueur/ELO
+P49 Amis/Messages/Invitations
+P50 Boutique/YT/Collection possédée
+P51 Distribution/Updater Windows

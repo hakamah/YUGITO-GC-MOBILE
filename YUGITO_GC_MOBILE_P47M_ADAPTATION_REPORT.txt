@@ -1,0 +1,86 @@
+YUGITO GC MOBILE — P47M LANDSCAPE
+==================================
+
+BASE
+YUGITO GC / Godot P47 Google Auth.
+
+RÉFÉRENCE MOBILE AUDITÉE
+YUGITO Mobile 1.7.12 Tkinter/WebView fourni par l'utilisateur.
+Ancien package : com.hakamah.yugitomobile.
+
+ADAPTATIONS REPRISES DE L'ANCIEN MOBILE
+- 3 cartes maximum par ligne sur les gros écrans de sélection.
+- scrolling vertical, pas de scroll horizontal tactique.
+- cartes complètes avec statistiques visibles.
+- commandes tactiles plus grandes.
+- recherche et filtres plus hauts au doigt.
+- trois Ninjas actifs simultanément visibles sur le terrain.
+- pré-combat plein écran.
+- bouton Retour Android géré.
+- hover non requis sur écran tactile.
+
+DIFFÉRENCE MAJEURE DEMANDÉE
+AUCUN MODE PORTRAIT.
+
+Implémentation :
+- project.godot : window/handheld/orientation=4.
+- MobilePlatform : DisplayServer.SCREEN_SENSOR_LANDSCAPE.
+- verrouillage rappelé au démarrage AppShell / PreBattle / Battle.
+- pas de SCREEN_PORTRAIT ni SCREEN_SENSOR_PORTRAIT dans le runtime.
+- paysage normal ou paysage inversé selon le capteur.
+
+CARTES
+Collection Android : 3 colonnes, cartes 300×430.
+Créateur de deck Android : 3 colonnes, cartes 286×420.
+Draft Android : 3 colonnes, cartes 240×360.
+Choix des 3 : 3 colonnes Android, cartes 300×430.
+Typographie stats/nom/PV légèrement augmentée sur Android.
+
+TACTILE
+- émulation souris depuis touch activée.
+- émulation touch depuis souris activée pour test.
+- boutons pré-combat : minimum 36 px virtuels de hauteur.
+- FICHE / JOURNAL combat agrandis sur Android.
+- son hover supprimé sur appareils tactiles.
+
+VIDÉO / DA
+Même ambiance vidéo que YUGITO GC.
+Desktop : home_bg.ogv 1920×1080.
+Android : home_bg_mobile.ogv 1600×900 / 15 FPS afin d'alléger le décodage.
+Aucune nouvelle DA ou image de fond étrangère ajoutée.
+
+ÉCRAN
+Canvas 1600×900.
+Stretch canvas_items.
+Aspect keep.
+Cette stratégie évite de couper l'interface sur les ratios mobiles très larges.
+
+IDENTITÉ ANDROID
+Nouveau package : com.hakamah.yugitogc
+Ancien YUGITO Mobile : com.hakamah.yugitomobile
+Les deux applications peuvent donc cohabiter sans écraser leurs données.
+
+ICÔNE
+Nouveau logo YUGITO rouge.
+Launcher classique + adaptive foreground/background dédiés.
+
+AUTH / INTERNET
+P47 Google/YUGITO conservé.
+Permission INTERNET activée.
+Stockage utilisateur séparé : YUGITO_GC_Mobile.
+
+VALIDATION
+- P47M mobile adaptation : 52/52 PASS
+- P47 Google Auth : 55/55 PASS
+- P46 Identity/Profile : 59/59 PASS
+- P45 Global Audio : 37/37 PASS
+- P44 Solo Completion : 31/31 PASS
+- P40 Gameplay Regression : 422/422 PASS
+- Structure GDScript : PASS (30 fichiers)
+- Compilation Python des outils QA : PASS
+
+APK
+L'export réel a été tenté.
+Le conteneur courant ne possède pas Godot 4.7.2, ses export templates ni le SDK/build-tools Android.
+Il est donc techniquement impossible de générer ici un APK Godot authentique.
+Un export preset + scripts local Windows/Linux + workflow GitHub Actions sont livrés.

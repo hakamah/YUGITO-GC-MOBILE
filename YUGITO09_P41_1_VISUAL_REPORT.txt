@@ -1,0 +1,28 @@
+YUGITO 2.0 — PROTOTYPE 41.1 TRUE FROSTED GLASS
+================================================
+
+DIRECTION VALIDÉE
+- GIF animé conservé lumineux : aucun grand voile sombre global.
+- Logo YUGITO placé au-dessus du panneau central.
+- Panneau central = verre dépoli clair.
+- Le décor animé est dupliqué derrière le verre et flouté par shader multi-échantillons.
+- Un très léger voile blanc givré renforce le verre sans assombrir le décor.
+- Les textes restent parfaitement nets : seul le fond derrière les boutons est flouté.
+- Navigation simplifiée, proche de la maquette validée.
+- Deux colonnes : Solo / Multijoueur, Collection / Deck, Guide / Boutique, Amis / Teepee.
+- Barre basse : Discord / Audio / Quitter.
+- Hover = verre plus lumineux + bordure accentuée.
+
+TECHNIQUE
+- 33 frames WEBP à 10 FPS conservées.
+- Le second fond animé est aligné sur le fond plein écran puis clipé dans le panneau.
+- Shader blur local au verre uniquement.
+- Aucun blur appliqué aux Labels.
+- Responsive P38, cache P39 et QA P40 conservés.
+
+VALIDATION
+- P41.1 visual gate: 16/16 PASS
+- P40 automated regression: 422/422 PASS
+- GDScript structural gate: PASS
+- Python compilation: PASS
+- Runtime esthétique final à confirmer sur Godot mobile.

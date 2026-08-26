@@ -1,0 +1,2600 @@
+{
+  "schema": 1,
+  "rng": "LCG32 1664525/1013904223",
+  "scenarios": [
+    {
+      "name": "a2_torture",
+      "seed": 17,
+      "chosen_replacement": "suigetsu",
+      "trace": [
+        {
+          "label": "initial",
+          "turn": 1,
+          "active_player": 1,
+          "winner": null,
+          "player_hp": {
+            "1": 4000,
+            "2": 4000
+          },
+          "field": {
+            "1": [
+              {
+                "id": "tenten",
+                "body_id": "tenten",
+                "hp": 1100,
+                "max_hp": 1100,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              },
+              {
+                "id": "ino",
+                "body_id": "ino",
+                "hp": 1300,
+                "max_hp": 1300,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false,
+                "ino_target": null,
+                "ino_turns": 0
+              },
+              {
+                "id": "shino",
+                "body_id": "shino",
+                "hp": 1000,
+                "max_hp": 1000,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              }
+            ],
+            "2": [
+              {
+                "id": "kiba",
+                "body_id": "kiba",
+                "hp": 1100,
+                "max_hp": 1100,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              },
+              {
+                "id": "sakura",
+                "body_id": "sakura",
+                "hp": 1600,
+                "max_hp": 1600,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              },
+              {
+                "id": "karin",
+                "body_id": "karin",
+                "hp": 2000,
+                "max_hp": 2000,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              }
+            ]
+          },
+          "reserve": {
+            "1": [
+              "kankuro",
+              "kiba",
+              "konohamaru",
+              "sasuke",
+              "suigetsu"
+            ],
+            "2": [
+              "ino",
+              "kankuro",
+              "konohamaru",
+              "shino",
+              "suigetsu"
+            ]
+          },
+          "graveyard": {
+            "1": [],
+            "2": []
+          },
+          "delayed": {
+            "1": null,
+            "2": null
+          },
+          "pending_replacement": null
+        },
+        {
+          "label": "a2_switch_armed",
+          "turn": 1,
+          "active_player": 1,
+          "winner": null,
+          "player_hp": {
+            "1": 4000,
+            "2": 4000
+          },
+          "field": {
+            "1": [
+              {
+                "id": "tenten",
+                "body_id": "tenten",
+                "hp": 1100,
+                "max_hp": 1100,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              },
+              {
+                "id": "ino",
+                "body_id": "ino",
+                "hp": 1300,
+                "max_hp": 1300,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false,
+                "ino_target": null,
+                "ino_turns": 0
+              },
+              {
+                "id": "shino",
+                "body_id": "shino",
+                "hp": 1000,
+                "max_hp": 1000,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              }
+            ],
+            "2": [
+              {
+                "id": "kiba",
+                "body_id": "kiba",
+                "hp": 1100,
+                "max_hp": 1100,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              },
+              {
+                "id": "sakura",
+                "body_id": "sakura",
+                "hp": 1600,
+                "max_hp": 1600,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              },
+              {
+                "id": "karin",
+                "body_id": "karin",
+                "hp": 2000,
+                "max_hp": 2000,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              }
+            ]
+          },
+          "reserve": {
+            "1": [
+              "kankuro",
+              "kiba",
+              "konohamaru",
+              "sasuke",
+              "suigetsu"
+            ],
+            "2": [
+              "ino",
+              "kankuro",
+              "konohamaru",
+              "shino",
+              "suigetsu"
+            ]
+          },
+          "graveyard": {
+            "1": [],
+            "2": []
+          },
+          "delayed": {
+            "1": {
+              "kind": "switch",
+              "outgoing_id": "tenten",
+              "incoming_id": "sasuke",
+              "outgoing_name": "Tenten",
+              "incoming_name": "Sasuke"
+            },
+            "2": null
+          },
+          "pending_replacement": null
+        },
+        {
+          "label": "a2_reactive_switch_resolved",
+          "turn": 2,
+          "active_player": 2,
+          "winner": null,
+          "player_hp": {
+            "1": 4000,
+            "2": 4000
+          },
+          "field": {
+            "1": [
+              {
+                "id": "sasuke",
+                "body_id": "sasuke",
+                "hp": 1400,
+                "max_hp": 1400,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": true
+              },
+              {
+                "id": "ino",
+                "body_id": "ino",
+                "hp": 1300,
+                "max_hp": 1300,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false,
+                "ino_target": null,
+                "ino_turns": 0
+              },
+              {
+                "id": "shino",
+                "body_id": "shino",
+                "hp": 1000,
+                "max_hp": 1000,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              }
+            ],
+            "2": [
+              {
+                "id": "kiba",
+                "body_id": "kiba",
+                "hp": 1100,
+                "max_hp": 1100,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              },
+              {
+                "id": "sakura",
+                "body_id": "sakura",
+                "hp": 1600,
+                "max_hp": 1600,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              },
+              {
+                "id": "karin",
+                "body_id": "karin",
+                "hp": 2000,
+                "max_hp": 2000,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              }
+            ]
+          },
+          "reserve": {
+            "1": [
+              "kankuro",
+              "kiba",
+              "konohamaru",
+              "suigetsu",
+              "tenten"
+            ],
+            "2": [
+              "ino",
+              "kankuro",
+              "konohamaru",
+              "shino",
+              "suigetsu"
+            ]
+          },
+          "graveyard": {
+            "1": [],
+            "2": []
+          },
+          "delayed": {
+            "1": null,
+            "2": null
+          },
+          "pending_replacement": null
+        },
+        {
+          "label": "counter_switch_consumed",
+          "turn": 2,
+          "active_player": 2,
+          "winner": null,
+          "player_hp": {
+            "1": 4000,
+            "2": 4000
+          },
+          "field": {
+            "1": [
+              {
+                "id": "sasuke",
+                "body_id": "sasuke",
+                "hp": 1400,
+                "max_hp": 1400,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              },
+              {
+                "id": "ino",
+                "body_id": "ino",
+                "hp": 1300,
+                "max_hp": 1300,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false,
+                "ino_target": null,
+                "ino_turns": 0
+              },
+              {
+                "id": "shino",
+                "body_id": "shino",
+                "hp": 1000,
+                "max_hp": 1000,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              }
+            ],
+            "2": [
+              {
+                "id": "kiba",
+                "body_id": "kiba",
+                "hp": 1100,
+                "max_hp": 1100,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              },
+              {
+                "id": "sakura",
+                "body_id": "sakura",
+                "hp": 1600,
+                "max_hp": 1600,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              },
+              {
+                "id": "karin",
+                "body_id": "karin",
+                "hp": 2000,
+                "max_hp": 2000,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              }
+            ]
+          },
+          "reserve": {
+            "1": [
+              "kankuro",
+              "kiba",
+              "konohamaru",
+              "suigetsu",
+              "tenten"
+            ],
+            "2": [
+              "ino",
+              "kankuro",
+              "konohamaru",
+              "shino",
+              "suigetsu"
+            ]
+          },
+          "graveyard": {
+            "1": [],
+            "2": []
+          },
+          "delayed": {
+            "1": null,
+            "2": null
+          },
+          "pending_replacement": null
+        },
+        {
+          "label": "ko_waiting_replacement",
+          "turn": 2,
+          "active_player": 2,
+          "winner": null,
+          "player_hp": {
+            "1": 4000,
+            "2": 4000
+          },
+          "field": {
+            "1": [
+              null,
+              {
+                "id": "ino",
+                "body_id": "ino",
+                "hp": 1300,
+                "max_hp": 1300,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false,
+                "ino_target": null,
+                "ino_turns": 0
+              },
+              {
+                "id": "shino",
+                "body_id": "shino",
+                "hp": 1000,
+                "max_hp": 1000,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              }
+            ],
+            "2": [
+              {
+                "id": "kiba",
+                "body_id": "kiba",
+                "hp": 1100,
+                "max_hp": 1100,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              },
+              {
+                "id": "sakura",
+                "body_id": "sakura",
+                "hp": 1600,
+                "max_hp": 1600,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              },
+              {
+                "id": "karin",
+                "body_id": "karin",
+                "hp": 2000,
+                "max_hp": 2000,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              }
+            ]
+          },
+          "reserve": {
+            "1": [
+              "kankuro",
+              "kiba",
+              "konohamaru",
+              "suigetsu",
+              "tenten"
+            ],
+            "2": [
+              "ino",
+              "kankuro",
+              "konohamaru",
+              "shino",
+              "suigetsu"
+            ]
+          },
+          "graveyard": {
+            "1": [
+              "sasuke"
+            ],
+            "2": []
+          },
+          "delayed": {
+            "1": null,
+            "2": null
+          },
+          "pending_replacement": {
+            "player": 1,
+            "slot": 0,
+            "options": [
+              "suigetsu",
+              "tenten",
+              "konohamaru"
+            ]
+          }
+        },
+        {
+          "label": "replacement_done",
+          "turn": 2,
+          "active_player": 2,
+          "winner": null,
+          "player_hp": {
+            "1": 4000,
+            "2": 4000
+          },
+          "field": {
+            "1": [
+              {
+                "id": "suigetsu",
+                "body_id": "suigetsu",
+                "hp": 1600,
+                "max_hp": 1600,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              },
+              {
+                "id": "ino",
+                "body_id": "ino",
+                "hp": 1300,
+                "max_hp": 1300,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false,
+                "ino_target": null,
+                "ino_turns": 0
+              },
+              {
+                "id": "shino",
+                "body_id": "shino",
+                "hp": 1000,
+                "max_hp": 1000,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              }
+            ],
+            "2": [
+              {
+                "id": "kiba",
+                "body_id": "kiba",
+                "hp": 1100,
+                "max_hp": 1100,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              },
+              {
+                "id": "sakura",
+                "body_id": "sakura",
+                "hp": 1600,
+                "max_hp": 1600,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              },
+              {
+                "id": "karin",
+                "body_id": "karin",
+                "hp": 2000,
+                "max_hp": 2000,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              }
+            ]
+          },
+          "reserve": {
+            "1": [
+              "kankuro",
+              "kiba",
+              "konohamaru",
+              "tenten"
+            ],
+            "2": [
+              "ino",
+              "kankuro",
+              "konohamaru",
+              "shino",
+              "suigetsu"
+            ]
+          },
+          "graveyard": {
+            "1": [
+              "sasuke"
+            ],
+            "2": []
+          },
+          "delayed": {
+            "1": null,
+            "2": null
+          },
+          "pending_replacement": null
+        }
+      ]
+    },
+    {
+      "name": "ino_live_body",
+      "seed": 1,
+      "trace": [
+        {
+          "label": "initial",
+          "turn": 1,
+          "active_player": 1,
+          "winner": null,
+          "player_hp": {
+            "1": 4000,
+            "2": 4000
+          },
+          "field": {
+            "1": [
+              {
+                "id": "ino",
+                "body_id": "ino",
+                "hp": 1300,
+                "max_hp": 1300,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false,
+                "ino_target": null,
+                "ino_turns": 0
+              },
+              {
+                "id": "kiba",
+                "body_id": "kiba",
+                "hp": 1238,
+                "max_hp": 1238,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.125,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              },
+              {
+                "id": "shino",
+                "body_id": "shino",
+                "hp": 1125,
+                "max_hp": 1125,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.125,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              }
+            ],
+            "2": [
+              {
+                "id": "tenten",
+                "body_id": "tenten",
+                "hp": 1100,
+                "max_hp": 1100,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              },
+              {
+                "id": "sakura",
+                "body_id": "sakura",
+                "hp": 1600,
+                "max_hp": 1600,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              },
+              {
+                "id": "karin",
+                "body_id": "karin",
+                "hp": 2000,
+                "max_hp": 2000,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              }
+            ]
+          },
+          "reserve": {
+            "1": [
+              "anko",
+              "kankuro",
+              "konohamaru",
+              "suigetsu",
+              "tenten"
+            ],
+            "2": [
+              "ino",
+              "kankuro",
+              "kiba",
+              "konohamaru",
+              "shino"
+            ]
+          },
+          "graveyard": {
+            "1": [],
+            "2": []
+          },
+          "delayed": {
+            "1": null,
+            "2": null
+          },
+          "pending_replacement": null
+        },
+        {
+          "label": "body_preloaded",
+          "turn": 1,
+          "active_player": 1,
+          "winner": null,
+          "player_hp": {
+            "1": 4000,
+            "2": 4000
+          },
+          "field": {
+            "1": [
+              {
+                "id": "ino",
+                "body_id": "ino",
+                "hp": 1300,
+                "max_hp": 1300,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false,
+                "ino_target": null,
+                "ino_turns": 0
+              },
+              {
+                "id": "kiba",
+                "body_id": "kiba",
+                "hp": 1238,
+                "max_hp": 1238,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.125,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              },
+              {
+                "id": "shino",
+                "body_id": "shino",
+                "hp": 1125,
+                "max_hp": 1125,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.125,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              }
+            ],
+            "2": [
+              {
+                "id": "tenten",
+                "body_id": "tenten",
+                "hp": 777,
+                "max_hp": 1100,
+                "shield": 222,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 125,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false,
+                "shino_poisoned": true
+              },
+              {
+                "id": "sakura",
+                "body_id": "sakura",
+                "hp": 1600,
+                "max_hp": 1600,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              },
+              {
+                "id": "karin",
+                "body_id": "karin",
+                "hp": 2000,
+                "max_hp": 2000,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              }
+            ]
+          },
+          "reserve": {
+            "1": [
+              "anko",
+              "kankuro",
+              "konohamaru",
+              "suigetsu",
+              "tenten"
+            ],
+            "2": [
+              "ino",
+              "kankuro",
+              "kiba",
+              "konohamaru",
+              "shino"
+            ]
+          },
+          "graveyard": {
+            "1": [],
+            "2": []
+          },
+          "delayed": {
+            "1": null,
+            "2": null
+          },
+          "pending_replacement": null
+        },
+        {
+          "label": "possession_started",
+          "turn": 1,
+          "active_player": 1,
+          "winner": null,
+          "player_hp": {
+            "1": 4000,
+            "2": 4000
+          },
+          "field": {
+            "1": [
+              {
+                "id": "ino",
+                "body_id": "tenten",
+                "hp": 777,
+                "max_hp": 1100,
+                "shield": 222,
+                "disabled": 0,
+                "special_used": true,
+                "special_cd": 3,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 125,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false,
+                "ino_target": "tenten",
+                "ino_turns": 5,
+                "shino_poisoned": true
+              },
+              {
+                "id": "kiba",
+                "body_id": "kiba",
+                "hp": 1238,
+                "max_hp": 1238,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.125,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              },
+              {
+                "id": "shino",
+                "body_id": "shino",
+                "hp": 1125,
+                "max_hp": 1125,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.125,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              }
+            ],
+            "2": [
+              {
+                "id": "tenten",
+                "body_id": "tenten",
+                "hp": 777,
+                "max_hp": 1100,
+                "shield": 222,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 125,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false,
+                "possessed_by": "ino",
+                "shino_poisoned": true
+              },
+              {
+                "id": "sakura",
+                "body_id": "sakura",
+                "hp": 1600,
+                "max_hp": 1600,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              },
+              {
+                "id": "karin",
+                "body_id": "karin",
+                "hp": 2000,
+                "max_hp": 2000,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              }
+            ]
+          },
+          "reserve": {
+            "1": [
+              "anko",
+              "kankuro",
+              "konohamaru",
+              "suigetsu",
+              "tenten"
+            ],
+            "2": [
+              "ino",
+              "kankuro",
+              "kiba",
+              "konohamaru",
+              "shino"
+            ]
+          },
+          "graveyard": {
+            "1": [],
+            "2": []
+          },
+          "delayed": {
+            "1": null,
+            "2": null
+          },
+          "pending_replacement": null
+        },
+        {
+          "label": "body_mutated_during_possession",
+          "turn": 1,
+          "active_player": 1,
+          "winner": null,
+          "player_hp": {
+            "1": 4000,
+            "2": 4000
+          },
+          "field": {
+            "1": [
+              {
+                "id": "ino",
+                "body_id": "tenten",
+                "hp": 777,
+                "max_hp": 1100,
+                "shield": 333,
+                "disabled": 0,
+                "special_used": true,
+                "special_cd": 3,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 202,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false,
+                "ino_target": "tenten",
+                "ino_turns": 5,
+                "shino_poisoned": true
+              },
+              {
+                "id": "kiba",
+                "body_id": "kiba",
+                "hp": 1238,
+                "max_hp": 1238,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.125,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              },
+              {
+                "id": "shino",
+                "body_id": "shino",
+                "hp": 1125,
+                "max_hp": 1125,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.125,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              }
+            ],
+            "2": [
+              {
+                "id": "tenten",
+                "body_id": "tenten",
+                "hp": 777,
+                "max_hp": 1100,
+                "shield": 333,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 202,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false,
+                "possessed_by": "ino",
+                "shino_poisoned": true
+              },
+              {
+                "id": "sakura",
+                "body_id": "sakura",
+                "hp": 1600,
+                "max_hp": 1600,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              },
+              {
+                "id": "karin",
+                "body_id": "karin",
+                "hp": 2000,
+                "max_hp": 2000,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              }
+            ]
+          },
+          "reserve": {
+            "1": [
+              "anko",
+              "kankuro",
+              "konohamaru",
+              "suigetsu",
+              "tenten"
+            ],
+            "2": [
+              "ino",
+              "kankuro",
+              "kiba",
+              "konohamaru",
+              "shino"
+            ]
+          },
+          "graveyard": {
+            "1": [],
+            "2": []
+          },
+          "delayed": {
+            "1": null,
+            "2": null
+          },
+          "pending_replacement": null
+        },
+        {
+          "label": "possession_ended_state_preserved",
+          "turn": 12,
+          "active_player": 2,
+          "winner": null,
+          "player_hp": {
+            "1": 4000,
+            "2": 4000
+          },
+          "field": {
+            "1": [
+              {
+                "id": "ino",
+                "body_id": "ino",
+                "hp": 1300,
+                "max_hp": 1300,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": true,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false,
+                "ino_target": null,
+                "ino_turns": 0
+              },
+              {
+                "id": "kiba",
+                "body_id": "kiba",
+                "hp": 1238,
+                "max_hp": 1238,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.125,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              },
+              {
+                "id": "shino",
+                "body_id": "shino",
+                "hp": 1125,
+                "max_hp": 1125,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.125,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              }
+            ],
+            "2": [
+              {
+                "id": "tenten",
+                "body_id": "tenten",
+                "hp": 535,
+                "max_hp": 1100,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 202,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false,
+                "shino_poisoned": true
+              },
+              {
+                "id": "sakura",
+                "body_id": "sakura",
+                "hp": 1600,
+                "max_hp": 1600,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              },
+              {
+                "id": "karin",
+                "body_id": "karin",
+                "hp": 2000,
+                "max_hp": 2000,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              }
+            ]
+          },
+          "reserve": {
+            "1": [
+              "anko",
+              "kankuro",
+              "konohamaru",
+              "suigetsu",
+              "tenten"
+            ],
+            "2": [
+              "ino",
+              "kankuro",
+              "kiba",
+              "konohamaru",
+              "shino"
+            ]
+          },
+          "graveyard": {
+            "1": [],
+            "2": []
+          },
+          "delayed": {
+            "1": null,
+            "2": null
+          },
+          "pending_replacement": null
+        }
+      ]
+    },
+    {
+      "name": "ino_failure_3_turn_stun",
+      "seed": 1000,
+      "trace": [
+        {
+          "label": "initial",
+          "turn": 1,
+          "active_player": 1,
+          "winner": null,
+          "player_hp": {
+            "1": 4000,
+            "2": 4000
+          },
+          "field": {
+            "1": [
+              {
+                "id": "ino",
+                "body_id": "ino",
+                "hp": 1300,
+                "max_hp": 1300,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false,
+                "ino_target": null,
+                "ino_turns": 0
+              },
+              {
+                "id": "kiba",
+                "body_id": "kiba",
+                "hp": 1238,
+                "max_hp": 1238,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.125,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              },
+              {
+                "id": "shino",
+                "body_id": "shino",
+                "hp": 1125,
+                "max_hp": 1125,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.125,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              }
+            ],
+            "2": [
+              {
+                "id": "tenten",
+                "body_id": "tenten",
+                "hp": 1100,
+                "max_hp": 1100,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              },
+              {
+                "id": "sakura",
+                "body_id": "sakura",
+                "hp": 1600,
+                "max_hp": 1600,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              },
+              {
+                "id": "karin",
+                "body_id": "karin",
+                "hp": 2000,
+                "max_hp": 2000,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              }
+            ]
+          },
+          "reserve": {
+            "1": [
+              "anko",
+              "kankuro",
+              "konohamaru",
+              "suigetsu",
+              "tenten"
+            ],
+            "2": [
+              "ino",
+              "kankuro",
+              "kiba",
+              "konohamaru",
+              "shino"
+            ]
+          },
+          "graveyard": {
+            "1": [],
+            "2": []
+          },
+          "delayed": {
+            "1": null,
+            "2": null
+          },
+          "pending_replacement": null
+        },
+        {
+          "label": "transfer_failed_armed",
+          "turn": 1,
+          "active_player": 1,
+          "winner": null,
+          "player_hp": {
+            "1": 4000,
+            "2": 4000
+          },
+          "field": {
+            "1": [
+              {
+                "id": "ino",
+                "body_id": "ino",
+                "hp": 1300,
+                "max_hp": 1300,
+                "shield": 0,
+                "disabled": 4,
+                "special_used": true,
+                "special_cd": 3,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false,
+                "ino_target": null,
+                "ino_turns": 0
+              },
+              {
+                "id": "kiba",
+                "body_id": "kiba",
+                "hp": 1238,
+                "max_hp": 1238,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.125,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              },
+              {
+                "id": "shino",
+                "body_id": "shino",
+                "hp": 1125,
+                "max_hp": 1125,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.125,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              }
+            ],
+            "2": [
+              {
+                "id": "tenten",
+                "body_id": "tenten",
+                "hp": 1100,
+                "max_hp": 1100,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              },
+              {
+                "id": "sakura",
+                "body_id": "sakura",
+                "hp": 1600,
+                "max_hp": 1600,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              },
+              {
+                "id": "karin",
+                "body_id": "karin",
+                "hp": 2000,
+                "max_hp": 2000,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              }
+            ]
+          },
+          "reserve": {
+            "1": [
+              "anko",
+              "kankuro",
+              "konohamaru",
+              "suigetsu",
+              "tenten"
+            ],
+            "2": [
+              "ino",
+              "kankuro",
+              "kiba",
+              "konohamaru",
+              "shino"
+            ]
+          },
+          "graveyard": {
+            "1": [],
+            "2": []
+          },
+          "delayed": {
+            "1": null,
+            "2": null
+          },
+          "pending_replacement": null
+        },
+        {
+          "label": "failure_current_turn_closed",
+          "turn": 2,
+          "active_player": 2,
+          "winner": null,
+          "player_hp": {
+            "1": 4000,
+            "2": 4000
+          },
+          "field": {
+            "1": [
+              {
+                "id": "ino",
+                "body_id": "ino",
+                "hp": 1300,
+                "max_hp": 1300,
+                "shield": 0,
+                "disabled": 3,
+                "special_used": true,
+                "special_cd": 3,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false,
+                "ino_target": null,
+                "ino_turns": 0
+              },
+              {
+                "id": "kiba",
+                "body_id": "kiba",
+                "hp": 1238,
+                "max_hp": 1238,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.125,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              },
+              {
+                "id": "shino",
+                "body_id": "shino",
+                "hp": 1125,
+                "max_hp": 1125,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.125,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              }
+            ],
+            "2": [
+              {
+                "id": "tenten",
+                "body_id": "tenten",
+                "hp": 1100,
+                "max_hp": 1100,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              },
+              {
+                "id": "sakura",
+                "body_id": "sakura",
+                "hp": 1600,
+                "max_hp": 1600,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              },
+              {
+                "id": "karin",
+                "body_id": "karin",
+                "hp": 2000,
+                "max_hp": 2000,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              }
+            ]
+          },
+          "reserve": {
+            "1": [
+              "anko",
+              "kankuro",
+              "konohamaru",
+              "suigetsu",
+              "tenten"
+            ],
+            "2": [
+              "ino",
+              "kankuro",
+              "kiba",
+              "konohamaru",
+              "shino"
+            ]
+          },
+          "graveyard": {
+            "1": [],
+            "2": []
+          },
+          "delayed": {
+            "1": null,
+            "2": null
+          },
+          "pending_replacement": null
+        },
+        {
+          "label": "failure_missed_turn_1",
+          "turn": 4,
+          "active_player": 2,
+          "winner": null,
+          "player_hp": {
+            "1": 4000,
+            "2": 4000
+          },
+          "field": {
+            "1": [
+              {
+                "id": "ino",
+                "body_id": "ino",
+                "hp": 1300,
+                "max_hp": 1300,
+                "shield": 0,
+                "disabled": 2,
+                "special_used": true,
+                "special_cd": 2,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false,
+                "ino_target": null,
+                "ino_turns": 0
+              },
+              {
+                "id": "kiba",
+                "body_id": "kiba",
+                "hp": 1238,
+                "max_hp": 1238,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.125,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              },
+              {
+                "id": "shino",
+                "body_id": "shino",
+                "hp": 1125,
+                "max_hp": 1125,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.125,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              }
+            ],
+            "2": [
+              {
+                "id": "tenten",
+                "body_id": "tenten",
+                "hp": 1100,
+                "max_hp": 1100,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              },
+              {
+                "id": "sakura",
+                "body_id": "sakura",
+                "hp": 1600,
+                "max_hp": 1600,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              },
+              {
+                "id": "karin",
+                "body_id": "karin",
+                "hp": 2000,
+                "max_hp": 2000,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              }
+            ]
+          },
+          "reserve": {
+            "1": [
+              "anko",
+              "kankuro",
+              "konohamaru",
+              "suigetsu",
+              "tenten"
+            ],
+            "2": [
+              "ino",
+              "kankuro",
+              "kiba",
+              "konohamaru",
+              "shino"
+            ]
+          },
+          "graveyard": {
+            "1": [],
+            "2": []
+          },
+          "delayed": {
+            "1": null,
+            "2": null
+          },
+          "pending_replacement": null
+        },
+        {
+          "label": "failure_missed_turn_2",
+          "turn": 6,
+          "active_player": 2,
+          "winner": null,
+          "player_hp": {
+            "1": 4000,
+            "2": 4000
+          },
+          "field": {
+            "1": [
+              {
+                "id": "ino",
+                "body_id": "ino",
+                "hp": 1300,
+                "max_hp": 1300,
+                "shield": 0,
+                "disabled": 1,
+                "special_used": true,
+                "special_cd": 1,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false,
+                "ino_target": null,
+                "ino_turns": 0
+              },
+              {
+                "id": "kiba",
+                "body_id": "kiba",
+                "hp": 1238,
+                "max_hp": 1238,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.125,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              },
+              {
+                "id": "shino",
+                "body_id": "shino",
+                "hp": 1125,
+                "max_hp": 1125,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.125,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              }
+            ],
+            "2": [
+              {
+                "id": "tenten",
+                "body_id": "tenten",
+                "hp": 1100,
+                "max_hp": 1100,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              },
+              {
+                "id": "sakura",
+                "body_id": "sakura",
+                "hp": 1600,
+                "max_hp": 1600,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              },
+              {
+                "id": "karin",
+                "body_id": "karin",
+                "hp": 2000,
+                "max_hp": 2000,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              }
+            ]
+          },
+          "reserve": {
+            "1": [
+              "anko",
+              "kankuro",
+              "konohamaru",
+              "suigetsu",
+              "tenten"
+            ],
+            "2": [
+              "ino",
+              "kankuro",
+              "kiba",
+              "konohamaru",
+              "shino"
+            ]
+          },
+          "graveyard": {
+            "1": [],
+            "2": []
+          },
+          "delayed": {
+            "1": null,
+            "2": null
+          },
+          "pending_replacement": null
+        },
+        {
+          "label": "failure_missed_turn_3",
+          "turn": 8,
+          "active_player": 2,
+          "winner": null,
+          "player_hp": {
+            "1": 4000,
+            "2": 4000
+          },
+          "field": {
+            "1": [
+              {
+                "id": "ino",
+                "body_id": "ino",
+                "hp": 1300,
+                "max_hp": 1300,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": true,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false,
+                "ino_target": null,
+                "ino_turns": 0
+              },
+              {
+                "id": "kiba",
+                "body_id": "kiba",
+                "hp": 1238,
+                "max_hp": 1238,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.125,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              },
+              {
+                "id": "shino",
+                "body_id": "shino",
+                "hp": 1125,
+                "max_hp": 1125,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.125,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              }
+            ],
+            "2": [
+              {
+                "id": "tenten",
+                "body_id": "tenten",
+                "hp": 1100,
+                "max_hp": 1100,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              },
+              {
+                "id": "sakura",
+                "body_id": "sakura",
+                "hp": 1600,
+                "max_hp": 1600,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              },
+              {
+                "id": "karin",
+                "body_id": "karin",
+                "hp": 2000,
+                "max_hp": 2000,
+                "shield": 0,
+                "disabled": 0,
+                "special_used": false,
+                "special_cd": 0,
+                "synergy": 0.0,
+                "buffs": {
+                  "taijutsu": 0,
+                  "ninjutsu": 0,
+                  "genjutsu": 0
+                },
+                "blocked": {},
+                "reactive_counter": false
+              }
+            ]
+          },
+          "reserve": {
+            "1": [
+              "anko",
+              "kankuro",
+              "konohamaru",
+              "suigetsu",
+              "tenten"
+            ],
+            "2": [
+              "ino",
+              "kankuro",
+              "kiba",
+              "konohamaru",
+              "shino"
+            ]
+          },
+          "graveyard": {
+            "1": [],
+            "2": []
+          },
+          "delayed": {
+            "1": null,
+            "2": null
+          },
+          "pending_replacement": null
+        }
+      ]
+    }
+  ]
+}

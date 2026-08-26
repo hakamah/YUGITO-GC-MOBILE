@@ -1,0 +1,41 @@
+YUGITO Mobile Tkinter/WebView 1.7.12 — audit adaptatif pour YUGITO GC
+======================================================================
+
+APK de référence inspectée :
+YUGITO_Mobile_1.7.12_YUGITO06_YAMATO_ZETSU_TOBI_R3_TOBI_FINAL_FIX.apk
+
+Ancien package Android :
+com.hakamah.yugitomobile
+
+PRINCIPES MOBILE À CONSERVER DANS GODOT
+- Interfaces utilisables au doigt : boutons/commandes sensiblement plus hauts.
+- Pas de dépendance au hover pour une action importante.
+- Draft : 3 cartes maximum par ligne + scroll vertical.
+- Sélection des 3 Ninjas : 3 cartes maximum par ligne + scroll vertical.
+- Cartes affichées entièrement avec PV / TAI / NIN / GEN / Passif / Spéciale lisibles.
+- Terrain : les 3 Ninjas actifs restent visibles simultanément.
+- Éviter le scroll horizontal pour les zones tactiques.
+- Collection / listes : privilégier 3 cartes par ligne et scrolling vertical.
+- Filtres et recherche adaptés au tactile.
+- Pré-combat et combat occupent tout l'écran utile.
+- Scrolling inertiel / panneaux scrollables pour les longues listes.
+
+DIFFÉRENCE VOLONTAIRE YUGITO GC MOBILE
+L'ancien client pouvait utiliser le portrait dans le menu et forçait surtout
+le paysage du Shifumi au combat.
+
+YUGITO GC NE REPREND PAS CE COMPORTEMENT :
+- paysage uniquement dès le lancement ;
+- SENSOR_LANDSCAPE ;
+- aucun layout portrait ;
+- aucune bascule automatique portrait ;
+- paysage normal ou paysage inversé selon le capteur.
+
+IMPLÉMENTATION GODOT
+- canvas virtuel conservé : 1600×900 ;
+- aspect keep : pas de crop arbitraire sur écran très large ;
+- Android : 3 colonnes Collection / Deck / Draft / Lineup ;
+- vidéo de menu identique, version mobile 1600×900 / 15 FPS ;
+- combat conserve trois cartes actives visibles ;
+- gestes tactiles convertis en clic souris par Godot ;
+- bouton Retour Android géré nativement par MobilePlatform.

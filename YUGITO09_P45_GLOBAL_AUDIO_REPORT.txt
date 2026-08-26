@@ -1,0 +1,66 @@
+YUGITO 2.0 — PROTOTYPE 45 GLOBAL AUDIO
+=======================================
+
+OBJECTIF
+Remplacer les systèmes audio séparés du menu, du pré-combat et du combat
+par une seule couche persistante, comme un vrai client complet.
+
+AUDIO MANAGER
+- Nouvel Autoload : res://scripts/AudioManager.gd
+- Persiste pendant tous les changements de scène.
+- Musique globale.
+- SFX globaux.
+- Pause / reprise musique disponibles.
+- AssetCache utilisé pour tous les flux.
+- Pool global de 12 AudioStreamPlayer pour les SFX.
+- Plus aucune allocation AudioStreamPlayer par clic/attaque.
+
+PERSISTANCE
+- Musique par défaut : 38 %.
+- SFX par défaut : 58 %.
+- Sauvegarde automatique : user://yugito_audio.json.
+- Chargement automatique au démarrage.
+- Les sliders Options lisent directement le manager global.
+- Toute modification est appliquée immédiatement et sauvegardée.
+
+MUSIQUES
+- Menu : res://assets/audio/music/menu.mp3
+- Shifumi / Draft / sélection : res://assets/audio/music/selection.mp3
+- Combat : res://assets/audio/music/ingame.mp3
+- Les transitions de scène changent la musique dans le même Autoload.
+- Rejouer un duel ne recrée plus de lecteur musique.
+
+SFX
+- AppShell / UI : AudioManager.
+- Pré-combat / Draft : AudioManager.
+- Combat / techniques / attaques / K.O. / victoire / défaite : AudioManager.
+- Chaque appel conserve son trim dB local, puis le volume utilisateur global est appliqué par-dessus.
+
+OPTIONS
+- Slider Musique global.
+- Slider Effets global.
+- TEST MUSIQUE.
+- TEST EFFET.
+- Message explicite indiquant que les réglages pilotent tout le jeu.
+
+NETTOYAGE
+- AppShell.gd : 0 AudioStreamPlayer local.
+- PreBattle.gd : 0 AudioStreamPlayer local.
+- Main.gd : 0 AudioStreamPlayer local.
+- Tous les AudioStreamPlayer sont désormais centralisés dans AudioManager.gd.
+
+VALIDATION
+- P45 Global Audio : 37/37 PASS
+- P44 Solo Completion conservé : 31/31 PASS
+- P40 gameplay regression : 422/422 PASS
+- GDScript structural gate : PASS (27 fichiers)
+- Python compilation : PASS
+
+NOTE
+Le runtime Godot n'est pas installé dans cet environnement ; le mix réel des volumes
+sur Android doit être vérifié à l'oreille sur appareil. La structure garantit cependant
+que les pourcentages sont désormais réellement communs à toutes les scènes.
+
+ROADMAP SUIVANTE
+P46 : comptes / profil / identité YUGITO.
+Puis Google/Auth → Multijoueur/ELO → Amis/Messages → Boutique/YT/Collection possédée.

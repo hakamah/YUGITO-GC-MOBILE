@@ -1,0 +1,8 @@
+Audit exécuté sur le moteur Python de YUGITO(4) avant le portage P10.
+
+- PV joueur au lancement : 4000 / 4000.
+- Terrain : 3 Ninjas ; réserve : 5 Ninjas.
+- Dégâts Naruto Ninjutsu -> Shikamaru calculés par le moteur : 650 (ATK 1450 / DEF 800).
+- Switch Naruto -> Sakura -> Naruto : l'instance Naruto revient avec son état conservé (PV/bouclier persistants ; un effet de terrain/passif peut modifier les PV lors du cycle, ce qui confirme que le moteur conserve bien l'instance et ne recrée pas une carte vierge).
+- A2 de J1 programmée puis validation de J2 : l'A2 part avant les actions de J2 et est consommée.
+- Pendant ce test, Choji a intercepté automatiquement l'attaque destinée à Shikamaru, confirmant l'ordre de garde du moteur.

@@ -1,0 +1,63 @@
+[OK] 197 Hashirama AOE -100 au début du tour
+[OK] 197 Hashirama soin 200 seulement si dégâts spéciale
+[OK] 198 Madara immunité spéciale Genjutsu
+[OK] 198 Madara immunité contrôles incapacitants
+[OK] 198 Madara Susanoo +500 + bouclier 300
+[OK] 199 Nagato réduction 200 NIN/GEN
+[OK] 199 Nagato bloque Taijutsu après Shinra
+[OK] 200 Obito commence intangible
+[OK] 200 Obito alternance fin de tour adverse
+[OK] 200 Obito Kamui détruit boucliers avant impact
+[OK] 201 Itachi Tsukuyomi après vrais dégâts HP
+[OK] 201 Itachi immunités Bee/Madara
+[OK] 201 Itachi Counter-Switch
+[OK] 201 Itachi Katon AOE 350 autres cibles
+[OK] 202 Jiraiya +10 aux 3 arts par tour complet terrain
+[OK] 202 Jiraiya Mode ermite permanent
+[OK] 203 Killer Bee ne perd pas son tour hors scellement
+[OK] 203 Killer Bee spéciale non bloquée
+[OK] 203 Killer Bee bouclier si dégâts >=400
+[OK] 204 Gai seuils 75/50/25 +250 cumulatif
+[OK] 204 Gai Hirudora recul non létal
+[OK] 204 Gai seuil re-évalué après recul Hirudora
+[OK] 205 Minato Hiraishin gratuit
+[OK] 205 Minato ignore passifs défensifs toutes attaques
+[OK] 205 Minato Rasengan +300 et bouclier KO
+[OK] 206 Naruto +350 TAI/NIN sous 50%
+[OK] 206 Naruto illustration sous 50%
+[OK] 206 Naruto Rasengan -100 NIN durée exacte
+[OK] snapshot PC contient mêmes règles bloc 197-206
+[OK] P31 metadata
+
+30/30 checks passed
+ALL P31 CHARACTER AUDIT I GATES PASSED
+
+### GDScript structure
+[OK] scripts/AppShell.gd
+[OK] scripts/Atmosphere.gd
+[OK] scripts/CardActor.gd
+[OK] scripts/GameSession.gd
+[OK] scripts/Main.gd
+[OK] scripts/MenuCard.gd
+[OK] scripts/ParityRNG.gd
+[OK] scripts/PreBattle.gd
+[OK] scripts/ReplacementModal.gd
+[OK] scripts/SynergyDB.gd
+[OK] tools/parity/P16BattleSmoke.gd
+[OK] tools/parity/P18ControlSmoke.gd
+[OK] tools/parity/P19KOSmoke.gd
+[OK] tools/parity/P20ClassicVisualSmoke.gd
+[OK] tools/parity/P21A2SecretStatusSmoke.gd
+[OK] tools/parity/P22TurnPlanSmoke.gd
+[OK] tools/parity/P23CombatTimerSmoke.gd
+[OK] tools/parity/P24ReplacementTimeoutSmoke.gd
+[OK] tools/parity/P25ByakuganTrackerSmoke.gd
+[OK] tools/parity/P26LinkFieldStatusSmoke.gd
+[OK] tools/parity/ParitySmoke.gd
+ALL GDSCRIPT STRUCTURE CHECKS PASSED (21 files)
+
+### Python compilation
+[OK] all parity/reference Python sources compile
+
+### Godot runtime
+[LIMIT] Godot executable unavailable; static/PC parity gate only.

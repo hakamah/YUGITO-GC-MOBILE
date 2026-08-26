@@ -1,0 +1,44 @@
+YUGITO 09 / P31.1 — SHIKAMARU MOBILE LOCK
+==========================================
+
+15/15 contrôles ciblés : PASS
+- helper A1/A2 commun
+- contexte A2 RÉACTION
+- cible choisie laissée libre
+- deux autres cibles = Ombres 3T
+- can_act bloqué
+- bandeau OMBRE DES NARA présent
+- cache visuel explicitement invalidable
+- rendu forcé lors de l'application
+- resync différé mobile 80 ms
+- reconstruction des liens persistants
+- resync demandé après consommation de spéciale
+- immunités Killer Bee / Madara conservées
+- rupture sur vrais dégâts HP de Shikamaru conservée
+- verrou Switch conservé
+- metadata P31.1
+
+PC REFERENCE P21
+----------------
+shikamaru_delayed_a2 :
+- a2_consumed = true
+- cooldown = 4
+- free_slot = 0
+- shadow_turns = [0, 3, 3]
+- resolved_before_enemy_actions = true
+
+GDSCRIPT STRUCTURE
+------------------
+22 fichiers : PASS
+
+PYTHON COMPILE
+--------------
+tools/parity/*.py + legacy_reference/*.py : PASS
+
+NOTE LEGACY
+-----------
+Le vieux check_p21 complet contient un test de proportions Draft P20 devenu obsolète depuis la refonte P30. Il échoue sur cette assertion historique de layout uniquement ; les contrôles Shikamaru P21 et le scénario PC restent valides. Ce n'est pas une régression gameplay.
+
+GODOT RUNTIME
+-------------
+Le smoke `tools/parity/P31_1ShikamaruMobileSmoke.gd` est livré. Runtime Godot non disponible dans l'environnement de build pour exécution headless.

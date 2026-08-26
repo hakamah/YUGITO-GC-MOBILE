@@ -1,0 +1,78 @@
+YUGITO 09 / PROTOTYPE 36 — SYNERGY + COLLECTION + DECK
+====================================================
+
+SCOPE
+- Roadmap 267→274: synergies dynamiques.
+- Roadmap 275→280: Collection.
+- Bonus demandé: Deck builder 281→285 avancé dans la même build.
+
+SYNERGIES
+- Trio famille: +20 %.
+- Deux membres de famille: +12,5 %.
+- Duo explicite: +15 %.
+- Zetsu + Akatsuki: +15 %.
+- Aucun cumul: meilleur bonus seulement.
+- PV max recalculé en conservant le ratio de PV, sans soin artificiel.
+- Recalcul sur mises à jour terrain / Switch / remplacement / K.O.
+
+COLLECTION
+- Recherche texte live nom/id/élément/passif/spéciale/rôles.
+- 20 filtres de rôles PC (6 principaux + 14 avancés).
+- Rôles visibles sur vignettes et fiche.
+- Synergies dans fiche longue.
+- Statut BASE • GRATUITE • DISPONIBLE.
+- Fiche longue avec scroll indépendant.
+- Compteur de résultats / filtres.
+
+DECK BUILDER
+- Recherche texte + filtres de rôles.
+- Scroll catalogue conservé.
+- Total étoiles en direct.
+- Quotas en direct: 3,5★ / 4★ / 4,5★ / 5★.
+- Raisons de verrouillage explicites.
+- Sauvegarde locale inchangée.
+- Deck local séparé du Draft Solo Classic.
+
+VALIDATION
+[OK] 267 Godot family table present
+[OK] 267 PC family constants present
+[OK] 268 trio = +20%
+[OK] 269 family pair = +12.5%
+[OK] 270 explicit duo = +15%
+[OK] 271 Zetsu/Akatsuki = +15%
+[OK] 272 no stacking / best only
+[OK] 273 HP ratio preserved
+[OK] 273 synergy HP based on printed HP
+[OK] 274 dynamic field refresh exists
+[OK] 274 team status always refreshes synergies
+[OK] 274 defeated actors lose synergy
+[OK] 275 collection text search
+[OK] 275 search includes name/id/element
+[OK] 276 collection role filters
+[OK] 276 PC primary roles imported
+[OK] 276 advanced roles imported
+[OK] 277 role badges/text on cards
+[OK] 277 roles visible in detail
+[OK] 278 synergies in long card sheet
+[OK] 279 base/free/available status
+[OK] 280 detail has independent ScrollContainer
+[OK] 280 collection result counter
+[OK] 281 deck text search
+[OK] 281 deck role filters
+[OK] 282 deck catalog remains scrollable
+[OK] 283 live total stars
+[OK] 283 live tier counts
+[OK] 284 duplicate reason
+[OK] 284 full deck reason
+[OK] 284 tier cap reason
+[OK] 284 total star reason
+[OK] 285 local deck remains separate from solo draft
+[OK] 70 cards data still present
+[OK] P36 metadata AppShell
+[OK] P36 metadata Main
+
+P36: 36/36 checks passed
+
+ALL GDSCRIPT STRUCTURE CHECKS PASSED (24 files)
+[OK] Python parity/reference compilation
+[INFO] Godot runtime/headless non disponible dans cet environnement.

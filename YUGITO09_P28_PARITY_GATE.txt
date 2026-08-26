@@ -1,0 +1,37 @@
+YUGITO 09 / P28 — FINAL VALIDATION
+=================================
+
+[OK] 173 Naruto dynamique
+[OK] 174 Jiraiya ermite
+[OK] 175 Gai 3 stades
+[OK] 176 Gengetsu clone
+[OK] 177 Jugo 2 stades
+[OK] 178 Rin Isobu identité
+[OK] 179 Sexy Jutsu
+[OK] P28 metadata
+ALL P28 TRANSFORMATION GATES PASSED
+
+[OK] scripts/AppShell.gd
+[OK] scripts/Atmosphere.gd
+[OK] scripts/CardActor.gd
+[OK] scripts/GameSession.gd
+[OK] scripts/Main.gd
+[OK] scripts/MenuCard.gd
+[OK] scripts/ParityRNG.gd
+[OK] scripts/PreBattle.gd
+[OK] scripts/ReplacementModal.gd
+[OK] scripts/SynergyDB.gd
+[OK] tools/parity/P16BattleSmoke.gd
+[OK] tools/parity/P18ControlSmoke.gd
+[OK] tools/parity/P19KOSmoke.gd
+[OK] tools/parity/P20ClassicVisualSmoke.gd
+[OK] tools/parity/P21A2SecretStatusSmoke.gd
+[OK] tools/parity/P22TurnPlanSmoke.gd
+[OK] tools/parity/P23CombatTimerSmoke.gd
+[OK] tools/parity/P24ReplacementTimeoutSmoke.gd
+[OK] tools/parity/P25ByakuganTrackerSmoke.gd
+[OK] tools/parity/P26LinkFieldStatusSmoke.gd
+[OK] tools/parity/ParitySmoke.gd
+ALL GDSCRIPT STRUCTURE CHECKS PASSED (21 files)
+
+[OK] python -m py_compile tools/parity/*.py legacy_reference/*.py

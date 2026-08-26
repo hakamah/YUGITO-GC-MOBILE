@@ -1,0 +1,110 @@
+YUGITO 09 / Prototype 15 — parity gate
+
+
+== test_data_parity ==
+[OK] fichiers cartes présents
+[OK] 70 données cartes Godot = PC — b2524b8241f3b3b630a759e30c8bb70025a77d446aae01df09fd5ea64b1aaa8a
+[OK] roster = 70 cartes
+
+== test_reference_snapshot_integrity ==
+[OK] snapshots moteur PC présents
+[OK] game_engine.py = snapshot PC 1.8.21 — 8bff61f2071188b5d6f9d7bb8070bba321ba7bab5aeef1ce61e8be990e5d9a62
+
+== test_state_schema_static ==
+[OK] export réserve : definition_max_hp
+[OK] import réserve : definition_max_hp
+[OK] export réserve : base_max_hp
+[OK] import réserve : base_max_hp
+[OK] export réserve : max_hp
+[OK] import réserve : max_hp
+[OK] export réserve : taijutsu
+[OK] import réserve : taijutsu
+[OK] export réserve : ninjutsu
+[OK] import réserve : ninjutsu
+[OK] export réserve : genjutsu
+[OK] import réserve : genjutsu
+[OK] export réserve : element_name
+[OK] import réserve : element_name
+[OK] export réserve : hp
+[OK] import réserve : hp
+[OK] export réserve : shield
+[OK] import réserve : shield
+[OK] export réserve : special_used
+[OK] import réserve : special_used
+[OK] export réserve : special_cooldown
+[OK] import réserve : special_cooldown
+[OK] export réserve : disabled_turns
+[OK] import réserve : disabled_turns
+[OK] export réserve : kankuro_decoy_used
+[OK] import réserve : kankuro_decoy_used
+[OK] export réserve : kankuro_defense_active
+[OK] import réserve : kankuro_defense_active
+[OK] export réserve : reactive_entry_guard
+[OK] import réserve : reactive_entry_guard
+[OK] export réserve : synergy_bonus_pct
+[OK] import réserve : synergy_bonus_pct
+[OK] export réserve : status_tags
+[OK] import réserve : status_tags
+[OK] export réserve : stat_buffs
+[OK] import réserve : stat_buffs
+[OK] export réserve : timed_modifiers
+[OK] import réserve : timed_modifiers
+[OK] schéma d'état versionné
+[OK] acteur logique virtuel disponible
+[OK] synergie PV : base imprimée + exception clone Gengetsu
+
+== test_a2_static ==
+[OK] A2 validée survit au départ source/cible
+[OK] A2 retrouve sa source par identité
+[OK] A2 cible d'abord l'identité
+[OK] suivi de slot limité au Switch A2 réactif
+[OK] A1 Switch -> A2 du Ninja entrant planifiable
+[OK] étape A2 explicitement marquée delayed
+[OK] Switch A2 programmé remplace le tirage lors d'un K.O.
+
+== test_damage_order_static ==
+[OK] ordre dégâts : réductions -> anti-zéro -> Kimimaro -> bouclier
+[OK] inciblabilité vérifiée avant Trancheur
+[OK] Mifune ne contourne plus l'inciblabilité
+[OK] Mifune conserve conversion/destruction des boucliers
+
+== test_haku_static ==
+[OK] Haku armé à toute entrée depuis réserve
+[OK] Haku ne teste sa parade que sur attaque programmée A2
+
+== test_rng_static ==
+[OK] RNG déterministe branché au combat
+[OK] aucun randf global dans Main
+[OK] LCG portable défini
+
+== test_pc_reference_behaviour ==
+[OK] deck PC de test construit — ['haku', 'tenten', 'ino', 'kiba', 'kankuro', 'konohamaru', 'shino', 'suigetsu']
+[OK] deck PC de test légal
+[OK] deck PC de test construit — ['sakura', 'shino', 'karin', 'ino', 'kankuro', 'kiba', 'konohamaru', 'suigetsu']
+[OK] deck PC de test légal
+[OK] PC : Switch A1 vers Haku — Tenten ↔ Haku.
+[OK] PC : Haku arme Miroirs après Switch A1
+[OK] PC : sortie d'Ino en réserve
+[OK] PC : retour d'Ino
+[OK] PC : même CardInstance après réserve
+[OK] PC : PV/bouclier/buff persistent
+[OK] deck PC de test construit — ['mifune', 'tenten', 'ino', 'kankuro', 'kiba', 'konohamaru', 'shino', 'suigetsu']
+[OK] deck PC de test légal
+[OK] deck PC de test construit — ['obito', 'sakura', 'shino', 'ino', 'kankuro', 'kiba', 'konohamaru', 'suigetsu']
+[OK] deck PC de test légal
+[OK] PC : Mifune ne traverse pas Obito intangible
+[OK] deck PC de test construit — ['tenten', 'ino', 'kiba', 'kankuro', 'konohamaru', 'shino', 'suigetsu', 'anko']
+[OK] deck PC de test légal
+[OK] deck PC de test construit — ['nagato', 'sakura', 'shino', 'ino', 'kankuro', 'kiba', 'konohamaru', 'suigetsu']
+[OK] deck PC de test légal
+[OK] PC : fallback anti-zéro après réduction — hp_damage=200
+[OK] deck PC de test construit — ['haku', 'tenten', 'ino', 'kiba', 'kankuro', 'konohamaru', 'shino', 'suigetsu']
+[OK] deck PC de test légal
+[OK] deck PC de test construit — ['sakura', 'shino', 'karin', 'ino', 'kankuro', 'kiba', 'konohamaru', 'suigetsu']
+[OK] deck PC de test légal
+[OK] PC : K.O. du sortant A2
+[OK] PC : Switch A2 d'urgence remplace le tirage
+[OK] PC : Switch A2 d'urgence consommé
+[OK] PC : sortant envoyé au cimetière
+
+ALL PARITY GATES PASSED
