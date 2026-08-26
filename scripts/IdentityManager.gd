@@ -35,7 +35,7 @@ func display_name() -> String:
     var clean: String = pseudo.strip_edges()
     return clean if not clean.is_empty() else "Joueur"
 
-func is_connected() -> bool:
+func is_account_connected() -> bool:
     return auth_state == AUTH_CONNECTED and not account_id.is_empty() and not pseudo.is_empty()
 
 func has_cached_identity() -> bool:
@@ -59,7 +59,7 @@ func profile() -> Dictionary:
         "winrate": winrate(),
         "auth_state": auth_state,
         "auth_message": auth_message,
-        "connected": is_connected(),
+        "connected": is_account_connected(),
         "last_sync_unix": last_sync_unix,
         "profile_source": profile_source,
     }
@@ -69,7 +69,7 @@ func public_identity_payload() -> Dictionary:
         "account_id":account_id,
         "pseudo":display_name(),
         "elo":elo,
-        "connected":is_connected(),
+        "connected":is_account_connected(),
     }
 
 func server_profile_payload() -> Dictionary:
@@ -122,7 +122,7 @@ func apply_ranked_profile(ranked_profile: Dictionary) -> void:
         ranked_matches = wins + losses
     best_elo = maxi(elo,_normalize_elo(int(ranked_profile.get("best_elo",best_elo))))
     last_sync_unix = int(Time.get_unix_time_from_system())
-    if is_connected():
+    if is_account_connected():
         profile_source = "server"
     _save_profile_cache()
     profile_changed.emit(profile())

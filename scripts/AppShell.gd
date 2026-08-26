@@ -570,7 +570,7 @@ func _show_identity_account() -> void:
     _label_in(panel,"AUTH SERVEUR",Rect2(166,84,230,22),9,Color("76aef5"),HORIZONTAL_ALIGNMENT_LEFT,true)
 
     var state: String = IdentityManager.auth_state
-    var connected: bool = IdentityManager.is_connected()
+    var connected: bool = IdentityManager.is_account_connected()
     var status_color: Color = _profile_status_color()
     _label_in(
         panel,

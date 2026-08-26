@@ -1,0 +1,16 @@
+YUGITO GC MOBILE — GITHUB ANDROID FIX 1
+
+Corrige :
+1. Collision Godot Object.is_connected() dans IdentityManager.gd.
+2. Active ETC2/ASTC requis pour l'export Android.
+
+À copier À LA RACINE de :
+C:\Users\Ryuk\Documents\GitHub\YUGITO-GC-MOBILE
+
+Accepter REMPLACER LES FICHIERS EXISTANTS.
+
+Fichiers :
+- project.godot
+- export_presets.cfg
+- scripts\IdentityManager.gd
+- scripts\AppShell.gd
