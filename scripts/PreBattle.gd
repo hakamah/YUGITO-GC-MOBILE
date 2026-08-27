@@ -1,6 +1,6 @@
 class_name YugitoPreBattle
 extends Control
-# P47M.4-DP: Android draft virtualization + light cards + low-churn timer.
+# P47M.4-DP/DT: Android draft virtualization + direct touch/mouse drag scrolling.
 
 signal battle_requested
 signal cancelled
@@ -71,6 +71,18 @@ var draft_mobile_visible_last: int = -1
 var draft_mobile_saved_scroll: float = 0.0
 var draft_mobile_active: String = ""
 var draft_detail_root: Control = null
+
+# P47M.4-DT — direct drag scrolling on the draft pool.
+# Touch: press + slide anywhere on the card pool.
+# Mouse: wheel remains native, and left-click + drag also scrolls.
+const MOBILE_DRAFT_DRAG_DEADZONE: float = 10.0
+var draft_drag_active: bool = false
+var draft_drag_moved: bool = false
+var draft_drag_start_pos: Vector2 = Vector2.ZERO
+var draft_drag_last_pos: Vector2 = Vector2.ZERO
+var draft_drag_start_scroll: float = 0.0
+var draft_touch_active: bool = false
+var draft_ignore_mouse_until_msec: int = 0
 
 # Do not invalidate the whole Canvas/UI 60 times per second for a timer that
 # visually changes only once per second.
@@ -350,6 +362,9 @@ func _clear_stage() -> void:
     draft_mobile_visible_last = -1
     draft_mobile_active = ""
     draft_detail_root = null
+    draft_drag_active = false
+    draft_drag_moved = false
+    draft_touch_active = false
     for child: Node in stage_root.get_children():
         stage_root.remove_child(child)
         child.queue_free()
@@ -626,6 +641,8 @@ func _draw_draft() -> void:
     scroll.position = Vector2(246,168)
     scroll.size = Vector2(766,544)
     scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+    scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+    scroll.scroll_deadzone = 6
     stage_root.add_child(scroll)
 
     if MobilePlatform.is_android():
@@ -691,6 +708,7 @@ func _build_mobile_draft_pool(scroll: ScrollContainer, active: String) -> void:
     pool.mouse_filter = Control.MOUSE_FILTER_PASS
     scroll.add_child(pool)
     draft_mobile_pool = pool
+    pool.gui_input.connect(_on_mobile_draft_pool_input)
 
     var vbar: VScrollBar = scroll.get_v_scroll_bar()
     if vbar != null:
@@ -786,6 +804,9 @@ func _draft_card_mobile(data: Dictionary, active: String) -> Button:
     btn.focus_mode = Control.FOCUS_NONE
     btn.clip_contents = true
     btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+    # Input is handled by the virtual pool so a finger can start dragging
+    # directly on top of a card without the Button swallowing the gesture.
+    btn.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
     var normal: StyleBoxFlat = StyleBoxFlat.new()
     normal.bg_color = Color(0.018,0.038,0.062,0.96)
@@ -846,8 +867,126 @@ func _draft_card_mobile(data: Dictionary, active: String) -> Button:
     _label(btn,status,Rect2(92,251,136,20),7,Color("6f8396") if muted else Color("64d5a3"),HORIZONTAL_ALIGNMENT_RIGHT,true)
 
     btn.disabled = active != "ally" or not owner.is_empty() or not allowed
-    btn.pressed.connect(_on_draft_card_pressed.bind(cid))
     return btn
+
+func _on_mobile_draft_pool_input(event: InputEvent) -> void:
+    if not is_instance_valid(draft_mobile_scroll) or not is_instance_valid(draft_mobile_pool):
+        return
+
+    # Native touchscreen path.
+    if event is InputEventScreenTouch:
+        var touch: InputEventScreenTouch = event as InputEventScreenTouch
+        if touch.pressed:
+            draft_touch_active = true
+            draft_drag_active = true
+            draft_drag_moved = false
+            draft_drag_start_pos = touch.position
+            draft_drag_last_pos = touch.position
+            draft_drag_start_scroll = float(draft_mobile_scroll.scroll_vertical)
+        else:
+            var was_dragging: bool = draft_drag_moved
+            draft_drag_active = false
+            draft_touch_active = false
+            draft_ignore_mouse_until_msec = Time.get_ticks_msec() + 250
+            if not was_dragging:
+                _mobile_draft_tap_at(touch.position)
+        draft_mobile_pool.accept_event()
+        return
+
+    if event is InputEventScreenDrag:
+        var drag: InputEventScreenDrag = event as InputEventScreenDrag
+        if not draft_drag_active:
+            draft_drag_active = true
+            draft_drag_start_pos = drag.position
+            draft_drag_last_pos = drag.position
+            draft_drag_start_scroll = float(draft_mobile_scroll.scroll_vertical)
+
+        var total_move: Vector2 = drag.position - draft_drag_start_pos
+        if total_move.length() >= MOBILE_DRAFT_DRAG_DEADZONE:
+            draft_drag_moved = true
+
+        if draft_drag_moved:
+            var delta_y: float = drag.position.y - draft_drag_last_pos.y
+            draft_mobile_scroll.scroll_vertical = int(
+                maxf(0.0, float(draft_mobile_scroll.scroll_vertical) - delta_y)
+            )
+            draft_mobile_saved_scroll = float(draft_mobile_scroll.scroll_vertical)
+            draft_drag_last_pos = drag.position
+        draft_mobile_pool.accept_event()
+        return
+
+    # Hardware mouse / DeX / desktop testing:
+    # mouse wheel is intentionally NOT accepted here, so ScrollContainer keeps
+    # its native wheel scrolling. Left-click + drag behaves like touch.
+    if event is InputEventMouseButton:
+        var mb: InputEventMouseButton = event as InputEventMouseButton
+        if mb.button_index != MOUSE_BUTTON_LEFT:
+            return
+        if Time.get_ticks_msec() < draft_ignore_mouse_until_msec:
+            return
+
+        if mb.pressed:
+            draft_drag_active = true
+            draft_drag_moved = false
+            draft_drag_start_pos = mb.position
+            draft_drag_last_pos = mb.position
+            draft_drag_start_scroll = float(draft_mobile_scroll.scroll_vertical)
+        else:
+            var was_dragging: bool = draft_drag_moved
+            draft_drag_active = false
+            if not was_dragging:
+                _mobile_draft_tap_at(mb.position)
+        draft_mobile_pool.accept_event()
+        return
+
+    if event is InputEventMouseMotion and draft_drag_active and not draft_touch_active:
+        var mm: InputEventMouseMotion = event as InputEventMouseMotion
+        var total_move: Vector2 = mm.position - draft_drag_start_pos
+        if total_move.length() >= MOBILE_DRAFT_DRAG_DEADZONE:
+            draft_drag_moved = true
+
+        if draft_drag_moved:
+            var delta_y: float = mm.position.y - draft_drag_last_pos.y
+            draft_mobile_scroll.scroll_vertical = int(
+                maxf(0.0, float(draft_mobile_scroll.scroll_vertical) - delta_y)
+            )
+            draft_mobile_saved_scroll = float(draft_mobile_scroll.scroll_vertical)
+            draft_drag_last_pos = mm.position
+            draft_mobile_pool.accept_event()
+
+func _mobile_draft_tap_at(local_pos: Vector2) -> void:
+    if _scheduled_team() != "ally":
+        return
+
+    var cell_width: float = MOBILE_DRAFT_CARD_SIZE.x + MOBILE_DRAFT_H_GAP
+    var row_height: float = MOBILE_DRAFT_ROW_HEIGHT
+    var col: int = int(floor(local_pos.x / cell_width))
+    var row: int = int(floor(local_pos.y / row_height))
+
+    if col < 0 or col >= MOBILE_DRAFT_COLUMNS or row < 0:
+        return
+
+    var inside_x: float = local_pos.x - float(col) * cell_width
+    var inside_y: float = local_pos.y - float(row) * row_height
+    if inside_x < 0.0 or inside_x > MOBILE_DRAFT_CARD_SIZE.x:
+        return
+    if inside_y < 0.0 or inside_y > MOBILE_DRAFT_CARD_SIZE.y:
+        return
+
+    var card_index: int = row * MOBILE_DRAFT_COLUMNS + col
+    if card_index < 0 or card_index >= cards.size():
+        return
+
+    var data: Dictionary = cards[card_index]
+    var cid: String = str(data.get("id",""))
+    if cid.is_empty():
+        return
+    if not str(draft_owner.get(cid,"")).is_empty():
+        return
+    if not _draft_allowed("ally", data):
+        return
+
+    _on_draft_card_pressed(cid)
 
 func _mobile_update_draft_selection(previous_id: String, current_id: String) -> void:
     _mobile_set_draft_card_selected(previous_id, false)
