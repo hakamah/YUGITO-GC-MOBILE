@@ -1,5 +1,6 @@
 class_name YugitoPreBattle
 extends Control
+# P47M.4-DP: Android draft virtualization + light cards + low-churn timer.
 
 signal battle_requested
 signal cancelled
@@ -49,6 +50,32 @@ var rps_revealing: bool = false
 var ai_reveal_id: String = ""
 var last_pick_id: String = ""
 var last_pick_team: String = ""
+
+# P47M.4-DP — Android draft fast path.
+# The old draft instantiated all ~70 rich MenuCard trees and rebuilt the whole
+# screen after every tap. On older Android devices this creates thousands of
+# Control/StyleBox operations and large frame spikes.
+const MOBILE_DRAFT_COLUMNS: int = 3
+const MOBILE_DRAFT_CARD_SIZE: Vector2 = Vector2(240, 306)
+const MOBILE_DRAFT_H_GAP: float = 8.0
+const MOBILE_DRAFT_V_GAP: float = 10.0
+const MOBILE_DRAFT_ROW_HEIGHT: float = 316.0
+const MOBILE_DRAFT_ROW_MARGIN: int = 1
+
+var draft_mobile_scroll: ScrollContainer = null
+var draft_mobile_pool: Control = null
+var draft_mobile_rows: Dictionary = {}
+var draft_mobile_card_nodes: Dictionary = {}
+var draft_mobile_visible_first: int = -1
+var draft_mobile_visible_last: int = -1
+var draft_mobile_saved_scroll: float = 0.0
+var draft_mobile_active: String = ""
+var draft_detail_root: Control = null
+
+# Do not invalidate the whole Canvas/UI 60 times per second for a timer that
+# visually changes only once per second.
+var decision_timer_last_second: int = -1
+var decision_timer_last_urgent: bool = false
 
 func _ready() -> void:
     MobilePlatform.enforce_landscape()
@@ -135,9 +162,14 @@ func _process(delta: float) -> void:
         return
     decision_time_left = maxf(0.0, decision_time_left - delta)
     if is_instance_valid(decision_timer_label):
-        decision_timer_label.text = "%02d" % int(ceil(decision_time_left))
+        var shown_second: int = int(ceil(decision_time_left))
         var urgent: bool = decision_time_left <= 8.0
-        decision_timer_label.add_theme_color_override("font_color", Color("ef6659") if urgent else Color("f0d25e"))
+        if shown_second != decision_timer_last_second:
+            decision_timer_last_second = shown_second
+            decision_timer_label.text = "%02d" % shown_second
+        if urgent != decision_timer_last_urgent:
+            decision_timer_last_urgent = urgent
+            decision_timer_label.add_theme_color_override("font_color", Color("ef6659") if urgent else Color("f0d25e"))
     if decision_time_left <= 0.0:
         decision_timer_active = false
         _on_prebattle_timeout(decision_context)
@@ -146,11 +178,15 @@ func _start_decision_timer(context: String) -> void:
     decision_context = context
     decision_time_left = PREBATTLE_TIMER_SECONDS
     decision_timer_active = true
+    decision_timer_last_second = -1
+    decision_timer_last_urgent = false
 
 func _stop_decision_timer() -> void:
     decision_timer_active = false
     decision_context = ""
     decision_time_left = 0.0
+    decision_timer_last_second = -1
+    decision_timer_last_urgent = false
 
 func _timer_badge(parent: Node, rect: Rect2, context: String) -> void:
     _panel(parent, rect, Color(0.98,0.99,1.0,0.10), Color(1.0,0.88,0.55,0.58), 12, 3)
@@ -304,6 +340,16 @@ func _logo_in_panel(parent: Node, pos: Vector2, side: float) -> void:
     parent.add_child(logo)
 
 func _clear_stage() -> void:
+    # Keep the scroll position between full draft refreshes, but release every
+    # reference to the old virtualized UI tree immediately.
+    draft_mobile_scroll = null
+    draft_mobile_pool = null
+    draft_mobile_rows.clear()
+    draft_mobile_card_nodes.clear()
+    draft_mobile_visible_first = -1
+    draft_mobile_visible_last = -1
+    draft_mobile_active = ""
+    draft_detail_root = null
     for child: Node in stage_root.get_children():
         stage_root.remove_child(child)
         child.queue_free()
@@ -440,6 +486,7 @@ func _continue_after_rps() -> void:
 func _begin_draft() -> void:
     draft_owner.clear()
     ally_draft.clear()
+    draft_mobile_saved_scroll = 0.0
     enemy_draft.clear()
     draft_selected_id = ""
     for d: Dictionary in cards:
@@ -580,13 +627,20 @@ func _draw_draft() -> void:
     scroll.size = Vector2(766,544)
     scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
     stage_root.add_child(scroll)
-    var grid: GridContainer = GridContainer.new()
-    grid.columns = 3
-    grid.add_theme_constant_override("h_separation",8)
-    grid.add_theme_constant_override("v_separation",10)
-    scroll.add_child(grid)
-    for data: Dictionary in cards:
-        grid.add_child(_draft_card(data, active))
+
+    if MobilePlatform.is_android():
+        # Android: virtualized pool. Only the rows around the viewport exist.
+        # This keeps ~12-15 lightweight card nodes alive instead of 70 rich
+        # MenuCard trees (well over a thousand Controls).
+        _build_mobile_draft_pool(scroll, active)
+    else:
+        var grid: GridContainer = GridContainer.new()
+        grid.columns = 3
+        grid.add_theme_constant_override("h_separation",8)
+        grid.add_theme_constant_override("v_separation",10)
+        scroll.add_child(grid)
+        for data: Dictionary in cards:
+            grid.add_child(_draft_card(data, active))
 
     _draw_draft_detail(Rect2(1034,158,294,564), active)
     if not ai_reveal_id.is_empty():
@@ -619,6 +673,200 @@ func _draw_ai_pick_reveal(cid: String) -> void:
     _label(p,"%s★  •  %s" % [_stars_text(float(data.get("stars",0.0))),str(data.get("element","")).to_upper()],Rect2(24,330,372,24),9,_element_color(str(data.get("element",""))),HORIZONTAL_ALIGNMENT_CENTER,true)
     _animate_result_panel(p,Vector2(0,34))
 
+func _build_mobile_draft_pool(scroll: ScrollContainer, active: String) -> void:
+    draft_mobile_scroll = scroll
+    draft_mobile_active = active
+    draft_mobile_rows.clear()
+    draft_mobile_card_nodes.clear()
+    draft_mobile_visible_first = -1
+    draft_mobile_visible_last = -1
+
+    var total_rows: int = int(ceil(float(cards.size()) / float(MOBILE_DRAFT_COLUMNS)))
+    var pool_width: float = MOBILE_DRAFT_COLUMNS * MOBILE_DRAFT_CARD_SIZE.x + (MOBILE_DRAFT_COLUMNS - 1) * MOBILE_DRAFT_H_GAP
+    var pool_height: float = maxf(scroll.size.y, float(total_rows) * MOBILE_DRAFT_ROW_HEIGHT - MOBILE_DRAFT_V_GAP)
+
+    var pool: Control = Control.new()
+    pool.custom_minimum_size = Vector2(pool_width, pool_height)
+    pool.size = Vector2(pool_width, pool_height)
+    pool.mouse_filter = Control.MOUSE_FILTER_PASS
+    scroll.add_child(pool)
+    draft_mobile_pool = pool
+
+    var vbar: VScrollBar = scroll.get_v_scroll_bar()
+    if vbar != null:
+        vbar.value_changed.connect(_on_mobile_draft_scroll_changed)
+
+    call_deferred("_restore_mobile_draft_scroll")
+
+func _restore_mobile_draft_scroll() -> void:
+    if not is_instance_valid(draft_mobile_scroll):
+        return
+    draft_mobile_scroll.scroll_vertical = int(maxf(0.0, draft_mobile_saved_scroll))
+    _refresh_mobile_draft_window(true)
+
+func _on_mobile_draft_scroll_changed(value: float) -> void:
+    draft_mobile_saved_scroll = value
+    _refresh_mobile_draft_window(false)
+
+func _refresh_mobile_draft_window(force: bool = false) -> void:
+    if not is_instance_valid(draft_mobile_scroll) or not is_instance_valid(draft_mobile_pool):
+        return
+
+    var total_rows: int = int(ceil(float(cards.size()) / float(MOBILE_DRAFT_COLUMNS)))
+    if total_rows <= 0:
+        return
+
+    var viewport_top: float = float(draft_mobile_scroll.scroll_vertical)
+    var first_row: int = maxi(0, int(floor(viewport_top / MOBILE_DRAFT_ROW_HEIGHT)) - MOBILE_DRAFT_ROW_MARGIN)
+    var visible_count: int = int(ceil(draft_mobile_scroll.size.y / MOBILE_DRAFT_ROW_HEIGHT)) + MOBILE_DRAFT_ROW_MARGIN * 2 + 1
+    var last_row: int = mini(total_rows - 1, first_row + visible_count - 1)
+
+    if not force and first_row == draft_mobile_visible_first and last_row == draft_mobile_visible_last:
+        return
+
+    draft_mobile_visible_first = first_row
+    draft_mobile_visible_last = last_row
+
+    var existing_rows: Array = draft_mobile_rows.keys()
+    for row_key: Variant in existing_rows:
+        var row_index: int = int(row_key)
+        if row_index < first_row or row_index > last_row:
+            _remove_mobile_draft_row(row_index)
+
+    for row_index: int in range(first_row, last_row + 1):
+        if draft_mobile_rows.has(row_index):
+            continue
+        _create_mobile_draft_row(row_index)
+
+func _remove_mobile_draft_row(row_index: int) -> void:
+    var row_node: Control = draft_mobile_rows.get(row_index, null) as Control
+    if not is_instance_valid(row_node):
+        draft_mobile_rows.erase(row_index)
+        return
+    for child: Node in row_node.get_children():
+        if child.has_meta("draft_card_id"):
+            draft_mobile_card_nodes.erase(str(child.get_meta("draft_card_id")))
+    row_node.queue_free()
+    draft_mobile_rows.erase(row_index)
+
+func _create_mobile_draft_row(row_index: int) -> void:
+    if not is_instance_valid(draft_mobile_pool):
+        return
+
+    var row: Control = Control.new()
+    row.position = Vector2(0, float(row_index) * MOBILE_DRAFT_ROW_HEIGHT)
+    row.size = Vector2(draft_mobile_pool.size.x, MOBILE_DRAFT_CARD_SIZE.y)
+    row.mouse_filter = Control.MOUSE_FILTER_PASS
+    draft_mobile_pool.add_child(row)
+    draft_mobile_rows[row_index] = row
+
+    for col: int in range(MOBILE_DRAFT_COLUMNS):
+        var card_index: int = row_index * MOBILE_DRAFT_COLUMNS + col
+        if card_index >= cards.size():
+            break
+        var data: Dictionary = cards[card_index]
+        var btn: Button = _draft_card_mobile(data, draft_mobile_active)
+        btn.position = Vector2(float(col) * (MOBILE_DRAFT_CARD_SIZE.x + MOBILE_DRAFT_H_GAP), 0)
+        row.add_child(btn)
+        var cid: String = str(data.get("id",""))
+        draft_mobile_card_nodes[cid] = btn
+
+func _draft_card_mobile(data: Dictionary, active: String) -> Button:
+    var cid: String = str(data.get("id",""))
+    var owner: String = str(draft_owner.get(cid,""))
+    var allowed: bool = _draft_allowed(active,data) if not active.is_empty() else false
+    var muted: bool = not owner.is_empty() or not allowed
+    var accent: Color = _element_color(str(data.get("element","")))
+
+    var btn: Button = Button.new()
+    btn.custom_minimum_size = MOBILE_DRAFT_CARD_SIZE
+    btn.size = MOBILE_DRAFT_CARD_SIZE
+    btn.text = ""
+    btn.flat = false
+    btn.focus_mode = Control.FOCUS_NONE
+    btn.clip_contents = true
+    btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+
+    var normal: StyleBoxFlat = StyleBoxFlat.new()
+    normal.bg_color = Color(0.018,0.038,0.062,0.96)
+    normal.border_color = Color("fff0a0") if cid == draft_selected_id else Color(accent.r,accent.g,accent.b,0.48 if not muted else 0.20)
+    normal.set_border_width_all(2 if cid == draft_selected_id else 1)
+    normal.set_corner_radius_all(10)
+    # No shadow on Android draft cards: 12-15 visible cards remain very cheap.
+
+    var hover: StyleBoxFlat = normal.duplicate() as StyleBoxFlat
+    hover.border_color = Color(accent.r,accent.g,accent.b,0.88)
+    hover.bg_color = Color(0.030,0.055,0.082,0.98)
+
+    var disabled_style: StyleBoxFlat = normal.duplicate() as StyleBoxFlat
+    disabled_style.bg_color = Color(0.012,0.026,0.044,0.94)
+
+    btn.add_theme_stylebox_override("normal",normal)
+    btn.add_theme_stylebox_override("hover",hover)
+    btn.add_theme_stylebox_override("pressed",hover)
+    btn.add_theme_stylebox_override("disabled",disabled_style)
+    btn.set_meta("draft_card_id",cid)
+    btn.set_meta("draft_normal_style",normal)
+    btn.set_meta("draft_accent",accent)
+    btn.set_meta("draft_muted",muted)
+
+    var header: ColorRect = ColorRect.new()
+    header.position = Vector2(5,5)
+    header.size = Vector2(MOBILE_DRAFT_CARD_SIZE.x-10,34)
+    header.color = Color(0.02,0.04,0.065,0.90)
+    header.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    btn.add_child(header)
+    _label(btn,str(data.get("name",cid)),Rect2(12,6,158,32),11,Color("f1f5f9"),HORIZONTAL_ALIGNMENT_LEFT,true)
+    _label(btn,"%s★" % _stars_text(float(data.get("stars",0.0))),Rect2(172,6,55,32),10,Color("ffe477"),HORIZONTAL_ALIGNMENT_RIGHT,true)
+
+    var art: TextureRect = TextureRect.new()
+    art.position = Vector2(6,42)
+    art.size = Vector2(MOBILE_DRAFT_CARD_SIZE.x-12,205)
+    art.texture = AssetCache.texture("res://assets/cards/%s_field.png" % cid)
+    art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+    art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+    art.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+    art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    art.modulate = Color(1,1,1,0.34 if muted else 1.0)
+    btn.add_child(art)
+
+    var footer_bg: ColorRect = ColorRect.new()
+    footer_bg.position = Vector2(6,249)
+    footer_bg.size = Vector2(MOBILE_DRAFT_CARD_SIZE.x-12,51)
+    footer_bg.color = Color(0.02,0.04,0.065,0.94)
+    footer_bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    btn.add_child(footer_bg)
+
+    _label(btn,str(data.get("element","")).to_upper(),Rect2(12,251,78,20),8,accent.lightened(0.12),HORIZONTAL_ALIGNMENT_LEFT,true)
+    _label(btn,"PV %d • TAI %d • NIN %d • GEN %d" % [
+        int(data.get("hp",0)), int(data.get("taijutsu",0)), int(data.get("ninjutsu",0)), int(data.get("genjutsu",0))
+    ],Rect2(12,270,216,18),7,Color("a8bbcc"),HORIZONTAL_ALIGNMENT_LEFT,false)
+
+    var status: String = _draft_lock_reason(active,data)
+    _label(btn,status,Rect2(92,251,136,20),7,Color("6f8396") if muted else Color("64d5a3"),HORIZONTAL_ALIGNMENT_RIGHT,true)
+
+    btn.disabled = active != "ally" or not owner.is_empty() or not allowed
+    btn.pressed.connect(_on_draft_card_pressed.bind(cid))
+    return btn
+
+func _mobile_update_draft_selection(previous_id: String, current_id: String) -> void:
+    _mobile_set_draft_card_selected(previous_id, false)
+    _mobile_set_draft_card_selected(current_id, true)
+
+func _mobile_set_draft_card_selected(cid: String, selected: bool) -> void:
+    var btn: Button = draft_mobile_card_nodes.get(cid, null) as Button
+    if not is_instance_valid(btn):
+        return
+    var style: StyleBoxFlat = btn.get_meta("draft_normal_style", null) as StyleBoxFlat
+    if style == null:
+        return
+    var accent: Color = btn.get_meta("draft_accent", Color("7c94ad"))
+    var muted: bool = bool(btn.get_meta("draft_muted", false))
+    style.border_color = Color("fff0a0") if selected else Color(accent.r,accent.g,accent.b,0.48 if not muted else 0.20)
+    style.set_border_width_all(2 if selected else 1)
+    btn.queue_redraw()
+
+
 func _draft_card(data: Dictionary, active: String) -> Button:
     var cid: String = str(data.get("id", ""))
     var owner: String = str(draft_owner.get(cid, ""))
@@ -636,21 +884,41 @@ func _on_draft_card_pressed(cid: String) -> void:
     if _scheduled_team() != "ally":
         return
     _play_pick()
+    var previous_id: String = draft_selected_id
     draft_selected_id = cid
-    _draw_draft()
+
+    if MobilePlatform.is_android():
+        # Do NOT rebuild the 70-card draft on a simple preview tap.
+        _mobile_update_draft_selection(previous_id, cid)
+        _draw_draft_detail(Rect2(1034,158,294,564), _scheduled_team())
+    else:
+        _draw_draft()
 
 func _draw_draft_detail(rect: Rect2, active: String) -> void:
-    _panel(stage_root,rect,Color(0.018,0.038,0.062,0.96),Color(0.30,0.49,0.65,0.40),14,8)
-    _label(stage_root,"APERÇU / CONFIRMATION",Rect2(rect.position+Vector2(14,12),Vector2(rect.size.x-28,26)),11,Color("63d9a6"),HORIZONTAL_ALIGNMENT_CENTER,true)
+    if is_instance_valid(draft_detail_root):
+        var old_parent: Node = draft_detail_root.get_parent()
+        if old_parent != null:
+            old_parent.remove_child(draft_detail_root)
+        draft_detail_root.queue_free()
+
+    var root: Control = Control.new()
+    root.position = rect.position
+    root.size = rect.size
+    root.mouse_filter = Control.MOUSE_FILTER_PASS
+    stage_root.add_child(root)
+    draft_detail_root = root
+
+    _panel(root,Rect2(0,0,rect.size.x,rect.size.y),Color(0.018,0.038,0.062,0.96),Color(0.30,0.49,0.65,0.40),14,0)
+    _label(root,"APERÇU / CONFIRMATION",Rect2(14,12,rect.size.x-28,26),11,Color("63d9a6"),HORIZONTAL_ALIGNMENT_CENTER,true)
     var data: Dictionary = cards_by_id.get(draft_selected_id,{}) as Dictionary
     if data.is_empty():
-        _label(stage_root,"AUCUN NINJA",Rect2(rect.position+Vector2(18,112),Vector2(rect.size.x-36,34)),16,Color("eef4f9"),HORIZONTAL_ALIGNMENT_CENTER,true)
-        _rich(stage_root,"1. Clique une carte du pool.\n\n2. Lis sa fiche.\n\n3. Confirme seulement quand tu es sûr.\n\nLes cartes illégales indiquent maintenant POURQUOI elles sont bloquées.",Rect2(rect.position+Vector2(24,166),Vector2(rect.size.x-48,230)),9,Color("8fa6bb"))
+        _label(root,"AUCUN NINJA",Rect2(18,112,rect.size.x-36,34),16,Color("eef4f9"),HORIZONTAL_ALIGNMENT_CENTER,true)
+        _rich(root,"1. Clique une carte du pool.\n\n2. Lis sa fiche.\n\n3. Confirme seulement quand tu es sûr.\n\nLes cartes illégales indiquent maintenant POURQUOI elles sont bloquées.",Rect2(24,166,rect.size.x-48,230),9,Color("8fa6bb"))
         return
-    _card_detail(stage_root,data,Rect2(rect.position+Vector2(12,52),Vector2(rect.size.x-24,430)))
+    _card_detail(root,data,Rect2(12,52,rect.size.x-24,430))
     var reason: String = _draft_lock_reason("ally",data)
-    _label(stage_root,reason,Rect2(rect.position+Vector2(16,486),Vector2(rect.size.x-32,20)),7,Color("55d58b") if reason == "DISPONIBLE" else Color("e85c66"),HORIZONTAL_ALIGNMENT_CENTER,true)
-    var confirm: Button = _button(stage_root,Rect2(rect.position+Vector2(18,514),Vector2(rect.size.x-36,38)),"CONFIRMER",Color("55d58b"),true)
+    _label(root,reason,Rect2(16,486,rect.size.x-32,20),7,Color("55d58b") if reason == "DISPONIBLE" else Color("e85c66"),HORIZONTAL_ALIGNMENT_CENTER,true)
+    var confirm: Button = _button(root,Rect2(18,514,rect.size.x-36,38),"CONFIRMER",Color("55d58b"),true)
     confirm.disabled = active != "ally" or not _draft_allowed("ally",data)
     confirm.pressed.connect(_confirm_draft_pick)
 

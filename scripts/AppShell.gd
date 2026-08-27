@@ -1448,6 +1448,10 @@ func _start_battle() -> void:
     if app_video != null:
         app_video.visible = true
         app_video.z_index = -100
+        # P47M.4-DP — keep the current sakura frame visible, but stop decoding
+        # video while Shifumi/Draft/lineup are on screen on Android.
+        if MobilePlatform.is_android():
+            app_video.paused = true
 
     prebattle_instance = PreBattleScene.instantiate()
     add_child(prebattle_instance)
@@ -1471,6 +1475,7 @@ func _launch_battle_after_flow() -> void:
 func _spawn_battle_instance() -> void:
     AudioManager.play_music("res://assets/audio/music/ingame.mp3",-6.0)
     if app_video != null:
+        app_video.paused = false
         app_video.stop()
         app_video.visible = false
     battle_instance = BattleScene.instantiate()
@@ -1502,6 +1507,7 @@ func _return_from_battle() -> void:
     if app_video != null:
         app_video.z_index = -100
         app_video.visible = true
+        app_video.paused = false
         if not app_video.is_playing():
             app_video.play()
     menu_root.visible = true
