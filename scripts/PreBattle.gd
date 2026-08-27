@@ -147,11 +147,8 @@ func _play_pick(volume_db: float = -9.0) -> void:
     AudioManager.play_sfx("res://assets/audio/ui/pick.mp3",volume_db)
 
 func _build_shell() -> void:
-    # P42 — Shifumi / Draft / Lineup utilisent la même DA que l'accueil.
-    var bg: YugitoHomeVideoBackground = HomeVideoBackground.new()
-    bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-    add_child(bg)
-
+    # P47M.3 — la vidéo est déjà dessinée par AppShell derrière PreBattle.
+    # On évite ainsi un deuxième décodeur Theora et le flash/écran gris.
     var header: Panel = _glass_surface(self, Rect2(22,16,1556,66), 20, 0.10, 0.44, 10)
     _logo_in_panel(header, Vector2(22,13),38)
     _label(header,"YUGITO",Rect2(72,8,160,42),26,Color("ffffff"),HORIZONTAL_ALIGNMENT_LEFT,true)
@@ -188,6 +185,13 @@ func _glass_surface(parent: Node, rect: Rect2, radius: int = 18, fill_alpha: flo
     return p
 
 func _apply_screen_frost(panel: Control, lod: float = 1.65, frost: float = 0.055) -> void:
+    if MobilePlatform.is_android():
+        var mobile_tint := ColorRect.new()
+        mobile_tint.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+        mobile_tint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+        mobile_tint.color = Color(0.010,0.024,0.042,0.44)
+        panel.add_child(mobile_tint)
+        return
     var blur := ColorRect.new()
     blur.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
     blur.mouse_filter = Control.MOUSE_FILTER_IGNORE

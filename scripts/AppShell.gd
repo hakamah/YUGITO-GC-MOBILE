@@ -31,6 +31,7 @@ var cards_by_id: Dictionary = {}
 var sorted_cards: Array[Dictionary] = []
 var deck_ids: Array[String] = []
 
+var app_video: YugitoHomeVideoBackground = null
 var menu_root: Control
 var screen_root: Control
 var content_panel: Panel
@@ -60,7 +61,7 @@ var home_overlay: Control = null
 var ui_hover_cooldown_until: int = 0
 
 func _ready() -> void:
-    get_window().title = "YUGITO GC MOBILE - PROTOTYPE 47M LANDSCAPE"
+    get_window().title = "YUGITO GC MOBILE - PROTOTYPE 47M.3 MENU PREBATTLE FIX"
     MobilePlatform.enforce_landscape()
     if not MobilePlatform.back_requested.is_connected(_on_mobile_back_requested):
         MobilePlatform.back_requested.connect(_on_mobile_back_requested)
@@ -81,7 +82,12 @@ func _ready() -> void:
     if not AuthManager.session_changed.is_connected(_on_auth_session_changed):
         AuthManager.session_changed.connect(_on_auth_session_changed)
     _refresh_identity_surfaces()
-    _show_home()
+    # P47M.3 : le menu n'est jamais affiché avec une session seulement "présente"
+    # mais pas encore validée. On passe d'abord par l'écran Compte.
+    if IdentityManager.is_account_connected():
+        _show_home()
+    else:
+        _show_identity_account()
 
 func _unhandled_input(event: InputEvent) -> void:
     if (battle_instance != null or prebattle_instance != null) and event.is_action_pressed("ui_cancel"):
@@ -141,21 +147,23 @@ func _play_ui_hover() -> void:
     AudioManager.play_sfx("res://assets/audio/ui/pick.mp3",-16.0)
 
 func _build_menu_shell() -> void:
+    # P47M.3 — une seule vidéo persistante pour Menu + Shifumi/Draft.
+    # Elle n'est plus enfant de menu_root, donc elle reste visible lorsque
+    # le menu est masqué pour afficher PreBattle.
+    app_video = HomeVideoBackground.new()
+    app_video.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+    add_child(app_video)
+
     menu_root = Control.new()
     menu_root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
     add_child(menu_root)
-
-    # P42 — toute l'application partage désormais la même scène lumineuse.
-    var app_video: YugitoHomeVideoBackground = HomeVideoBackground.new()
-    app_video.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-    menu_root.add_child(app_video)
 
     # Header flottant en verre.
     var header: Panel = _glass_surface(menu_root, Rect2(22, 16, 1556, 66), 20, 0.10, 0.44, 10)
     _logo_in(header, Vector2(22, 13), 38)
     _label_in(header, "YUGITO", Rect2(72, 8, 154, 42), 26, Color("ffffff"), HORIZONTAL_ALIGNMENT_LEFT, true)
     _label_in(header, "GODOT 2.0", Rect2(224, 10, 104, 18), 8, Color("f5fbff"), HORIZONTAL_ALIGNMENT_LEFT, true)
-    _label_in(header, "BUILD 47M • MOBILE", Rect2(224, 29, 190, 18), 7, Color("d9e8f3"), HORIZONTAL_ALIGNMENT_LEFT, false)
+    _label_in(header, "BUILD 47M.3 • FIX", Rect2(224, 29, 190, 18), 7, Color("d9e8f3"), HORIZONTAL_ALIGNMENT_LEFT, false)
 
     var nav_items: Array[Dictionary] = [
         {"label":"ACCUEIL", "fn":Callable(self, "_show_home")},
@@ -224,6 +232,13 @@ func _glass_surface(parent: Node, rect: Rect2, radius: int = 18, fill_alpha: flo
     return panel
 
 func _apply_screen_frost(panel: Control, lod: float = 1.7, frost: float = 0.055) -> void:
+    if MobilePlatform.is_android():
+        var mobile_tint := ColorRect.new()
+        mobile_tint.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+        mobile_tint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+        mobile_tint.color = Color(0.010, 0.024, 0.042, 0.52)
+        panel.add_child(mobile_tint)
+        return
     var blur := ColorRect.new()
     blur.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
     blur.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -254,6 +269,10 @@ func _destroy_home_overlay() -> void:
     if home_overlay != null and is_instance_valid(home_overlay):
         home_overlay.queue_free()
     home_overlay = null
+    if content_panel != null:
+        content_panel.visible = true
+    if screen_root != null:
+        screen_root.visible = true
 
 func _home_go(callback: Callable) -> void:
     _play_ui_sound()
@@ -276,15 +295,16 @@ func _show_home() -> void:
     _clear_screen()
     _destroy_home_overlay()
 
+    # L'accueil reste clair : pas de grand panneau sombre interne.
+    if content_panel != null:
+        content_panel.visible = false
+    if screen_root != null:
+        screen_root.visible = false
+
     home_overlay = Control.new()
     home_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
     home_overlay.z_index = 500
     menu_root.add_child(home_overlay)
-
-    # Logo au-dessus du verre, entièrement net.
-    _logo_in(home_overlay, Vector2(588, 42), 66)
-    _label_in(home_overlay, "YUGITO", Rect2(668, 36, 310, 62), 44, Color("ffffff"), HORIZONTAL_ALIGNMENT_LEFT, true)
-    _label_in(home_overlay, "NARUTO CARD GAME", Rect2(670, 92, 300, 28), 12, Color("f7fbff"), HORIZONTAL_ALIGNMENT_LEFT, true)
 
     # Panneau central ~70 % écran.
     var glass_rect := Rect2(308, 150, 984, 626)
@@ -309,9 +329,13 @@ func _show_home() -> void:
     var blur_layer := ColorRect.new()
     blur_layer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
     blur_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
-    var blur_mat := ShaderMaterial.new()
-    var blur_shader := Shader.new()
-    blur_shader.code = """
+    if MobilePlatform.is_android():
+        blur_layer.color = Color(1.0,1.0,1.0,0.025)
+        glass.add_child(blur_layer)
+    else:
+        var blur_mat := ShaderMaterial.new()
+        var blur_shader := Shader.new()
+        blur_shader.code = """
 shader_type canvas_item;
 uniform sampler2D screen_texture : hint_screen_texture, repeat_disable, filter_linear_mipmap;
 uniform float lod = 2.35;
@@ -322,9 +346,9 @@ void fragment() {
     COLOR = vec4(c.rgb, 0.91);
 }
 """
-    blur_mat.shader = blur_shader
-    blur_layer.material = blur_mat
-    glass.add_child(blur_layer)
+        blur_mat.shader = blur_shader
+        blur_layer.material = blur_mat
+        glass.add_child(blur_layer)
 
     # Pellicule lumineuse très légère.
     var frost := ColorRect.new()
@@ -443,12 +467,17 @@ func _on_auth_authenticated(_account: Dictionary) -> void:
     if footer_notice != null:
         footer_notice.text = "Compte Google YUGITO connecté."
     if current_screen == "identity":
-        call_deferred("_show_identity_account")
+        call_deferred("_show_home")
     elif current_screen == "profile":
         call_deferred("_show_profile")
 
-func _on_auth_session_changed(_connected: bool) -> void:
+func _on_auth_session_changed(connected: bool) -> void:
     _refresh_identity_surfaces()
+    # Si une session mémorisée vient d'être refusée par le serveur, le joueur
+    # retombe sur l'écran Google plutôt que de rester avec "GOOGLE REQUIS"
+    # dans un coin du menu.
+    if not connected and not AuthManager.is_session_available() and current_screen == "home":
+        call_deferred("_show_identity_account")
 
 func _on_identity_profile_changed(_profile: Dictionary) -> void:
     _refresh_identity_surfaces()
@@ -1416,6 +1445,8 @@ func _start_battle() -> void:
     AudioManager.play_music("res://assets/audio/music/selection.mp3",-8.0)
     GameSession.clear()
     menu_root.visible = false
+    if app_video != null:
+        app_video.visible = true
     prebattle_instance = PreBattleScene.instantiate()
     add_child(prebattle_instance)
     if prebattle_instance.has_signal("battle_requested"):
@@ -1433,6 +1464,9 @@ func _launch_battle_after_flow() -> void:
 
 func _spawn_battle_instance() -> void:
     AudioManager.play_music("res://assets/audio/music/ingame.mp3",-6.0)
+    if app_video != null:
+        app_video.stop()
+        app_video.visible = false
     battle_instance = BattleScene.instantiate()
     add_child(battle_instance)
     if battle_instance.has_signal("return_to_menu_requested"):
@@ -1459,9 +1493,13 @@ func _return_from_battle() -> void:
         battle_instance = null
     GameSession.clear()
     battle_return_button.visible = false
+    if app_video != null:
+        app_video.visible = true
+        if not app_video.is_playing():
+            app_video.play()
     menu_root.visible = true
     AudioManager.play_music("res://assets/audio/music/menu.mp3",0.0)
-    get_window().title = "YUGITO GC MOBILE - PROTOTYPE 47M LANDSCAPE"
+    get_window().title = "YUGITO GC MOBILE - PROTOTYPE 47M.3 MENU PREBATTLE FIX"
     footer_notice.text = "Retour au menu principal."
 
 func _element_color(element: String) -> Color:
