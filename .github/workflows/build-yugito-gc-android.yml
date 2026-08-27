@@ -9,12 +9,43 @@ jobs:
   android:
     runs-on: ubuntu-24.04
     timeout-minutes: 45
+
     steps:
       - uses: actions/checkout@v4
 
+      - name: Clean accidental root duplicates
+        run: |
+          set -euxo pipefail
+
+          # The real Godot source lives in /scripts.
+          # Old mobile uploads accidentally created duplicate .gd files at repo root.
+          # They can register duplicate class_name values or be exported instead.
+          find . -maxdepth 1 -type f -name "*.gd" -print -delete
+          rm -f project_P47M3.godot
+          rm -rf .godot
+
+          echo "Remaining real scripts:"
+          find scripts -maxdepth 1 -type f -name "*.gd" -print | sort
+
+      - name: Verify P47M.4 source before build
+        run: |
+          set -euxo pipefail
+          test -f project.godot
+          test -f scripts/AppShell.gd
+          test -f scripts/PreBattle.gd
+          test -f scripts/AuthManager.gd
+          test -f scripts/IdentityManager.gd
+          test -f scripts/Main.gd
+          test -f scripts/GameSession.gd
+          test -f scripts/MobilePlatform.gd
+
+          grep -F 'YUGITO GC Mobile - Prototype 47M.4 PreBattle Safe Boot' project.godot
+          grep -F 'BUILD 47M.4 • PREBATTLE FIX' scripts/AppShell.gd
+          grep -F 'func _boot_prebattle_flow()' scripts/PreBattle.gd
+
       - name: Download Godot 4.7.2
         run: |
-          set -eux
+          set -euxo pipefail
           wget -q --show-progress \
             "https://downloads.godotengine.org/?flavor=stable&platform=linux.64&slug=linux.x86_64.zip&version=4.7.2" \
             -O /tmp/godot.zip
@@ -23,7 +54,7 @@ jobs:
 
       - name: Download export templates
         run: |
-          set -eux
+          set -euxo pipefail
           wget -q --show-progress \
             "https://downloads.godotengine.org/?flavor=stable&platform=templates&slug=export_templates.tpz&version=4.7.2" \
             -O /tmp/templates.tpz
@@ -33,6 +64,7 @@ jobs:
 
       - name: Create debug signing key
         run: |
+          set -euxo pipefail
           keytool -genkeypair -v \
             -keystore "$HOME/yugito-gc-debug.keystore" \
             -storepass android \
@@ -43,6 +75,7 @@ jobs:
 
       - name: Configure Godot Android paths
         run: |
+          set -euxo pipefail
           mkdir -p "$HOME/.config/godot"
           cat > "$HOME/.config/godot/editor_settings-4.7.tres" <<EOF
           [gd_resource format=3]
@@ -55,18 +88,72 @@ jobs:
           export/android/debug_keystore_pass = "android"
           EOF
 
-      - name: Import project
+      - name: Import project and fail on GDScript errors
+        shell: bash
         run: |
+          set -o pipefail
           /tmp/godot/Godot_v4.7.2-stable_linux.x86_64 \
-            --headless --path . --editor --quit-after 3
+            --headless --path . --editor --quit-after 4 2>&1 | tee /tmp/godot-import.log
+
+          if grep -Eiq \
+            'SCRIPT ERROR|Parse Error|Failed to load script|Failed to create an autoload' \
+            /tmp/godot-import.log; then
+            echo "FATAL: GDScript/import error detected."
+            exit 1
+          fi
 
       - name: Export APK
+        shell: bash
         run: |
+          set -o pipefail
           mkdir -p build/android
+
           /tmp/godot/Godot_v4.7.2-stable_linux.x86_64 \
             --headless --path . \
             --export-debug "Android YUGITO GC" \
-            build/android/YUGITO_GC_Mobile.apk
+            build/android/YUGITO_GC_Mobile.apk 2>&1 | tee /tmp/godot-export.log
+
+          if grep -Eiq \
+            'SCRIPT ERROR|Parse Error|Failed to load script|Failed to create an autoload|Project export .* failed|Cannot export project' \
+            /tmp/godot-export.log; then
+            echo "FATAL: export log contains an error."
+            exit 1
+          fi
+
+          test -s build/android/YUGITO_GC_Mobile.apk
+
+      - name: Verify APK contents before upload
+        shell: bash
+        run: |
+          set -euxo pipefail
+
+          unzip -l build/android/YUGITO_GC_Mobile.apk > /tmp/apk-list.txt
+
+          # These are mandatory. Without them Android can install but Godot crashes at startup.
+          for f in \
+            assets/scripts/AppShell.gdc \
+            assets/scripts/PreBattle.gdc \
+            assets/scripts/AuthManager.gdc \
+            assets/scripts/IdentityManager.gdc \
+            assets/scripts/Main.gdc \
+            assets/scripts/GameSession.gdc \
+            assets/scripts/AudioManager.gdc \
+            assets/scripts/MobilePlatform.gdc
+          do
+            grep -F "$f" /tmp/apk-list.txt
+          done
+
+          # Reject accidental root duplicates in the exported APK.
+          if grep -Eq 'assets/(AppShell|PreBattle|Main|CardActor|Atmosphere|MobilePlatform)(_P47M3)?\.gdc' /tmp/apk-list.txt; then
+            echo "FATAL: accidental root-level GDScript duplicate exported."
+            grep -E 'assets/(AppShell|PreBattle|Main|CardActor|Atmosphere|MobilePlatform).*\.gdc' /tmp/apk-list.txt || true
+            exit 1
+          fi
+
+          # Confirm the exported project is really P47M.4.
+          unzip -p build/android/YUGITO_GC_Mobile.apk assets/project.binary > /tmp/project.binary
+          strings /tmp/project.binary | grep -F 'YUGITO GC Mobile - Prototype 47M.4 PreBattle Safe Boot'
+
           sha256sum build/android/YUGITO_GC_Mobile.apk | tee build/android/SHA256.txt
 
       - name: Upload APK
