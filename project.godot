@@ -3,7 +3,7 @@
 config_version=5
 
 [application]
-config/name="YUGITO GC Mobile - Prototype 47M.2 Combat Performance Auth"
+config/name="YUGITO GC Mobile - Prototype 47M.3 Menu PreBattle Fix"
 run/main_scene="res://Main.tscn"
 application/run/max_fps=144
 config/features=PackedStringArray("4.7", "GL Compatibility")
