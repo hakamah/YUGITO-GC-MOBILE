@@ -53,12 +53,82 @@ var last_pick_team: String = ""
 func _ready() -> void:
     MobilePlatform.enforce_landscape()
     set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-    mouse_filter = Control.MOUSE_FILTER_STOP
-    _load_cards()
+    # P47M.4 : le root ne doit jamais avaler le bouton MENU de l'AppShell.
+    mouse_filter = Control.MOUSE_FILTER_PASS
+    z_index = 1000
+
+    # Construire l'interface AVANT tout chargement de données : même si une
+    # ressource échoue, le joueur ne peut plus tomber sur un écran gris muet.
     _build_shell()
     _build_audio()
     set_process(true)
+
+    _show_prebattle_boot_state("PRÉPARATION DU SHIFUMI…")
+    call_deferred("_boot_prebattle_flow")
+
+func _boot_prebattle_flow() -> void:
+    _load_cards()
+    if cards.is_empty():
+        _show_prebattle_error(
+            "Impossible de charger les cartes YUGITO.\n"
+            + "Retourne au menu puis relance le Solo."
+        )
+        return
     _begin_rps("draft")
+
+func _show_prebattle_boot_state(message: String) -> void:
+    _clear_stage()
+    if title_label != null:
+        title_label.text = "PRÉPARATION"
+    _label(
+        stage_root,
+        message,
+        Rect2(280,250,1000,64),
+        28,
+        Color("f2f6fa"),
+        HORIZONTAL_ALIGNMENT_CENTER,
+        true
+    )
+    _label(
+        stage_root,
+        "Initialisation du mode Classic…",
+        Rect2(380,320,800,36),
+        11,
+        Color("91a6bb"),
+        HORIZONTAL_ALIGNMENT_CENTER,
+        false
+    )
+
+func _show_prebattle_error(message: String) -> void:
+    _clear_stage()
+    if title_label != null:
+        title_label.text = "ERREUR PRÉ-COMBAT"
+    _label(
+        stage_root,
+        "PRÉ-COMBAT INDISPONIBLE",
+        Rect2(280,210,1000,54),
+        28,
+        Color("ef787e"),
+        HORIZONTAL_ALIGNMENT_CENTER,
+        true
+    )
+    _label(
+        stage_root,
+        message,
+        Rect2(360,282,840,100),
+        13,
+        Color("e8eef5"),
+        HORIZONTAL_ALIGNMENT_CENTER,
+        false
+    )
+    var back_btn: Button = _button(
+        stage_root,
+        Rect2(590,420,380,62),
+        "RETOUR AU MENU",
+        Color("ef8b91"),
+        true
+    )
+    back_btn.pressed.connect(func() -> void: cancelled.emit())
 
 func _process(delta: float) -> void:
     if not decision_timer_active:
@@ -118,6 +188,8 @@ func _on_prebattle_timeout(context: String) -> void:
         _confirm_lineup()
 
 func _load_cards() -> void:
+    cards.clear()
+    cards_by_id.clear()
     var f: FileAccess = FileAccess.open("res://data/cards.json", FileAccess.READ)
     if f == null:
         push_error("PreBattle: cards.json introuvable")
@@ -131,13 +203,14 @@ func _load_cards() -> void:
                 if not cid.is_empty():
                     cards_by_id[cid] = d
                     cards.append(d)
-    cards.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
-        var sa: float = float(a.get("stars", 0.0))
-        var sb: float = float(b.get("stars", 0.0))
-        if not is_equal_approx(sa, sb):
-            return sa < sb
-        return str(a.get("name", "")) < str(b.get("name", ""))
-    )
+    cards.sort_custom(_sort_prebattle_cards)
+
+func _sort_prebattle_cards(a: Dictionary, b: Dictionary) -> bool:
+    var sa: float = float(a.get("stars", 0.0))
+    var sb: float = float(b.get("stars", 0.0))
+    if not is_equal_approx(sa, sb):
+        return sa < sb
+    return str(a.get("name", "")) < str(b.get("name", ""))
 
 func _build_audio() -> void:
     # P45 — le morceau de sélection est géré par l'Autoload persistant.
@@ -150,6 +223,7 @@ func _build_shell() -> void:
     # P47M.3 — la vidéo est déjà dessinée par AppShell derrière PreBattle.
     # On évite ainsi un deuxième décodeur Theora et le flash/écran gris.
     var header: Panel = _glass_surface(self, Rect2(22,16,1556,66), 20, 0.10, 0.44, 10)
+    header.z_index = 30
     _logo_in_panel(header, Vector2(22,13),38)
     _label(header,"YUGITO",Rect2(72,8,160,42),26,Color("ffffff"),HORIZONTAL_ALIGNMENT_LEFT,true)
     _label(header,"PRÉPARATION DU COMBAT",Rect2(224,13,280,20),8,Color("f3f9fd"),HORIZONTAL_ALIGNMENT_LEFT,true)
@@ -158,13 +232,18 @@ func _build_shell() -> void:
     cancel_btn.pressed.connect(func() -> void: cancelled.emit())
 
     var body: Panel = _glass_surface(self, Rect2(22,96,1556,748), 24, 0.085, 0.42, 14)
+    body.z_index = 10
     _apply_screen_frost(body, 1.65, 0.055)
     stage_root = Control.new()
     stage_root.position = Vector2(22,96)
     stage_root.size = Vector2(1556,748)
+    stage_root.visible = true
+    stage_root.z_index = 20
+    stage_root.mouse_filter = Control.MOUSE_FILTER_PASS
     add_child(stage_root)
 
     var foot: Panel = _glass_surface(self, Rect2(22,856,1556,30), 12, 0.08, 0.26, 3)
+    foot.z_index = 30
     footer = _label(foot,"Shifumi → Draft → 3 Ninjas → Shifumi → Combat",Rect2(14,3,1510,24),8,Color("f4f9fc"),HORIZONTAL_ALIGNMENT_LEFT,false)
 
 func _glass_surface(parent: Node, rect: Rect2, radius: int = 18, fill_alpha: float = 0.08, border_alpha: float = 0.34, shadow_size: int = 6) -> Panel:

@@ -61,7 +61,7 @@ var home_overlay: Control = null
 var ui_hover_cooldown_until: int = 0
 
 func _ready() -> void:
-    get_window().title = "YUGITO GC MOBILE - PROTOTYPE 47M.3 MENU PREBATTLE FIX"
+    get_window().title = "YUGITO GC MOBILE - PROTOTYPE 47M.4 PREBATTLE SAFE BOOT"
     MobilePlatform.enforce_landscape()
     if not MobilePlatform.back_requested.is_connected(_on_mobile_back_requested):
         MobilePlatform.back_requested.connect(_on_mobile_back_requested)
@@ -163,7 +163,7 @@ func _build_menu_shell() -> void:
     _logo_in(header, Vector2(22, 13), 38)
     _label_in(header, "YUGITO", Rect2(72, 8, 154, 42), 26, Color("ffffff"), HORIZONTAL_ALIGNMENT_LEFT, true)
     _label_in(header, "GODOT 2.0", Rect2(224, 10, 104, 18), 8, Color("f5fbff"), HORIZONTAL_ALIGNMENT_LEFT, true)
-    _label_in(header, "BUILD 47M.3 • FIX", Rect2(224, 29, 190, 18), 7, Color("d9e8f3"), HORIZONTAL_ALIGNMENT_LEFT, false)
+    _label_in(header, "BUILD 47M.4 • PREBATTLE FIX", Rect2(224, 29, 190, 18), 7, Color("d9e8f3"), HORIZONTAL_ALIGNMENT_LEFT, false)
 
     var nav_items: Array[Dictionary] = [
         {"label":"ACCUEIL", "fn":Callable(self, "_show_home")},
@@ -210,7 +210,7 @@ func _build_menu_shell() -> void:
     footer_notice = _label_in(footer_glass, "YUGITO GC MOBILE • PAYSAGE", Rect2(14, 3, 1500, 24), 8, Color("eef6fb"), HORIZONTAL_ALIGNMENT_LEFT, false)
 
     battle_return_button = _button_in(self, Rect2(1454, 16, 126, 44), "MENU", Color("f3c6d7"), true)
-    battle_return_button.z_index = 10000
+    battle_return_button.z_index = 20000
     battle_return_button.visible = false
     battle_return_button.pressed.connect(_return_from_battle)
 
@@ -1447,8 +1447,14 @@ func _start_battle() -> void:
     menu_root.visible = false
     if app_video != null:
         app_video.visible = true
+        app_video.z_index = -100
+
     prebattle_instance = PreBattleScene.instantiate()
     add_child(prebattle_instance)
+
+    # Le pré-combat doit être un CanvasItem au-dessus du fond vidéo.
+    if prebattle_instance is CanvasItem:
+        (prebattle_instance as CanvasItem).z_index = 1000
     if prebattle_instance.has_signal("battle_requested"):
         prebattle_instance.connect("battle_requested", Callable(self, "_launch_battle_after_flow"))
     if prebattle_instance.has_signal("cancelled"):
@@ -1494,12 +1500,13 @@ func _return_from_battle() -> void:
     GameSession.clear()
     battle_return_button.visible = false
     if app_video != null:
+        app_video.z_index = -100
         app_video.visible = true
         if not app_video.is_playing():
             app_video.play()
     menu_root.visible = true
     AudioManager.play_music("res://assets/audio/music/menu.mp3",0.0)
-    get_window().title = "YUGITO GC MOBILE - PROTOTYPE 47M.3 MENU PREBATTLE FIX"
+    get_window().title = "YUGITO GC MOBILE - PROTOTYPE 47M.4 PREBATTLE SAFE BOOT"
     footer_notice.text = "Retour au menu principal."
 
 func _element_color(element: String) -> Color:
