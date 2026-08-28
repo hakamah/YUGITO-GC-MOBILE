@@ -665,8 +665,8 @@ func _process(delta: float) -> void:
         _glass_material.set_shader_parameter("accent_color", _accent)
 
 func _on_input_event(_viewport: Node, event: InputEvent, _shape_idx: int) -> void:
-    # P48.1 : Android envoie de vrais InputEventScreenTouch sur plusieurs
-    # appareils. Ne dépend plus de l'émulation souris pour ouvrir une carte.
+    # Android : ne dépend pas uniquement de l'émulation souris du système.
+    # Certains appareils / chemins Godot envoient directement ScreenTouch.
     if event is InputEventScreenTouch and event.pressed:
         selection_requested.emit(self)
         return

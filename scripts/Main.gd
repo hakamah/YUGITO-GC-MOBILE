@@ -118,6 +118,8 @@ var makibishi_active: Dictionary = {"ally":false, "enemy":false}
 var forced_reserve_choice: Dictionary = {"ally":"", "enemy":""}
 # Mécaniques secrètes de Tobi. Les bombes sont portées par les instances ciblées.
 var tobi_bomb_pending_team: String = ""
+var tobi_bomb_overlay: Control = null
+var tobi_bomb_cards_root: Control = null
 var tobi_prediction_enemy_uid: int = 0
 var tobi_prediction_action_id: String = "special"
 var tobi_predictions: Dictionary = {"ally":{}, "enemy":{}}
@@ -391,7 +393,7 @@ func _build_interface() -> void:
     copy_action_button.pressed.connect(_on_action_button_pressed.bind("copy_special"))
     direct_attack_button = _action_button(Rect2(1318, 630, 262, 30), "ATTAQUE DIRECTE", Color("ff7c2e"), false)
     direct_attack_button.pressed.connect(_on_direct_attack_pressed)
-    validate_button = _action_button(Rect2(1318, 688, 262, 44), "VALIDER LE PLAN", Color("55d58b"), true)
+    validate_button = _action_button(Rect2(1318, 666, 262, 44), "VALIDER LE PLAN", Color("55d58b"), true)
     validate_button.pressed.connect(_on_validate_plan_pressed)
 
     _panel(Rect2(1318, 720, 262, 146), Color(0.012, 0.026, 0.043, 0.72), Color(0.27, 0.43, 0.58, 0.22), 10)
@@ -402,6 +404,7 @@ func _build_interface() -> void:
 
     _build_journal_overlay()
     _build_inspection_overlay()
+    _build_tobi_bomb_overlay()
     _build_action_markers()
 
     # Le remplacement/switch utilise maintenant un vrai écran modal plein écran.
@@ -483,6 +486,7 @@ func _solo_overlay_active() -> bool:
     return (
         (journal_overlay != null and journal_overlay.visible) or
         (inspection_overlay != null and inspection_overlay.visible) or
+        (tobi_bomb_overlay != null and tobi_bomb_overlay.visible) or
         (duel_end_overlay != null and duel_end_overlay.visible)
     )
 
@@ -574,6 +578,95 @@ func _close_battle_journal() -> void:
     if journal_overlay != null:
         journal_overlay.visible = false
 
+func _build_tobi_bomb_overlay() -> void:
+    tobi_bomb_overlay = Control.new()
+    tobi_bomb_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+    tobi_bomb_overlay.z_index = 29500
+    tobi_bomb_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+    tobi_bomb_overlay.visible = false
+    add_child(tobi_bomb_overlay)
+    _modal_dim(tobi_bomb_overlay,0.72)
+    var win: Panel = _modal_window(tobi_bomb_overlay,Rect2(235,110,1130,680),Color(0.98,0.40,0.28,0.82))
+    _label_in(win,"PASSIF DE TOBI — BOMBE SECRÈTE",Rect2(38,26,820,42),28,Color("ffffff"),HORIZONTAL_ALIGNMENT_LEFT,true)
+    _label_in(win,"Choisis obligatoirement le Ninja ennemi qui recevra la bombe.",Rect2(40,70,820,28),13,Color("efb7a8"),HORIZONTAL_ALIGNMENT_LEFT,false)
+    _label_in(win,"Le choix reste secret pour l'adversaire.",Rect2(40,98,820,22),10,Color("a8bac8"),HORIZONTAL_ALIGNMENT_LEFT,false)
+    tobi_bomb_cards_root = Control.new()
+    tobi_bomb_cards_root.position = Vector2(32,140)
+    tobi_bomb_cards_root.size = Vector2(1066,500)
+    tobi_bomb_cards_root.mouse_filter = Control.MOUSE_FILTER_PASS
+    win.add_child(tobi_bomb_cards_root)
+
+func _show_tobi_bomb_picker() -> void:
+    if tobi_bomb_pending_team != "ally" or duel_finished:
+        if tobi_bomb_overlay != null:
+            tobi_bomb_overlay.visible = false
+        return
+    if tobi_bomb_overlay == null or tobi_bomb_cards_root == null:
+        return
+    var targets: Array[YugitoCardActor] = _living_cards("enemy")
+    if targets.is_empty():
+        tobi_bomb_pending_team = ""
+        tobi_bomb_overlay.visible = false
+        return
+    for child: Node in tobi_bomb_cards_root.get_children():
+        child.queue_free()
+    var count: int = targets.size()
+    var card_w: float = 300.0
+    var gap: float = 34.0
+    var total_w: float = float(count) * card_w + float(maxi(0,count-1)) * gap
+    var start_x: float = maxf(0.0,(1066.0-total_w)*0.5)
+    for i: int in range(count):
+        var actor: YugitoCardActor = targets[i]
+        var x: float = start_x + float(i) * (card_w + gap)
+        var panel: Panel = _modal_window(tobi_bomb_cards_root,Rect2(x,0,card_w,470),Color(0.94,0.34,0.24,0.72))
+        var art_frame := Panel.new()
+        art_frame.position = Vector2(14,14)
+        art_frame.size = Vector2(card_w-28.0,292)
+        art_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+        var art_style := StyleBoxFlat.new()
+        art_style.bg_color = Color(0.006,0.014,0.024,0.94)
+        art_style.border_color = Color(0.95,0.40,0.28,0.82)
+        art_style.set_border_width_all(2)
+        art_style.set_corner_radius_all(12)
+        art_frame.add_theme_stylebox_override("panel",art_style)
+        panel.add_child(art_frame)
+        var art := TextureRect.new()
+        art.position = Vector2(7,7)
+        art.size = art_frame.size-Vector2(14,14)
+        var art_path: String = "res://assets/cards/%s_field.png" % actor.card_id
+        if ResourceLoader.exists(art_path):
+            art.texture = AssetCache.texture(art_path)
+        art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+        art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+        art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+        art.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+        art_frame.add_child(art)
+        _label_in(panel,actor.display_name,Rect2(14,320,card_w-28.0,32),17,Color("ffffff"),HORIZONTAL_ALIGNMENT_CENTER,true)
+        _label_in(panel,"PV %d / %d   •   %.1f★" % [actor.hp,actor.max_hp,actor.stars],Rect2(14,353,card_w-28.0,24),10,Color("b8c9d7"),HORIZONTAL_ALIGNMENT_CENTER,false)
+        var choose: Button = _action_button_in(panel,Rect2(22,392,card_w-44.0,58),"PLACER LA BOMBE",Color("f06a4d"),true)
+        choose.add_theme_font_size_override("font_size",14)
+        choose.pressed.connect(_on_tobi_bomb_target_chosen.bind(actor.battle_uid))
+    tobi_bomb_overlay.visible = true
+    action_status_label.text = "TOBI • CHOISIS LA CIBLE DE LA BOMBE"
+
+func _on_tobi_bomb_target_chosen(target_uid: int) -> void:
+    if tobi_bomb_pending_team != "ally":
+        if tobi_bomb_overlay != null:
+            tobi_bomb_overlay.visible = false
+        return
+    var target: YugitoCardActor = _resolve_actor_uid(target_uid)
+    if target == null or target.defeated or target.team_name != "enemy":
+        _battle_log_set("TOBI : cette cible n'est plus disponible. Choisis-en une autre.")
+        _show_tobi_bomb_picker()
+        return
+    _place_tobi_bomb("ally",target)
+    if tobi_bomb_overlay != null:
+        tobi_bomb_overlay.visible = false
+    action_status_label.text = "BOMBE TOBI PLACÉE • choisis maintenant ton Ninja"
+    _refresh_all_status_badges()
+    _refresh_plan_ui()
+    _refresh_action_buttons()
+
 func _build_inspection_overlay() -> void:
     inspection_overlay = Control.new()
     inspection_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -605,8 +698,8 @@ func _build_inspection_overlay() -> void:
     # P48 : actions tactiles directement dans la fiche. La SPÉCIALE est une
     # action de premier rang, au même niveau que TAI/NIN/GEN.
     inspection_action_root = Control.new()
-    inspection_action_root.position = Vector2(34, 554)
-    inspection_action_root.size = Vector2(872, 164)
+    inspection_action_root.position = Vector2(34, 612)
+    inspection_action_root.size = Vector2(872, 76)
     inspection_action_root.z_index = 4
     win.add_child(inspection_action_root)
     var sheet_actions: Array[Dictionary] = [
@@ -618,15 +711,10 @@ func _build_inspection_overlay() -> void:
     ]
     for i: int in range(sheet_actions.size()):
         var item: Dictionary = sheet_actions[i]
-        var col: int = i if i < 3 else i - 3
-        var row_y: float = 4.0 if i < 3 else 62.0
-        var b: Button = _action_button_in(inspection_action_root, Rect2(col * 286.0, row_y, 276, 50), str(item["label"]), item["c"] as Color, true)
+        var b: Button = _action_button_in(inspection_action_root, Rect2(i * 172.0, 4, 164, 54), str(item["label"]), item["c"] as Color, true)
         b.name = str(item["name"])
         b.pressed.connect(_sheet_action_pressed.bind(str(item["id"])))
-    var cancel_action: Button = _action_button_in(inspection_action_root, Rect2(572, 62, 276, 50), "ANNULER ACTION", Color("e85c66"), true)
-    cancel_action.name = "CancelAction"
-    cancel_action.pressed.connect(_sheet_cancel_action_pressed)
-    var af: Button = _action_button_in(inspection_action_root, Rect2(572, 120, 276, 38), "AF • MINATO", Color("f0d25e"), true)
+    var af: Button = _action_button_in(inspection_action_root, Rect2(688, 60, 164, 38), "AF • MINATO", Color("f0d25e"), true)
     af.name = "Free"
     af.pressed.connect(_sheet_free_pressed)
 
@@ -649,7 +737,7 @@ func _refresh_inspection_actions(actor: YugitoCardActor) -> void:
     inspection_action_root.visible = actor != null and actor.team_name == "ally" and current_turn_team == "ally" and not resolving_action and not ai_thinking
     if not inspection_action_root.visible:
         return
-    var can_act_now: bool = _actor_can_act(actor)
+    var can_act_now: bool = _actor_can_act(actor) and tobi_bomb_pending_team != "ally"
     for key: Variant in action_buttons.keys():
         var sheet_btn: Button = inspection_action_root.get_node_or_null(str(key).capitalize()) as Button
         if sheet_btn == null:
@@ -671,16 +759,6 @@ func _sheet_action_pressed(action_id: String) -> void:
 func _sheet_free_pressed() -> void:
     _close_inspection()
     _on_hiraishin_pressed()
-
-func _sheet_cancel_action_pressed() -> void:
-    current_action = ""
-    free_action_mode = false
-    tobi_prediction_enemy_uid = 0
-    tobi_prediction_action_id = "special"
-    _close_inspection()
-    _refresh_action_buttons()
-    _refresh_plan_ui()
-    _battle_log_set("Action en cours annulée.")
 
 func _close_inspection() -> void:
     if inspection_overlay != null:
@@ -876,12 +954,11 @@ func _on_card_selection_requested(actor: YugitoCardActor) -> void:
     if resolving_action or ai_thinking or current_turn_team != "ally" or _replacement_overlay_active() or _solo_overlay_active():
         return
 
-    # Tobi doit obligatoirement placer sa bombe secrète au début de son tour.
+    # Tobi : la pose de bombe passe par une vraie fenêtre de choix bloquante.
+    # Aucun clic de terrain ne doit servir de sélection implicite, sinon on recrée
+    # l'impression que les cartes ne répondent plus.
     if tobi_bomb_pending_team == "ally":
-        if actor.team_name != "enemy" or actor.defeated:
-            _battle_log_set("Tobi : choisis d'abord un Ninja ENNEMI pour placer la bombe secrète.")
-            return
-        _place_tobi_bomb("ally", actor)
+        _show_tobi_bomb_picker()
         return
 
     # Deuxième étape de la spéciale de Tobi (y compris une copie de Kakashi) :
@@ -1029,28 +1106,6 @@ func _on_action_button_pressed(action_id: String) -> void:
         return
     if action_id in ["taijutsu", "ninjutsu", "genjutsu"] and not _actor_can_use_style(selected_actor, action_id):
         _battle_log_set("%s ne peut pas utiliser %s actuellement." % [selected_actor.display_name, _action_display_name(action_id)])
-        return
-
-    # Tobi : la prédiction se prépare dans deux fenêtres tactiles à portraits.
-    # Étape 1 = attaquant adverse prédit. Étape 2 = cible alliée prédite.
-    if is_special_choice and chosen_special_id == "tobi":
-        var prediction_candidates: Array[String] = []
-        for predicted_enemy: YugitoCardActor in _living_cards("enemy"):
-            prediction_candidates.append(predicted_enemy.card_id)
-        if prediction_candidates.is_empty():
-            _battle_log_set("Tobi : aucun attaquant adverse disponible pour la prédiction.")
-            return
-        replacement_context = {
-            "mode":"tobi_prediction_enemy",
-            "actor":selected_actor,
-            "action_id":action_id,
-            "planning_slot":planning_slot,
-            "candidates":prediction_candidates
-        }
-        replacement_modal.show_choices("TOBI — PRÉDICTION 1/2", "Quel Ninja ennemi effectuera selon toi la PROCHAINE attaque ?", prediction_candidates)
-        current_action = ""
-        _battle_log_set("TOBI : choisis l'attaquant adverse prédit.")
-        _refresh_action_buttons()
         return
 
     # Certaines spéciales PC ouvrent un choix privé avant d'être placées dans A1/A2.
@@ -1536,19 +1591,16 @@ func _start_team_turn(team_name: String) -> void:
     for tobi: YugitoCardActor in _living_cards(team_name).duplicate():
         if tobi.card_id != "tobi" or _ino_possessor(tobi) != null:
             continue
-        # Tobi ne devient jamais intangible via son passif de bombes.
-        tobi.status_tags.erase("tobi_intangible")
+        tobi.status_tags["tobi_intangible"] = not bool(tobi.status_tags.get("tobi_intangible", false))
         var bomb_targets: Array[YugitoCardActor] = _living_cards(opponents)
         if bomb_targets.is_empty():
             continue
         if team_name == "ally":
             tobi_bomb_pending_team = "ally"
-            var tobi_candidates: Array[String] = []
-            for bomb_candidate: YugitoCardActor in bomb_targets:
-                tobi_candidates.append(bomb_candidate.card_id)
-            replacement_context = {"mode":"tobi_bomb", "team":"ally", "candidates":tobi_candidates}
-            replacement_modal.show_choices("TOBI — BOMBE SECRÈTE", "Choisis le Ninja ennemi qui recevra +1 bombe. L'adversaire ne verra jamais cette cible.", tobi_candidates)
-            _battle_log_set("TOBI : choisis secrètement le Ninja ennemi qui recevra la bombe.")
+            action_status_label.text = "TOBI • CHOISIS LA CIBLE DE LA BOMBE"
+            _battle_log_set("TOBI : choisis dans la fenêtre le Ninja ennemi qui recevra la bombe secrète.")
+            tobi.refresh_status_visuals()
+            call_deferred("_show_tobi_bomb_picker")
         else:
             var bomb_target: YugitoCardActor = bomb_targets[0]
             var bomb_score: float = -INF
@@ -3356,9 +3408,7 @@ func _trigger_tobi_prediction(attacker: YugitoCardActor, attacked_target: Yugito
         return false
     var predicted_enemy_uid: int = int(pred.get("enemy_uid",0))
     var predicted_ally_uid: int = int(pred.get("ally_uid",0))
-    # La toute première attaque adverse tranche la prédiction immédiatement.
     if attacker.battle_uid != predicted_enemy_uid or attacked_target.battle_uid != predicted_ally_uid:
-        _clear_failed_tobi_prediction(owner_team)
         return false
     tobi_predictions[owner_team] = {}
     var tobi_owner: YugitoCardActor = _find_live_card(owner_team, "tobi")
@@ -3366,28 +3416,18 @@ func _trigger_tobi_prediction(attacker: YugitoCardActor, attacked_target: Yugito
         tobi_owner.status_tags.erase("tobi_prediction_armed")
         tobi_owner.refresh_status_badges()
         tobi_owner.refresh_status_visuals()
-    # Réussite : TOUTES les bombes de Tobi présentes sur le terrain adverse explosent.
-    for bombed_enemy: YugitoCardActor in _living_cards(attacker.team_name).duplicate():
-        _explode_tobi_bombs(owner_team, bombed_enemy, "C'ÉTAIT PRÉVU ! • BOMBES TOBI")
+    _explode_tobi_bombs(owner_team, attacker, "C'ÉTAIT PRÉVU ! • BOMBES TOBI")
     return true
 
 func _clear_failed_tobi_prediction(owner_team: String) -> void:
     var pred: Dictionary = tobi_predictions.get(owner_team, {}) as Dictionary
     if pred.is_empty():
         return
-    # Échec : -2 bombes SUR CHAQUE Ninja adverse, jamais -2 au total.
-    var bomb_team: String = _opponent_team(owner_team)
-    var key_bomb: String = _tobi_bomb_key(owner_team)
-    for bombed: YugitoCardActor in _living_cards(bomb_team).duplicate():
-        var stacks: int = int(bombed.status_tags.get(key_bomb,0))
-        if stacks <= 0:
-            continue
-        var remaining: int = maxi(0, stacks - 2)
-        if remaining > 0:
-            bombed.status_tags[key_bomb] = remaining
-        else:
-            bombed.status_tags.erase(key_bomb)
-        _refresh_tobi_bomb_total(bombed)
+    var predicted: YugitoCardActor = _resolve_actor_uid(int(pred.get("enemy_uid",0)))
+    if predicted != null and not predicted.defeated:
+        var key_bomb: String = _tobi_bomb_key(owner_team)
+        predicted.status_tags.erase(key_bomb)
+        _refresh_tobi_bomb_total(predicted)
     tobi_predictions[owner_team] = {}
     var tobi_owner: YugitoCardActor = _find_live_card(owner_team, "tobi")
     if tobi_owner != null:
@@ -3395,7 +3435,7 @@ func _clear_failed_tobi_prediction(owner_team: String) -> void:
         tobi_owner.refresh_status_badges()
         tobi_owner.refresh_status_visuals()
     if owner_team == "ally":
-        _battle_log_set("TOBI : prédiction ratée — chaque Ninja adverse perd jusqu'à 2 bombes.")
+        _battle_log_set("TOBI : prédiction ratée — les bombes du Ninja prédit sont perdues.")
     else:
         _battle_log_set("Tobi : une prédiction secrète échoue.")
 
@@ -4002,19 +4042,6 @@ func _execute_planned_switch(descriptor: Dictionary, phase_label: String) -> voi
     var incoming_name: String = str((cards_by_id.get(incoming_id, {}) as Dictionary).get("name", incoming_id))
     _battle_log_set("%s • Échange %s → %s%s" % [phase_label, outgoing.display_name, incoming_name, " • RÉACTIF" if reactive else ""])
     _replace_actor(outgoing, incoming_id, false, reactive)
-    # P49 : ne jamais conserver une référence de sélection vers la carte sortie.
-    # C'était la cause du tour tactile bloqué après certains Switch (ex. Kabuto → Temari).
-    if outgoing.team_name == "ally":
-        selected_actor = null
-        current_action = ""
-        free_action_mode = false
-        inspection_actor = null
-        if inspection_overlay != null:
-            inspection_overlay.visible = false
-        for selectable_card: YugitoCardActor in card_actors:
-            selectable_card.set_selected(false)
-        _refresh_selection_panel()
-        _refresh_action_buttons()
     _refresh_reserve_labels()
     var timer: SceneTreeTimer = get_tree().create_timer(0.22)
     timer.timeout.connect(_complete_resolution_step.bind(0.04))
@@ -4485,59 +4512,12 @@ func _on_replacement_choice_pressed(choice_index: int) -> void:
         candidates.append(str(item))
     if choice_index < 0 or choice_index >= candidates.size():
         return
-    var mode: String = str(replacement_context.get("mode", "death"))
-    var chosen_id: String = str(candidates[choice_index])
-
-    if mode == "tobi_bomb":
-        var bomb_target: YugitoCardActor = _find_live_card("enemy", chosen_id)
-        if bomb_target != null:
-            _place_tobi_bomb("ally", bomb_target)
-        _close_replacement_overlay()
-        return
-
     var actor: YugitoCardActor = replacement_context.get("actor") as YugitoCardActor
     if actor == null or not is_instance_valid(actor):
         _close_replacement_overlay()
         return
-
-    if mode == "tobi_prediction_enemy":
-        var predicted_enemy: YugitoCardActor = _find_live_card("enemy", chosen_id)
-        if predicted_enemy == null:
-            _close_replacement_overlay()
-            _battle_log_set("Tobi : l'attaquant prédit n'est plus disponible.")
-            return
-        var ally_candidates: Array[String] = []
-        for predicted_ally: YugitoCardActor in _living_cards("ally"):
-            ally_candidates.append(predicted_ally.card_id)
-        if ally_candidates.is_empty():
-            _close_replacement_overlay()
-            return
-        replacement_context = {
-            "mode":"tobi_prediction_ally_modal",
-            "actor":actor,
-            "action_id":str(replacement_context.get("action_id","special")),
-            "planning_slot":int(replacement_context.get("planning_slot",planning_slot)),
-            "enemy_uid":predicted_enemy.battle_uid,
-            "enemy_id":predicted_enemy.card_id,
-            "candidates":ally_candidates
-        }
-        replacement_modal.show_choices("TOBI — PRÉDICTION 2/2", "Qui sera la cible de la prochaine attaque de %s ?" % predicted_enemy.display_name, ally_candidates)
-        _battle_log_set("TOBI : choisis maintenant la cible alliée prédite.")
-        return
-
-    if mode == "tobi_prediction_ally_modal":
-        var predicted_enemy2: YugitoCardActor = _resolve_actor_uid(int(replacement_context.get("enemy_uid",0)))
-        var predicted_ally2: YugitoCardActor = _find_live_card("ally", chosen_id)
-        var stored_action_id: String = str(replacement_context.get("action_id","special"))
-        var stored_slot: int = int(replacement_context.get("planning_slot",planning_slot))
-        if predicted_enemy2 == null or predicted_ally2 == null:
-            _close_replacement_overlay()
-            _battle_log_set("Tobi : prédiction annulée, une carte n'est plus disponible.")
-            return
-        planning_slot = stored_slot
-        _store_planned_action(actor, predicted_enemy2, stored_action_id, {"prediction_ally_uid":predicted_ally2.battle_uid, "prediction_ally_id":predicted_ally2.card_id})
-        _close_replacement_overlay()
-        return
+    var mode: String = str(replacement_context.get("mode", "death"))
+    var chosen_id: String = str(candidates[choice_index])
     var chosen_data: Dictionary = cards_by_id.get(chosen_id, {}) as Dictionary
     var chosen_name: String = str(chosen_data.get("name", chosen_id))
 

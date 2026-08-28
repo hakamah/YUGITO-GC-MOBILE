@@ -77,8 +77,14 @@ func _draw() -> void:
         if not owner.is_empty() or not available:
             draw_rect(rect, Color(0.002, 0.008, 0.014, 0.58), true)
 
+        # P48.2 : une carte actuellement draftable doit être identifiable d'un
+        # seul coup d'œil sur téléphone. Le contour vert est dynamique mais
+        # reste mis en cache avec le Canvas : aucun Node par carte.
+        if owner.is_empty() and available:
+            draw_rect(rect.grow(-2.0), Color(0.32, 0.86, 0.56, 0.94), false, 2.4)
+
         if cid == _selected_id:
-            draw_rect(rect.grow(-2.0), Color("fff0a0"), false, 3.0)
+            draw_rect(rect.grow(-3.0), Color("fff0a0"), false, 4.0)
 
         # "DISPONIBLE" is baked into the atlas. Only lock/owner reasons need
         # dynamic text, which further reduces per-frame canvas commands.
