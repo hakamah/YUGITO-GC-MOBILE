@@ -736,9 +736,43 @@ func _on_draft_card_pressed(cid: String) -> void:
     if MobilePlatform.is_android():
         if is_instance_valid(draft_mobile_canvas):
             draft_mobile_canvas.set_selected(cid)
-        _draw_draft_detail(Rect2(1034,158,294,564), _scheduled_team())
+        _open_mobile_draft_sheet(cid)
     else:
         _draw_draft()
+
+func _open_mobile_draft_sheet(cid: String) -> void:
+    var data: Dictionary = cards_by_id.get(cid,{}) as Dictionary
+    if data.is_empty(): return
+    if is_instance_valid(draft_detail_root):
+        var old_parent: Node = draft_detail_root.get_parent()
+        if old_parent != null: old_parent.remove_child(draft_detail_root)
+        draft_detail_root.queue_free()
+    var root := Control.new()
+    root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+    root.mouse_filter = Control.MOUSE_FILTER_STOP
+    root.z_index = 26000
+    stage_root.add_child(root)
+    draft_detail_root = root
+    var dim := ColorRect.new()
+    dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+    dim.color = Color(0.002,0.006,0.012,0.82)
+    dim.mouse_filter = Control.MOUSE_FILTER_STOP
+    root.add_child(dim)
+    var win: Panel = _panel(root,Rect2(180,70,1200,650),Color(0.014,0.030,0.050,0.99),Color(0.42,0.68,0.86,0.62),18,10)
+    _label(win,"FICHE NINJA — DRAFT",Rect2(30,18,600,38),22,Color("f4f8fb"),HORIZONTAL_ALIGNMENT_LEFT,true)
+    var close: Button = _button(win,Rect2(1030,18,130,42),"FERMER",Color("8cb9d8"),false)
+    close.pressed.connect(_close_mobile_draft_sheet.bind(root))
+    _card_detail(win,data,Rect2(30,78,1140,470))
+    var reason: String = _draft_lock_reason("ally",data)
+    _label(win,reason,Rect2(30,552,1140,24),10,Color("55d58b") if reason == "DISPONIBLE" else Color("e85c66"),HORIZONTAL_ALIGNMENT_CENTER,true)
+    var add: Button = _button(win,Rect2(340,584,520,52),"AJOUTER À L'ÉQUIPE",Color("55d58b"),true)
+    add.disabled = _scheduled_team() != "ally" or not _draft_allowed("ally",data)
+    add.pressed.connect(_confirm_draft_pick)
+
+func _close_mobile_draft_sheet(root: Control) -> void:
+    if is_instance_valid(root):
+        root.queue_free()
+    draft_detail_root = null
 
 func _draw_draft_detail(rect: Rect2, active: String) -> void:
     if is_instance_valid(draft_detail_root):

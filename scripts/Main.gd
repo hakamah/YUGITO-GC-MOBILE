@@ -28,6 +28,9 @@ var journal_overlay: Control = null
 var journal_rich: RichTextLabel = null
 var inspection_overlay: Control = null
 var inspection_rich: RichTextLabel = null
+var inspection_action_root: Control = null
+var inspection_actor: YugitoCardActor = null
+var action_marker_labels: Dictionary = {}
 var duel_end_overlay: Control = null
 var inspect_button: Button = null
 var journal_button: Button = null
@@ -134,7 +137,7 @@ var status_link_elapsed: float = 0.0
 
 func _ready() -> void:
     MobilePlatform.enforce_landscape()
-    get_window().title = "YUGITO GC MOBILE - PROTOTYPE 47M LANDSCAPE"
+    get_window().title = "YUGITO GC MOBILE - PROTOTYPE 47M.2 COMBAT PERF AUTH"
     battle_rng.configure(GameSession.parity_rng_enabled, GameSession.parity_seed)
     _load_card_data()
     _build_background()
@@ -161,9 +164,13 @@ func _process(delta: float) -> void:
     elapsed += delta
     _tick_phase_timer(delta)
     status_link_elapsed += delta
-    if status_link_elapsed >= 0.08:
+    var link_interval: float = 0.30 if MobilePlatform.is_android() else 0.08
+    if status_link_elapsed >= link_interval:
         status_link_elapsed = 0.0
-        _refresh_persistent_status_links()
+        # Sur Android, la plupart des tours n'ont aucun lien dynamique :
+        # ne plus détruire/recréer des Nodes inutilement en permanence.
+        if not MobilePlatform.is_android() or _has_dynamic_status_links():
+            _refresh_persistent_status_links()
     if fps_label and elapsed >= 0.25:
         elapsed = 0.0
         fps_label.text = "%d FPS   •   GPU / VSYNC" % Engine.get_frames_per_second()
@@ -205,15 +212,26 @@ void fragment() {
     COLOR = c;
 }
 """
-    bg_mat.shader = bg_shader
-    bg.material = bg_mat
+    if not MobilePlatform.is_android():
+        bg_mat.shader = bg_shader
+        bg.material = bg_mat
+    else:
+        bg.modulate = Color(0.92,0.94,0.96,1.0)
     add_child(bg)
 
-    var atmosphere := Atmosphere.new()
-    atmosphere.modulate = Color(1,1,1,0.48)
-    add_child(atmosphere)
+    if not MobilePlatform.is_android():
+        var atmosphere := Atmosphere.new()
+        atmosphere.modulate = Color(1,1,1,0.48)
+        add_child(atmosphere)
 
 func _battle_frost_panel(panel: Control, lod: float = 1.5, frost: float = 0.045) -> void:
+    if MobilePlatform.is_android():
+        var mobile_tint := ColorRect.new()
+        mobile_tint.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+        mobile_tint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+        mobile_tint.color = Color(0.008,0.022,0.038,0.55)
+        panel.add_child(mobile_tint)
+        return
     var blur := ColorRect.new()
     blur.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
     blur.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -287,7 +305,7 @@ func _build_interface() -> void:
     _logo(Vector2(28, 23), 37)
     _label("YUGITO", Rect2(72, 19, 155, 42), 28, Color("f5f7fa"), HORIZONTAL_ALIGNMENT_LEFT, true)
     _label("GODOT 2.0", Rect2(226, 22, 104, 20), 10, Color("6dd9ad"), HORIZONTAL_ALIGNMENT_LEFT, true)
-    _label("BUILD 47M • GC MOBILE", Rect2(226, 41, 340, 20), 9, Color("91a6bd"), HORIZONTAL_ALIGNMENT_LEFT, false)
+    _label("BUILD 47M.2 • COMBAT PERF", Rect2(226, 41, 340, 20), 9, Color("91a6bd"), HORIZONTAL_ALIGNMENT_LEFT, false)
     turn_title_label = _label("TOUR %d   •   %s" % [turn_counter,IdentityManager.display_name().to_upper()], Rect2(510, 21, 250, 36), 18, Color("e7edf4"), HORIZONTAL_ALIGNMENT_CENTER, true)
 
     # P23 — vrai chrono Classic. Chaque nouveau tour humain repart à 30 s et
@@ -303,12 +321,12 @@ func _build_interface() -> void:
     fps_label = _label("FPS", Rect2(1324, 25, 240, 22), 10, Color("63dda4"), HORIZONTAL_ALIGNMENT_RIGHT, true)
 
     # Zone de combat en grand verre dépoli, sans aplat bleu-noir.
-    var arena_glass: Panel = _panel(Rect2(0, 72, 1300, 824), Color(0.008,0.022,0.038,0.54), Color(0.78,0.90,1.0,0.34), 20, 12, Color(0,0,0,0.18), Vector2(0,6))
+    var arena_glass: Panel = _panel(Rect2(0, 72, 1594, 824), Color(0.008,0.022,0.038,0.54), Color(0.78,0.90,1.0,0.34), 20, 12, Color(0,0,0,0.18), Vector2(0,6))
     _battle_frost_panel(arena_glass, 1.55, 0.050)
-    _panel(Rect2(7, 79, 1286, 810), Color(1,1,1,0.025), Color(1,1,1,0.10), 16)
+    _panel(Rect2(7, 79, 1580, 810), Color(1,1,1,0.025), Color(1,1,1,0.10), 16)
 
-    _status_bar(Rect2(10, 78, 1280, 40), "IA", Color("e85c66"), false)
-    _status_bar(Rect2(10, 848, 1280, 40), IdentityManager.display_name().to_upper(), Color("ff7c2e"), true)
+    _status_bar(Rect2(10, 78, 1570, 40), "IA", Color("e85c66"), false)
+    _status_bar(Rect2(10, 848, 1570, 40), IdentityManager.display_name().to_upper(), Color("ff7c2e"), true)
 
     _capsule(Rect2(154, 132, 120, 23), "ÉQUIPE ADVERSE", Color("e76872"))
     _capsule(Rect2(154, 818, 120, 23), "VOTRE ÉQUIPE", Color("ff8a45"))
@@ -384,8 +402,48 @@ func _build_interface() -> void:
 
     _build_journal_overlay()
     _build_inspection_overlay()
+    _build_action_markers()
 
     # Le remplacement/switch utilise maintenant un vrai écran modal plein écran.
+
+func _build_action_markers() -> void:
+    # Visibles uniquement sur nos cartes. L'adversaire ne reçoit aucune info
+    # sur A1/A2/AF via cette couche locale.
+    for slot: int in range(3, 6):
+        var marker: Label = _label("", Rect2(0,0,72,30), 14, Color("fff3a6"), HORIZONTAL_ALIGNMENT_CENTER, true)
+        marker.z_index = 25000
+        marker.visible = false
+        action_marker_labels[slot] = marker
+    _refresh_action_markers()
+
+func _marker_add(tags: Dictionary, descriptor: Dictionary, label: String) -> void:
+    if descriptor.is_empty() or str(descriptor.get("source_team", "")) != "ally":
+        return
+    var slot: int = int(descriptor.get("source_slot", -1))
+    if slot < 3 or slot > 5:
+        return
+    if not tags.has(slot): tags[slot] = []
+    (tags[slot] as Array).append(label)
+
+func _refresh_action_markers() -> void:
+    if action_marker_labels.is_empty(): return
+    var tags: Dictionary = {}
+    _marker_add(tags, free_action_plan, "AF")
+    _marker_add(tags, action1_plan, "A1")
+    _marker_add(tags, action2_plan, "A2")
+    for slot_v: Variant in action_marker_labels.keys():
+        var slot: int = int(slot_v)
+        var lab: Label = action_marker_labels[slot] as Label
+        var actor: YugitoCardActor = null
+        for c: YugitoCardActor in card_actors:
+            if c.team_name == "ally" and not c.defeated and c.seed_index_value() == slot:
+                actor = c; break
+        if actor == null or not tags.has(slot):
+            lab.visible = false
+            continue
+        lab.text = " ".join(tags[slot] as Array)
+        lab.position = actor.anchor_position + Vector2(-36, -218)
+        lab.visible = true
 
 func _battle_log_set(text_value: String) -> void:
     if battle_log_label != null:
@@ -544,15 +602,75 @@ func _build_inspection_overlay() -> void:
     inspection_rich.add_theme_color_override("default_color",Color("dce8f2"))
     scroll.add_child(inspection_rich)
 
+    # P48 : actions tactiles directement dans la fiche. La SPÉCIALE est une
+    # action de premier rang, au même niveau que TAI/NIN/GEN.
+    inspection_action_root = Control.new()
+    inspection_action_root.position = Vector2(34, 612)
+    inspection_action_root.size = Vector2(872, 76)
+    inspection_action_root.z_index = 4
+    win.add_child(inspection_action_root)
+    var sheet_actions: Array[Dictionary] = [
+        {"id":"taijutsu","name":"Taijutsu","label":"TAIJUTSU","c":Color("ef6659")},
+        {"id":"ninjutsu","name":"Ninjutsu","label":"NINJUTSU","c":Color("58aff0")},
+        {"id":"genjutsu","name":"Genjutsu","label":"GENJUTSU","c":Color("ba85ed")},
+        {"id":"special","name":"Special","label":"SPÉCIALE","c":Color("e2b746")},
+        {"id":"reserve","name":"Reserve","label":"SWITCH RÉSERVE","c":Color("58cf8b")}
+    ]
+    for i: int in range(sheet_actions.size()):
+        var item: Dictionary = sheet_actions[i]
+        var b: Button = _action_button_in(inspection_action_root, Rect2(i * 172.0, 4, 164, 54), str(item["label"]), item["c"] as Color, true)
+        b.name = str(item["name"])
+        b.pressed.connect(_sheet_action_pressed.bind(str(item["id"])))
+    var af: Button = _action_button_in(inspection_action_root, Rect2(688, 60, 164, 38), "AF • MINATO", Color("f0d25e"), true)
+    af.name = "Free"
+    af.pressed.connect(_sheet_free_pressed)
+
 func _open_selected_inspection() -> void:
     if selected_actor == null or not is_instance_valid(selected_actor) or inspection_overlay == null:
         return
-    _populate_inspection(selected_actor)
+    _open_actor_sheet(selected_actor)
+
+func _open_actor_sheet(actor: YugitoCardActor) -> void:
+    if actor == null or not is_instance_valid(actor) or inspection_overlay == null:
+        return
+    inspection_actor = actor
+    _populate_inspection(actor)
+    _refresh_inspection_actions(actor)
     inspection_overlay.visible = true
+
+func _refresh_inspection_actions(actor: YugitoCardActor) -> void:
+    if inspection_action_root == null:
+        return
+    inspection_action_root.visible = actor != null and actor.team_name == "ally" and current_turn_team == "ally" and not resolving_action and not ai_thinking
+    if not inspection_action_root.visible:
+        return
+    var can_act_now: bool = _actor_can_act(actor)
+    for key: Variant in action_buttons.keys():
+        var sheet_btn: Button = inspection_action_root.get_node_or_null(str(key).capitalize()) as Button
+        if sheet_btn == null:
+            continue
+        var enabled: bool = can_act_now
+        if str(key) == "special": enabled = enabled and _actor_special_available(actor)
+        if str(key) == "reserve": enabled = not ally_reserve.is_empty() and _can_leave_field_voluntarily(actor)
+        sheet_btn.disabled = not enabled
+
+func _sheet_action_pressed(action_id: String) -> void:
+    if inspection_actor == null or not is_instance_valid(inspection_actor):
+        return
+    selected_actor = inspection_actor
+    for card: YugitoCardActor in card_actors:
+        card.set_selected(card == inspection_actor)
+    _close_inspection()
+    _on_action_button_pressed(action_id)
+
+func _sheet_free_pressed() -> void:
+    _close_inspection()
+    _on_hiraishin_pressed()
 
 func _close_inspection() -> void:
     if inspection_overlay != null:
         inspection_overlay.visible = false
+    inspection_actor = null
 
 func _populate_inspection(actor: YugitoCardActor) -> void:
     if inspection_rich == null:
@@ -666,7 +784,7 @@ func _spawn_cards() -> void:
     if GameSession.configured and GameSession.enemy_starters.size() == 3 and GameSession.ally_starters.size() == 3:
         enemy_ids = GameSession.enemy_starters.duplicate()
         ally_ids = GameSession.ally_starters.duplicate()
-    var xs: Array[float] = [372.0, 650.0, 928.0]
+    var xs: Array[float] = [410.0, 760.0, 1110.0]
     for i in range(3):
         _spawn_card(enemy_ids[i], Vector2(xs[i], 322.0), i, "enemy")
         _spawn_card(ally_ids[i], Vector2(xs[i], 678.0), i + 3, "ally")
@@ -842,6 +960,10 @@ func _on_card_selection_requested(actor: YugitoCardActor) -> void:
         _battle_log_set("%s est prévu après le Switch A1 : prépare maintenant son Action 2." % selection_candidate.display_name)
     _refresh_selection_panel()
     _refresh_action_buttons()
+    # P48 mobile : toucher une carte ouvre sa fiche. Si une action est déjà
+    # choisie, le même toucher reste évidemment le choix de cible.
+    if MobilePlatform.is_android() and current_action.is_empty():
+        _open_actor_sheet(selection_candidate)
 
 func _set_planning_slot(slot: int) -> void:
     if resolving_action or ai_thinking or current_turn_team != "ally" or _replacement_overlay_active():
@@ -1907,6 +2029,10 @@ func _is_actor_untargetable(actor: YugitoCardActor) -> bool:
 
 func _actor_can_act(actor: YugitoCardActor) -> bool:
     if actor == null or not is_instance_valid(actor) or actor.defeated:
+        return false
+    # P48 MOBILE UX/RULE LOCK : le Clone explosif est un état passif de Gengetsu,
+    # jamais une source d'action. Il ne peut préparer ni AF, ni A1, ni A2.
+    if actor.card_id == "gengetsu" and bool(actor.status_tags.get("gengetsu_clone_active", false)):
         return false
     if _ino_possessor(actor) != null:
         return false
@@ -3607,6 +3733,13 @@ func _apply_attack_damage(source: YugitoCardActor, target: YugitoCardActor, raw_
             if allow_overflow:
                 _apply_player_overflow(target.team_name, overflow)
             target.set_hp(target.max_hp)
+            if rescued_by == "kabuto":
+                var kabuto_used: YugitoCardActor = _find_live_card(target.team_name, "kabuto")
+                if kabuto_used != null:
+                    kabuto_used.refresh_status_badges()
+                _battle_log_append("  •  RÉINCARNATION DES ÂMES : Kabuto ramène %s à tous ses PV" % target.display_name)
+            elif rescued_by == "chiyo":
+                _battle_log_append("  •  DERNIER SOUFFLE : Chiyo sauve %s" % target.display_name)
             return {"hp_damage":hp_before,"overflow":overflow,"killed":false,"immune":false,"survival":rescued_by}
 
     target.apply_damage(hp_damage)
@@ -3889,6 +4022,20 @@ func _add_status_link(source: YugitoCardActor, target: YugitoCardActor, color: C
         label.add_theme_color_override("font_color",Color(color.r,color.g,color.b,0.96))
         label.mouse_filter = Control.MOUSE_FILTER_IGNORE
         panel.add_child(label)
+
+func _has_dynamic_status_links() -> bool:
+    for actor: YugitoCardActor in card_actors:
+        if actor == null or not is_instance_valid(actor) or actor.defeated:
+            continue
+        if actor.card_id == "ino" and not str(actor.status_tags.get("ino_target","")).is_empty():
+            return true
+        if int(actor.status_tags.get("shadow_turns",0)) > 0:
+            return true
+        if int(actor.status_tags.get("kisame_prisoned_by_uid",0)) > 0:
+            return true
+        if int(actor.status_tags.get("doom_turns",0)) > 0:
+            return true
+    return false
 
 func _refresh_persistent_status_links() -> void:
     if status_link_root == null:
@@ -4756,6 +4903,7 @@ func _descriptor_text(descriptor: Dictionary) -> String:
     return "%s • %s → %s" % [source_name, _action_display_name(action_id), target_name]
 
 func _refresh_plan_ui() -> void:
+    _refresh_action_markers()
     if timeline_free_subtitle:
         timeline_free_subtitle.text = "Hiraishin : attaque normale gratuite" if free_action_plan.is_empty() else _descriptor_text(free_action_plan)
     if timeline_free_button:

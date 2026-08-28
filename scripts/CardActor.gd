@@ -179,6 +179,28 @@ func set_selected(value: bool) -> void:
         selected = false
         return
     selected = value
+    if MobilePlatform.is_android():
+        _apply_mobile_selection_visual()
+
+func _apply_mobile_selection_visual() -> void:
+    # Mobile : pas de perspective/hover/shader recalculés chaque frame.
+    # Le clic garde néanmoins un feedback clair et immédiat.
+    var selected_scale: float = base_scale * (1.04 if selected else 1.0)
+    scale = Vector2.ONE * selected_scale
+    rotation = 0.0
+    if _frame_style:
+        _frame_style.border_color = Color("f3d36a") if selected else _accent.darkened(0.16)
+        _frame_style.shadow_color = Color(0,0,0,0.50 if selected else 0.38)
+        _frame_style.shadow_size = 8 if selected else 5
+        _frame_style.shadow_offset = Vector2(0,5)
+    if _inner_edge_style:
+        _inner_edge_style.border_color = Color(1.0,0.90,0.52,0.72) if selected else Color(1,1,1,0.10)
+    if _header_style:
+        _header_style.border_color = Color(1.0,0.86,0.39,0.82) if selected else Color(_accent.r,_accent.g,_accent.b,0.42)
+        _header_style.shadow_size = 6 if selected else 4
+    if _selected_label:
+        _selected_label.visible = selected
+        _selected_label.modulate.a = 1.0 if selected else 0.0
 
 func apply_damage(amount: int) -> int:
     if defeated:
@@ -536,6 +558,30 @@ func import_state(state: Dictionary) -> void:
 func _process(delta: float) -> void:
     drift_time += delta
     _status_refresh_elapsed += delta
+
+    if MobilePlatform.is_android():
+        # Les états n'ont pas besoin d'être reconstruits à 6 fois/seconde.
+        if _status_refresh_elapsed >= 0.40:
+            _status_refresh_elapsed = 0.0
+            refresh_dynamic_identity()
+            refresh_status_badges()
+            refresh_status_visuals()
+
+        # On conserve uniquement l'animation d'arrivée, puis la carte reste
+        # parfaitement fixe : zéro sin(), perspective souris, shadow animation
+        # ou paramètre shader à recalculer 60 fois/seconde × 6 cartes.
+        if defeated:
+            return
+        if _spawn_progress < 0.999:
+            var spawn_y_mobile: float = lerpf(_spawn_from, 0.0, _smoothstep01(_spawn_progress))
+            position = anchor_position + Vector2(0.0, spawn_y_mobile)
+            modulate.a = _smoothstep01(_spawn_progress)
+        else:
+            position = anchor_position
+            modulate.a = 1.0
+        return
+
+    # Desktop conserve toutes les animations visuelles P42/P43.
     if _status_refresh_elapsed >= STATUS_POLL_INTERVAL:
         _status_refresh_elapsed = 0.0
         refresh_dynamic_identity()
@@ -623,10 +669,14 @@ func _on_input_event(_viewport: Node, event: InputEvent, _shape_idx: int) -> voi
         selection_requested.emit(self)
 
 func _on_mouse_entered() -> void:
+    if MobilePlatform.is_android():
+        return
     if not defeated:
         hover = true
 
 func _on_mouse_exited() -> void:
+    if MobilePlatform.is_android():
+        return
     hover = false
 
 func _build_card(data: Dictionary) -> Control:
@@ -792,9 +842,15 @@ func _build_card(data: Dictionary) -> Control:
     sheen.size = Vector2(CARD_W - 8.0, CARD_H - 8.0)
     sheen.mouse_filter = Control.MOUSE_FILTER_IGNORE
     sheen.z_index = 14
-    _glass_material = ShaderMaterial.new()
-    var shader: Shader = Shader.new()
-    shader.code = """
+    if MobilePlatform.is_android():
+        # Le shader original utilise TIME et force un rendu animé permanent
+        # pour chacune des six cartes. Sur mobile : reflet statique.
+        sheen.color = Color(0.86,0.94,1.0,0.018)
+        _glass_material = null
+    else:
+        _glass_material = ShaderMaterial.new()
+        var shader: Shader = Shader.new()
+        shader.code = """
 shader_type canvas_item;
 render_mode unshaded;
 uniform float hover_amount = 0.0;
@@ -823,8 +879,8 @@ void fragment() {
     COLOR = vec4(tint, idle + active + selected);
 }
 """
-    _glass_material.shader = shader
-    sheen.material = _glass_material
+        _glass_material.shader = shader
+        sheen.material = _glass_material
     root.add_child(sheen)
 
     _selected_label = _label(root, "SÉLECTIONNÉ", Rect2(70, 341, 104, 18), 8, Color("ffe487"), HORIZONTAL_ALIGNMENT_CENTER, true)
