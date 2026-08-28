@@ -827,11 +827,12 @@ func _open_mobile_draft_sheet(cid: String) -> void:
     info_scroll.add_child(rich)
 
     var reason: String = _draft_lock_reason("ally",data)
-    _label(win,reason,Rect2(28,652,1447,30),14,Color("55d58b") if reason == "DISPONIBLE" else Color("e85c66"),HORIZONTAL_ALIGNMENT_CENTER,true)
-
-    # Bouton demandé au moins x3 : 156 px de haut au lieu de 52.
-    var add: Button = _button(win,Rect2(180,688,1150,156),"AJOUTER À L'ÉQUIPE",Color("55d58b"),true)
-    add.add_theme_font_size_override("font_size",28)
+    # P49 : statut et confirmation partagent la même barre basse.
+    # Le bouton ne déborde plus hors de la fiche et ressemble à une vraie CTA tactile.
+    _panel(win,Rect2(610,658,300,88),Color(0.018,0.052,0.052,0.92),Color(0.33,0.82,0.55,0.55) if reason == "DISPONIBLE" else Color(0.90,0.36,0.40,0.55),12,2)
+    _label(win,reason,Rect2(626,676,268,50),16,Color("55d58b") if reason == "DISPONIBLE" else Color("e85c66"),HORIZONTAL_ALIGNMENT_CENTER,true)
+    var add: Button = _button(win,Rect2(930,658,545,88),"AJOUTER À L'ÉQUIPE",Color("55d58b"),true)
+    add.add_theme_font_size_override("font_size",23)
     add.disabled = _scheduled_team() != "ally" or not _draft_allowed("ally",data)
     add.pressed.connect(_confirm_draft_pick)
 

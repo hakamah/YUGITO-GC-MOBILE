@@ -31,6 +31,8 @@ var inspection_layer: CanvasLayer = null
 var inspection_rich: RichTextLabel = null
 var inspection_action_root: Control = null
 var inspection_actor: YugitoCardActor = null
+var inspection_art: TextureRect = null
+var sheet_cancel_button: Button = null
 var action_marker_labels: Dictionary = {}
 var duel_end_overlay: Control = null
 var inspect_button: Button = null
@@ -401,6 +403,18 @@ func _build_interface() -> void:
     journal_button.pressed.connect(_open_battle_journal)
     battle_log_label = _label("Le journal complet du duel est maintenant enregistré.", Rect2(1330, 755, 226, 92), 8, Color("b6c8d8"), HORIZONTAL_ALIGNMENT_LEFT, false)
 
+    if MobilePlatform.is_android():
+        plan_glass.visible = false
+        for old_control: Control in [timeline_free_button,timeline_a1_button,timeline_a2_button,cancel_free_button,cancel_a1_button,cancel_a2_button,selection_title_label,selection_subtitle_label,selection_stats_label,action_status_label,inspect_button,copy_action_button,direct_attack_button,journal_button,battle_log_label]:
+            if old_control != null: old_control.visible = false
+        for old_btn_v: Variant in action_buttons.values():
+            var old_btn: Button = old_btn_v as Button
+            if old_btn != null: old_btn.visible = false
+        if validate_button != null: validate_button.queue_free()
+        validate_button = _action_button(Rect2(1318,350,262,150),"VALIDER LE TOUR",Color("55d58b"),true)
+        validate_button.add_theme_font_size_override("font_size",22)
+        validate_button.pressed.connect(_on_validate_plan_pressed)
+
     _build_journal_overlay()
     _build_inspection_overlay()
     _build_action_markers()
@@ -442,8 +456,12 @@ func _refresh_action_markers() -> void:
         if actor == null or not tags.has(slot):
             lab.visible = false
             continue
-        lab.text = " ".join(tags[slot] as Array)
-        lab.position = actor.anchor_position + Vector2(-36, -218)
+        lab.text = "  " + "  ".join(tags[slot] as Array) + "  "
+        lab.position = actor.global_position + Vector2(-58,-208)
+        lab.size = Vector2(116,36)
+        lab.add_theme_font_size_override("font_size",17)
+        lab.add_theme_color_override("font_color",Color("fff19a"))
+        lab.add_theme_color_override("font_shadow_color",Color(0,0,0,1))
         lab.visible = true
 
 func _battle_log_set(text_value: String) -> void:
@@ -598,14 +616,22 @@ func _build_inspection_overlay() -> void:
     var close_btn: Button = _action_button_in(win,Rect2(1230,22,185,58),"FERMER",Color("8cb9d8"),true)
     close_btn.pressed.connect(_close_inspection)
 
-    var info_panel: Panel = _modal_window(win,Rect2(38,108,1384,430),Color(0.32,0.52,0.70,0.35))
+    var art_panel: Panel = _modal_window(win,Rect2(38,108,350,430),Color(0.32,0.52,0.70,0.35))
+    inspection_art = TextureRect.new()
+    inspection_art.position = Vector2(10,10)
+    inspection_art.size = Vector2(330,410)
+    inspection_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+    inspection_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+    inspection_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    art_panel.add_child(inspection_art)
+    var info_panel: Panel = _modal_window(win,Rect2(410,108,1012,430),Color(0.32,0.52,0.70,0.35))
     var scroll := ScrollContainer.new()
-    scroll.position = Vector2(26,22)
-    scroll.size = Vector2(1332,386)
+    scroll.position = Vector2(24,20)
+    scroll.size = Vector2(964,386)
     scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
     info_panel.add_child(scroll)
     inspection_rich = RichTextLabel.new()
-    inspection_rich.custom_minimum_size = Vector2(1288,760)
+    inspection_rich.custom_minimum_size = Vector2(930,760)
     inspection_rich.bbcode_enabled = true
     inspection_rich.fit_content = true
     inspection_rich.scroll_active = false
@@ -641,6 +667,16 @@ func _build_inspection_overlay() -> void:
     af.name = "Free"
     af.add_theme_font_size_override("font_size",20)
     af.pressed.connect(_sheet_free_pressed)
+    af.add_theme_color_override("font_color",Color("ffe477"))
+    sheet_cancel_button = _action_button_in(inspection_action_root, Rect2(2 * (bw + gap), 0, bw, bh), "ANNULER ACTION", Color("ef6b70"), true)
+    sheet_cancel_button.name = "CancelAction"
+    sheet_cancel_button.add_theme_font_size_override("font_size",20)
+    sheet_cancel_button.pressed.connect(_sheet_cancel_action_pressed)
+    for action_name: String in ["Taijutsu","Ninjutsu","Genjutsu","Special","Reserve"]:
+        var styled: Button = inspection_action_root.get_node_or_null(action_name) as Button
+        if styled != null:
+            var ac: Color = Color("ef6659") if action_name == "Taijutsu" else (Color("58aff0") if action_name == "Ninjutsu" else (Color("ba85ed") if action_name == "Genjutsu" else (Color("e2b746") if action_name == "Special" else Color("58cf8b"))))
+            styled.add_theme_color_override("font_color",ac.lightened(0.18))
 
 func _open_selected_inspection() -> void:
     if selected_actor == null or not is_instance_valid(selected_actor) or inspection_overlay == null:
@@ -656,20 +692,35 @@ func _open_actor_sheet(actor: YugitoCardActor) -> void:
     inspection_overlay.visible = true
 
 func _refresh_inspection_actions(actor: YugitoCardActor) -> void:
-    if inspection_action_root == null:
-        return
+    if inspection_action_root == null: return
     inspection_action_root.visible = actor != null and actor.team_name == "ally" and current_turn_team == "ally" and not resolving_action and not ai_thinking
-    if not inspection_action_root.visible:
-        return
+    if not inspection_action_root.visible: return
     var can_act_now: bool = _actor_can_act(actor)
-    for key: Variant in action_buttons.keys():
-        var sheet_btn: Button = inspection_action_root.get_node_or_null(str(key).capitalize()) as Button
-        if sheet_btn == null:
-            continue
+    for key: String in ["taijutsu","ninjutsu","genjutsu","special","reserve"]:
+        var sheet_btn: Button = inspection_action_root.get_node_or_null(key.capitalize()) as Button
+        if sheet_btn == null: continue
         var enabled: bool = can_act_now
-        if str(key) == "special": enabled = enabled and _actor_special_available(actor)
-        if str(key) == "reserve": enabled = not ally_reserve.is_empty() and _can_leave_field_voluntarily(actor)
+        if key == "special": enabled = enabled and _actor_special_available(actor)
+        if key == "reserve": enabled = not ally_reserve.is_empty() and _can_leave_field_voluntarily(actor)
         sheet_btn.disabled = not enabled
+    var af: Button = inspection_action_root.get_node_or_null("Free") as Button
+    if af != null:
+        af.visible = actor.card_id == "minato"
+        af.disabled = actor.card_id != "minato" or not can_act_now or bool(actor.status_tags.get("minato_free_used_cycle",false)) or not free_action_plan.is_empty()
+    if sheet_cancel_button != null:
+        sheet_cancel_button.disabled = action1_plan.is_empty() and action2_plan.is_empty() and free_action_plan.is_empty() and current_action.is_empty()
+
+func _sheet_cancel_action_pressed() -> void:
+    if not current_action.is_empty():
+        current_action = ""
+        free_action_mode = false
+        _battle_log_set("Sélection d'action annulée.")
+    elif not action2_plan.is_empty(): _cancel_planned_action(2)
+    elif not action1_plan.is_empty(): _cancel_planned_action(1)
+    elif not free_action_plan.is_empty(): _cancel_planned_free()
+    if inspection_actor != null and is_instance_valid(inspection_actor): _refresh_inspection_actions(inspection_actor)
+    _refresh_plan_ui()
+    _refresh_action_buttons()
 
 func _sheet_action_pressed(action_id: String) -> void:
     if inspection_actor == null or not is_instance_valid(inspection_actor):
@@ -681,8 +732,15 @@ func _sheet_action_pressed(action_id: String) -> void:
     _on_action_button_pressed(action_id)
 
 func _sheet_free_pressed() -> void:
+    if inspection_actor == null or not is_instance_valid(inspection_actor) or inspection_actor.card_id != "minato": return
+    selected_actor = inspection_actor
     _close_inspection()
     _on_hiraishin_pressed()
+    if selected_actor != null and selected_actor.card_id == "minato" and free_action_mode:
+        current_action = "free_auto"
+        action_status_label.text = "AF MINATO — touche une cible : meilleur art automatique"
+        _battle_log_set("AF Minato : touche une cible ennemie. Le meilleur art sera choisi automatiquement.")
+        _refresh_action_buttons()
 
 func _close_inspection() -> void:
     if inspection_overlay != null:
@@ -693,6 +751,9 @@ func _populate_inspection(actor: YugitoCardActor) -> void:
     if inspection_rich == null:
         return
     var data: Dictionary = cards_by_id.get(actor.card_id,{}) as Dictionary
+    if inspection_art != null:
+        var art_path: String = "res://assets/cards/%s_field.png" % actor.card_id
+        inspection_art.texture = load(art_path) as Texture2D if ResourceLoader.exists(art_path) else null
     var team_label: String = "ALLIÉ" if actor.team_name == "ally" else "ENNEMI"
     var status_lines: Array[String] = []
     if actor.shield > 0:
@@ -901,6 +962,23 @@ func _on_card_selection_requested(actor: YugitoCardActor) -> void:
         _store_planned_action(selected_actor, predicted_enemy, tobi_prediction_action_id, {"prediction_ally_uid":actor.battle_uid, "prediction_ally_id":actor.card_id})
         tobi_prediction_enemy_uid = 0
         tobi_prediction_action_id = "special"
+        return
+
+    if current_action == "free_auto" and selected_actor != null and selected_actor.card_id == "minato":
+        if actor.team_name != "enemy" or actor.defeated:
+            _battle_log_set("AF Minato : touche une carte ennemie.")
+            return
+        var best_style: String = "taijutsu"
+        var best_damage: int = -1
+        for style: String in ["taijutsu", "ninjutsu", "genjutsu"]:
+            if not _actor_can_use_style(selected_actor, style): continue
+            var preview: Dictionary = _calculate_classic_damage(selected_actor, actor, style, 0, false, false)
+            var dmg: int = _preview_true_attack_damage(selected_actor, actor, int(preview.get("damage",0)))
+            if dmg > best_damage:
+                best_damage = dmg
+                best_style = style
+        _store_planned_action(selected_actor, actor, "free_%s" % best_style)
+        _battle_log_set("AF Minato : %s choisi automatiquement contre %s." % [_action_display_name(best_style), actor.display_name])
         return
 
     var current_is_special: bool = current_action in ["special", "copy_special"]
@@ -4950,6 +5028,13 @@ func _refresh_plan_ui() -> void:
         action_status_label.text = "Préparation : ACTION %d" % planning_slot if current_action == "" else "A%d : %s — choisis une cible" % [planning_slot, _action_display_name(current_action)]
     if validate_button:
         validate_button.disabled = resolving_action or ai_thinking or current_turn_team != "ally" or _replacement_overlay_active()
+
+    if MobilePlatform.is_android():
+        for legacy: Control in [timeline_free_button,timeline_a1_button,timeline_a2_button,cancel_free_button,cancel_a1_button,cancel_a2_button,selection_title_label,selection_subtitle_label,selection_stats_label,action_status_label,inspect_button,copy_action_button,direct_attack_button,journal_button,battle_log_label]:
+            if legacy != null: legacy.visible = false
+        for legacy_btn_v: Variant in action_buttons.values():
+            var legacy_btn: Button = legacy_btn_v as Button
+            if legacy_btn != null: legacy_btn.visible = false
 
 func _phase_timer_should_run() -> bool:
     return not duel_finished and phase_timer_running and current_turn_team == "ally" and not resolving_action and not ai_thinking and not _replacement_overlay_active()
