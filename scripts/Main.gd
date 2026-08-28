@@ -27,12 +27,9 @@ var battle_journal_sequence: int = 0
 var journal_overlay: Control = null
 var journal_rich: RichTextLabel = null
 var inspection_overlay: Control = null
-var inspection_layer: CanvasLayer = null
 var inspection_rich: RichTextLabel = null
 var inspection_action_root: Control = null
 var inspection_actor: YugitoCardActor = null
-var inspection_art: TextureRect = null
-var sheet_cancel_button: Button = null
 var action_marker_labels: Dictionary = {}
 var duel_end_overlay: Control = null
 var inspect_button: Button = null
@@ -394,7 +391,7 @@ func _build_interface() -> void:
     copy_action_button.pressed.connect(_on_action_button_pressed.bind("copy_special"))
     direct_attack_button = _action_button(Rect2(1318, 630, 262, 30), "ATTAQUE DIRECTE", Color("ff7c2e"), false)
     direct_attack_button.pressed.connect(_on_direct_attack_pressed)
-    validate_button = _action_button(Rect2(1318, 666, 262, 44), "VALIDER LE PLAN", Color("55d58b"), true)
+    validate_button = _action_button(Rect2(1318, 688, 262, 44), "VALIDER LE PLAN", Color("55d58b"), true)
     validate_button.pressed.connect(_on_validate_plan_pressed)
 
     _panel(Rect2(1318, 720, 262, 146), Color(0.012, 0.026, 0.043, 0.72), Color(0.27, 0.43, 0.58, 0.22), 10)
@@ -402,18 +399,6 @@ func _build_interface() -> void:
     journal_button = _action_button(Rect2(1482, 723, 90, 32 if MobilePlatform.is_android() else 23), "OUVRIR", Color("77c8f1"), false)
     journal_button.pressed.connect(_open_battle_journal)
     battle_log_label = _label("Le journal complet du duel est maintenant enregistré.", Rect2(1330, 755, 226, 92), 8, Color("b6c8d8"), HORIZONTAL_ALIGNMENT_LEFT, false)
-
-    if MobilePlatform.is_android():
-        plan_glass.visible = false
-        for old_control: Control in [timeline_free_button,timeline_a1_button,timeline_a2_button,cancel_free_button,cancel_a1_button,cancel_a2_button,selection_title_label,selection_subtitle_label,selection_stats_label,action_status_label,inspect_button,copy_action_button,direct_attack_button,journal_button,battle_log_label]:
-            if old_control != null: old_control.visible = false
-        for old_btn_v: Variant in action_buttons.values():
-            var old_btn: Button = old_btn_v as Button
-            if old_btn != null: old_btn.visible = false
-        if validate_button != null: validate_button.queue_free()
-        validate_button = _action_button(Rect2(1318,350,262,150),"VALIDER LE TOUR",Color("55d58b"),true)
-        validate_button.add_theme_font_size_override("font_size",22)
-        validate_button.pressed.connect(_on_validate_plan_pressed)
 
     _build_journal_overlay()
     _build_inspection_overlay()
@@ -456,12 +441,8 @@ func _refresh_action_markers() -> void:
         if actor == null or not tags.has(slot):
             lab.visible = false
             continue
-        lab.text = "  " + "  ".join(tags[slot] as Array) + "  "
-        lab.position = actor.global_position + Vector2(-58,-208)
-        lab.size = Vector2(116,36)
-        lab.add_theme_font_size_override("font_size",17)
-        lab.add_theme_color_override("font_color",Color("fff19a"))
-        lab.add_theme_color_override("font_shadow_color",Color(0,0,0,1))
+        lab.text = " ".join(tags[slot] as Array)
+        lab.position = actor.anchor_position + Vector2(-36, -218)
         lab.visible = true
 
 func _battle_log_set(text_value: String) -> void:
@@ -594,89 +575,60 @@ func _close_battle_journal() -> void:
         journal_overlay.visible = false
 
 func _build_inspection_overlay() -> void:
-    # P48.1 MOBILE UI — la fiche vit dans son propre CanvasLayer.
-    # Elle est donc garantie AU-DESSUS des CardActor, badges et effets de terrain.
-    inspection_layer = CanvasLayer.new()
-    inspection_layer.layer = 120
-    add_child(inspection_layer)
-
     inspection_overlay = Control.new()
-    inspection_overlay.position = Vector2.ZERO
-    inspection_overlay.size = Vector2(1600,900)
+    inspection_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+    inspection_overlay.z_index = 27000
     inspection_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
     inspection_overlay.visible = false
-    inspection_layer.add_child(inspection_overlay)
-    _modal_dim(inspection_overlay,0.78)
-
-    # Presque plein écran sur mobile paysage : aucune carte ne reste visible
-    # au-dessus et on récupère assez de place pour de vrais boutons tactiles.
-    var win: Panel = _modal_window(inspection_overlay,Rect2(70,45,1460,810),Color(0.64,0.86,1.0,0.82))
-    _label_in(win,"FICHE NINJA",Rect2(40,24,560,48),31,Color("ffffff"),HORIZONTAL_ALIGNMENT_LEFT,true)
-    _label_in(win,"Choisis une action puis touche la cible sur le terrain",Rect2(42,68,780,26),12,Color("a9bfd1"),HORIZONTAL_ALIGNMENT_LEFT,false)
-    var close_btn: Button = _action_button_in(win,Rect2(1230,22,185,58),"FERMER",Color("8cb9d8"),true)
+    add_child(inspection_overlay)
+    _modal_dim(inspection_overlay,0.52)
+    var win: Panel = _modal_window(inspection_overlay,Rect2(330,88,940,724),Color(0.64,0.86,1.0,0.64))
+    _label_in(win,"FICHE NINJA",Rect2(34,24,420,42),28,Color("ffffff"),HORIZONTAL_ALIGNMENT_LEFT,true)
+    _label_in(win,"Inspection hors action • alliés et ennemis",Rect2(36,62,600,24),10,Color("a9bfd1"),HORIZONTAL_ALIGNMENT_LEFT,false)
+    var close_btn: Button = _action_button_in(win,Rect2(760,26,142,40),"FERMER",Color("8cb9d8"),false)
     close_btn.pressed.connect(_close_inspection)
-
-    var art_panel: Panel = _modal_window(win,Rect2(38,108,350,430),Color(0.32,0.52,0.70,0.35))
-    inspection_art = TextureRect.new()
-    inspection_art.position = Vector2(10,10)
-    inspection_art.size = Vector2(330,410)
-    inspection_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-    inspection_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-    inspection_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
-    art_panel.add_child(inspection_art)
-    var info_panel: Panel = _modal_window(win,Rect2(410,108,1012,430),Color(0.32,0.52,0.70,0.35))
     var scroll := ScrollContainer.new()
-    scroll.position = Vector2(24,20)
-    scroll.size = Vector2(964,386)
+    scroll.position = Vector2(34,104)
+    scroll.size = Vector2(872,576)
     scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-    info_panel.add_child(scroll)
+    win.add_child(scroll)
     inspection_rich = RichTextLabel.new()
-    inspection_rich.custom_minimum_size = Vector2(930,760)
+    inspection_rich.custom_minimum_size = Vector2(836,820)
     inspection_rich.bbcode_enabled = true
     inspection_rich.fit_content = true
     inspection_rich.scroll_active = false
     inspection_rich.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-    inspection_rich.add_theme_font_size_override("normal_font_size",16 if MobilePlatform.is_android() else 13)
+    inspection_rich.add_theme_font_size_override("normal_font_size",11)
     inspection_rich.add_theme_color_override("default_color",Color("dce8f2"))
     scroll.add_child(inspection_rich)
 
-    # Actions : 3 grosses touches sur la première ligne, puis
-    # SPÉCIALE / SWITCH / AF sur la seconde.
+    # P48 : actions tactiles directement dans la fiche. La SPÉCIALE est une
+    # action de premier rang, au même niveau que TAI/NIN/GEN.
     inspection_action_root = Control.new()
-    inspection_action_root.position = Vector2(38, 558)
-    inspection_action_root.size = Vector2(1384, 218)
+    inspection_action_root.position = Vector2(34, 554)
+    inspection_action_root.size = Vector2(872, 164)
+    inspection_action_root.z_index = 4
     win.add_child(inspection_action_root)
     var sheet_actions: Array[Dictionary] = [
-        {"id":"taijutsu","name":"Taijutsu","label":"TAIJUTSU","c":Color("ef6659"),"r":0,"cidx":0},
-        {"id":"ninjutsu","name":"Ninjutsu","label":"NINJUTSU","c":Color("58aff0"),"r":0,"cidx":1},
-        {"id":"genjutsu","name":"Genjutsu","label":"GENJUTSU","c":Color("ba85ed"),"r":0,"cidx":2},
-        {"id":"special","name":"Special","label":"TECHNIQUE SPÉCIALE","c":Color("e2b746"),"r":1,"cidx":0},
-        {"id":"reserve","name":"Reserve","label":"ÉCHANGE / RÉSERVE","c":Color("58cf8b"),"r":1,"cidx":1}
+        {"id":"taijutsu","name":"Taijutsu","label":"TAIJUTSU","c":Color("ef6659")},
+        {"id":"ninjutsu","name":"Ninjutsu","label":"NINJUTSU","c":Color("58aff0")},
+        {"id":"genjutsu","name":"Genjutsu","label":"GENJUTSU","c":Color("ba85ed")},
+        {"id":"special","name":"Special","label":"SPÉCIALE","c":Color("e2b746")},
+        {"id":"reserve","name":"Reserve","label":"SWITCH RÉSERVE","c":Color("58cf8b")}
     ]
-    var bw: float = 436.0
-    var bh: float = 84.0
-    var gap: float = 18.0
-    for item: Dictionary in sheet_actions:
-        var col: int = int(item["cidx"])
-        var row: int = int(item["r"])
-        var b: Button = _action_button_in(inspection_action_root, Rect2(col * (bw + gap), row * (bh + gap), bw, bh), str(item["label"]), item["c"] as Color, true)
+    for i: int in range(sheet_actions.size()):
+        var item: Dictionary = sheet_actions[i]
+        var col: int = i if i < 3 else i - 3
+        var row_y: float = 4.0 if i < 3 else 62.0
+        var b: Button = _action_button_in(inspection_action_root, Rect2(col * 286.0, row_y, 276, 50), str(item["label"]), item["c"] as Color, true)
         b.name = str(item["name"])
-        b.add_theme_font_size_override("font_size",20)
         b.pressed.connect(_sheet_action_pressed.bind(str(item["id"])))
-    var af: Button = _action_button_in(inspection_action_root, Rect2(2 * (bw + gap), bh + gap, bw, bh), "AF • MINATO", Color("f0d25e"), true)
+    var cancel_action: Button = _action_button_in(inspection_action_root, Rect2(572, 62, 276, 50), "ANNULER ACTION", Color("e85c66"), true)
+    cancel_action.name = "CancelAction"
+    cancel_action.pressed.connect(_sheet_cancel_action_pressed)
+    var af: Button = _action_button_in(inspection_action_root, Rect2(572, 120, 276, 38), "AF • MINATO", Color("f0d25e"), true)
     af.name = "Free"
-    af.add_theme_font_size_override("font_size",20)
     af.pressed.connect(_sheet_free_pressed)
-    af.add_theme_color_override("font_color",Color("ffe477"))
-    sheet_cancel_button = _action_button_in(inspection_action_root, Rect2(2 * (bw + gap), 0, bw, bh), "ANNULER ACTION", Color("ef6b70"), true)
-    sheet_cancel_button.name = "CancelAction"
-    sheet_cancel_button.add_theme_font_size_override("font_size",20)
-    sheet_cancel_button.pressed.connect(_sheet_cancel_action_pressed)
-    for action_name: String in ["Taijutsu","Ninjutsu","Genjutsu","Special","Reserve"]:
-        var styled: Button = inspection_action_root.get_node_or_null(action_name) as Button
-        if styled != null:
-            var ac: Color = Color("ef6659") if action_name == "Taijutsu" else (Color("58aff0") if action_name == "Ninjutsu" else (Color("ba85ed") if action_name == "Genjutsu" else (Color("e2b746") if action_name == "Special" else Color("58cf8b"))))
-            styled.add_theme_color_override("font_color",ac.lightened(0.18))
 
 func _open_selected_inspection() -> void:
     if selected_actor == null or not is_instance_valid(selected_actor) or inspection_overlay == null:
@@ -692,35 +644,20 @@ func _open_actor_sheet(actor: YugitoCardActor) -> void:
     inspection_overlay.visible = true
 
 func _refresh_inspection_actions(actor: YugitoCardActor) -> void:
-    if inspection_action_root == null: return
+    if inspection_action_root == null:
+        return
     inspection_action_root.visible = actor != null and actor.team_name == "ally" and current_turn_team == "ally" and not resolving_action and not ai_thinking
-    if not inspection_action_root.visible: return
+    if not inspection_action_root.visible:
+        return
     var can_act_now: bool = _actor_can_act(actor)
-    for key: String in ["taijutsu","ninjutsu","genjutsu","special","reserve"]:
-        var sheet_btn: Button = inspection_action_root.get_node_or_null(key.capitalize()) as Button
-        if sheet_btn == null: continue
+    for key: Variant in action_buttons.keys():
+        var sheet_btn: Button = inspection_action_root.get_node_or_null(str(key).capitalize()) as Button
+        if sheet_btn == null:
+            continue
         var enabled: bool = can_act_now
-        if key == "special": enabled = enabled and _actor_special_available(actor)
-        if key == "reserve": enabled = not ally_reserve.is_empty() and _can_leave_field_voluntarily(actor)
+        if str(key) == "special": enabled = enabled and _actor_special_available(actor)
+        if str(key) == "reserve": enabled = not ally_reserve.is_empty() and _can_leave_field_voluntarily(actor)
         sheet_btn.disabled = not enabled
-    var af: Button = inspection_action_root.get_node_or_null("Free") as Button
-    if af != null:
-        af.visible = actor.card_id == "minato"
-        af.disabled = actor.card_id != "minato" or not can_act_now or bool(actor.status_tags.get("minato_free_used_cycle",false)) or not free_action_plan.is_empty()
-    if sheet_cancel_button != null:
-        sheet_cancel_button.disabled = action1_plan.is_empty() and action2_plan.is_empty() and free_action_plan.is_empty() and current_action.is_empty()
-
-func _sheet_cancel_action_pressed() -> void:
-    if not current_action.is_empty():
-        current_action = ""
-        free_action_mode = false
-        _battle_log_set("Sélection d'action annulée.")
-    elif not action2_plan.is_empty(): _cancel_planned_action(2)
-    elif not action1_plan.is_empty(): _cancel_planned_action(1)
-    elif not free_action_plan.is_empty(): _cancel_planned_free()
-    if inspection_actor != null and is_instance_valid(inspection_actor): _refresh_inspection_actions(inspection_actor)
-    _refresh_plan_ui()
-    _refresh_action_buttons()
 
 func _sheet_action_pressed(action_id: String) -> void:
     if inspection_actor == null or not is_instance_valid(inspection_actor):
@@ -732,15 +669,18 @@ func _sheet_action_pressed(action_id: String) -> void:
     _on_action_button_pressed(action_id)
 
 func _sheet_free_pressed() -> void:
-    if inspection_actor == null or not is_instance_valid(inspection_actor) or inspection_actor.card_id != "minato": return
-    selected_actor = inspection_actor
     _close_inspection()
     _on_hiraishin_pressed()
-    if selected_actor != null and selected_actor.card_id == "minato" and free_action_mode:
-        current_action = "free_auto"
-        action_status_label.text = "AF MINATO — touche une cible : meilleur art automatique"
-        _battle_log_set("AF Minato : touche une cible ennemie. Le meilleur art sera choisi automatiquement.")
-        _refresh_action_buttons()
+
+func _sheet_cancel_action_pressed() -> void:
+    current_action = ""
+    free_action_mode = false
+    tobi_prediction_enemy_uid = 0
+    tobi_prediction_action_id = "special"
+    _close_inspection()
+    _refresh_action_buttons()
+    _refresh_plan_ui()
+    _battle_log_set("Action en cours annulée.")
 
 func _close_inspection() -> void:
     if inspection_overlay != null:
@@ -751,9 +691,6 @@ func _populate_inspection(actor: YugitoCardActor) -> void:
     if inspection_rich == null:
         return
     var data: Dictionary = cards_by_id.get(actor.card_id,{}) as Dictionary
-    if inspection_art != null:
-        var art_path: String = "res://assets/cards/%s_field.png" % actor.card_id
-        inspection_art.texture = load(art_path) as Texture2D if ResourceLoader.exists(art_path) else null
     var team_label: String = "ALLIÉ" if actor.team_name == "ally" else "ENNEMI"
     var status_lines: Array[String] = []
     if actor.shield > 0:
@@ -964,23 +901,6 @@ func _on_card_selection_requested(actor: YugitoCardActor) -> void:
         tobi_prediction_action_id = "special"
         return
 
-    if current_action == "free_auto" and selected_actor != null and selected_actor.card_id == "minato":
-        if actor.team_name != "enemy" or actor.defeated:
-            _battle_log_set("AF Minato : touche une carte ennemie.")
-            return
-        var best_style: String = "taijutsu"
-        var best_damage: int = -1
-        for style: String in ["taijutsu", "ninjutsu", "genjutsu"]:
-            if not _actor_can_use_style(selected_actor, style): continue
-            var preview: Dictionary = _calculate_classic_damage(selected_actor, actor, style, 0, false, false)
-            var dmg: int = _preview_true_attack_damage(selected_actor, actor, int(preview.get("damage",0)))
-            if dmg > best_damage:
-                best_damage = dmg
-                best_style = style
-        _store_planned_action(selected_actor, actor, "free_%s" % best_style)
-        _battle_log_set("AF Minato : %s choisi automatiquement contre %s." % [_action_display_name(best_style), actor.display_name])
-        return
-
     var current_is_special: bool = current_action in ["special", "copy_special"]
     var current_special_id: String = ""
     if current_is_special and selected_actor != null:
@@ -1109,6 +1029,28 @@ func _on_action_button_pressed(action_id: String) -> void:
         return
     if action_id in ["taijutsu", "ninjutsu", "genjutsu"] and not _actor_can_use_style(selected_actor, action_id):
         _battle_log_set("%s ne peut pas utiliser %s actuellement." % [selected_actor.display_name, _action_display_name(action_id)])
+        return
+
+    # Tobi : la prédiction se prépare dans deux fenêtres tactiles à portraits.
+    # Étape 1 = attaquant adverse prédit. Étape 2 = cible alliée prédite.
+    if is_special_choice and chosen_special_id == "tobi":
+        var prediction_candidates: Array[String] = []
+        for predicted_enemy: YugitoCardActor in _living_cards("enemy"):
+            prediction_candidates.append(predicted_enemy.card_id)
+        if prediction_candidates.is_empty():
+            _battle_log_set("Tobi : aucun attaquant adverse disponible pour la prédiction.")
+            return
+        replacement_context = {
+            "mode":"tobi_prediction_enemy",
+            "actor":selected_actor,
+            "action_id":action_id,
+            "planning_slot":planning_slot,
+            "candidates":prediction_candidates
+        }
+        replacement_modal.show_choices("TOBI — PRÉDICTION 1/2", "Quel Ninja ennemi effectuera selon toi la PROCHAINE attaque ?", prediction_candidates)
+        current_action = ""
+        _battle_log_set("TOBI : choisis l'attaquant adverse prédit.")
+        _refresh_action_buttons()
         return
 
     # Certaines spéciales PC ouvrent un choix privé avant d'être placées dans A1/A2.
@@ -1594,13 +1536,19 @@ func _start_team_turn(team_name: String) -> void:
     for tobi: YugitoCardActor in _living_cards(team_name).duplicate():
         if tobi.card_id != "tobi" or _ino_possessor(tobi) != null:
             continue
-        tobi.status_tags["tobi_intangible"] = not bool(tobi.status_tags.get("tobi_intangible", false))
+        # Tobi ne devient jamais intangible via son passif de bombes.
+        tobi.status_tags.erase("tobi_intangible")
         var bomb_targets: Array[YugitoCardActor] = _living_cards(opponents)
         if bomb_targets.is_empty():
             continue
         if team_name == "ally":
             tobi_bomb_pending_team = "ally"
-            _battle_log_set("TOBI : place obligatoirement une bombe secrète sur un Ninja ennemi avant de préparer ton plan.")
+            var tobi_candidates: Array[String] = []
+            for bomb_candidate: YugitoCardActor in bomb_targets:
+                tobi_candidates.append(bomb_candidate.card_id)
+            replacement_context = {"mode":"tobi_bomb", "team":"ally", "candidates":tobi_candidates}
+            replacement_modal.show_choices("TOBI — BOMBE SECRÈTE", "Choisis le Ninja ennemi qui recevra +1 bombe. L'adversaire ne verra jamais cette cible.", tobi_candidates)
+            _battle_log_set("TOBI : choisis secrètement le Ninja ennemi qui recevra la bombe.")
         else:
             var bomb_target: YugitoCardActor = bomb_targets[0]
             var bomb_score: float = -INF
@@ -3408,7 +3356,9 @@ func _trigger_tobi_prediction(attacker: YugitoCardActor, attacked_target: Yugito
         return false
     var predicted_enemy_uid: int = int(pred.get("enemy_uid",0))
     var predicted_ally_uid: int = int(pred.get("ally_uid",0))
+    # La toute première attaque adverse tranche la prédiction immédiatement.
     if attacker.battle_uid != predicted_enemy_uid or attacked_target.battle_uid != predicted_ally_uid:
+        _clear_failed_tobi_prediction(owner_team)
         return false
     tobi_predictions[owner_team] = {}
     var tobi_owner: YugitoCardActor = _find_live_card(owner_team, "tobi")
@@ -3416,18 +3366,28 @@ func _trigger_tobi_prediction(attacker: YugitoCardActor, attacked_target: Yugito
         tobi_owner.status_tags.erase("tobi_prediction_armed")
         tobi_owner.refresh_status_badges()
         tobi_owner.refresh_status_visuals()
-    _explode_tobi_bombs(owner_team, attacker, "C'ÉTAIT PRÉVU ! • BOMBES TOBI")
+    # Réussite : TOUTES les bombes de Tobi présentes sur le terrain adverse explosent.
+    for bombed_enemy: YugitoCardActor in _living_cards(attacker.team_name).duplicate():
+        _explode_tobi_bombs(owner_team, bombed_enemy, "C'ÉTAIT PRÉVU ! • BOMBES TOBI")
     return true
 
 func _clear_failed_tobi_prediction(owner_team: String) -> void:
     var pred: Dictionary = tobi_predictions.get(owner_team, {}) as Dictionary
     if pred.is_empty():
         return
-    var predicted: YugitoCardActor = _resolve_actor_uid(int(pred.get("enemy_uid",0)))
-    if predicted != null and not predicted.defeated:
-        var key_bomb: String = _tobi_bomb_key(owner_team)
-        predicted.status_tags.erase(key_bomb)
-        _refresh_tobi_bomb_total(predicted)
+    # Échec : -2 bombes SUR CHAQUE Ninja adverse, jamais -2 au total.
+    var bomb_team: String = _opponent_team(owner_team)
+    var key_bomb: String = _tobi_bomb_key(owner_team)
+    for bombed: YugitoCardActor in _living_cards(bomb_team).duplicate():
+        var stacks: int = int(bombed.status_tags.get(key_bomb,0))
+        if stacks <= 0:
+            continue
+        var remaining: int = maxi(0, stacks - 2)
+        if remaining > 0:
+            bombed.status_tags[key_bomb] = remaining
+        else:
+            bombed.status_tags.erase(key_bomb)
+        _refresh_tobi_bomb_total(bombed)
     tobi_predictions[owner_team] = {}
     var tobi_owner: YugitoCardActor = _find_live_card(owner_team, "tobi")
     if tobi_owner != null:
@@ -3435,7 +3395,7 @@ func _clear_failed_tobi_prediction(owner_team: String) -> void:
         tobi_owner.refresh_status_badges()
         tobi_owner.refresh_status_visuals()
     if owner_team == "ally":
-        _battle_log_set("TOBI : prédiction ratée — les bombes du Ninja prédit sont perdues.")
+        _battle_log_set("TOBI : prédiction ratée — chaque Ninja adverse perd jusqu'à 2 bombes.")
     else:
         _battle_log_set("Tobi : une prédiction secrète échoue.")
 
@@ -4042,6 +4002,19 @@ func _execute_planned_switch(descriptor: Dictionary, phase_label: String) -> voi
     var incoming_name: String = str((cards_by_id.get(incoming_id, {}) as Dictionary).get("name", incoming_id))
     _battle_log_set("%s • Échange %s → %s%s" % [phase_label, outgoing.display_name, incoming_name, " • RÉACTIF" if reactive else ""])
     _replace_actor(outgoing, incoming_id, false, reactive)
+    # P49 : ne jamais conserver une référence de sélection vers la carte sortie.
+    # C'était la cause du tour tactile bloqué après certains Switch (ex. Kabuto → Temari).
+    if outgoing.team_name == "ally":
+        selected_actor = null
+        current_action = ""
+        free_action_mode = false
+        inspection_actor = null
+        if inspection_overlay != null:
+            inspection_overlay.visible = false
+        for selectable_card: YugitoCardActor in card_actors:
+            selectable_card.set_selected(false)
+        _refresh_selection_panel()
+        _refresh_action_buttons()
     _refresh_reserve_labels()
     var timer: SceneTreeTimer = get_tree().create_timer(0.22)
     timer.timeout.connect(_complete_resolution_step.bind(0.04))
@@ -4512,12 +4485,59 @@ func _on_replacement_choice_pressed(choice_index: int) -> void:
         candidates.append(str(item))
     if choice_index < 0 or choice_index >= candidates.size():
         return
+    var mode: String = str(replacement_context.get("mode", "death"))
+    var chosen_id: String = str(candidates[choice_index])
+
+    if mode == "tobi_bomb":
+        var bomb_target: YugitoCardActor = _find_live_card("enemy", chosen_id)
+        if bomb_target != null:
+            _place_tobi_bomb("ally", bomb_target)
+        _close_replacement_overlay()
+        return
+
     var actor: YugitoCardActor = replacement_context.get("actor") as YugitoCardActor
     if actor == null or not is_instance_valid(actor):
         _close_replacement_overlay()
         return
-    var mode: String = str(replacement_context.get("mode", "death"))
-    var chosen_id: String = str(candidates[choice_index])
+
+    if mode == "tobi_prediction_enemy":
+        var predicted_enemy: YugitoCardActor = _find_live_card("enemy", chosen_id)
+        if predicted_enemy == null:
+            _close_replacement_overlay()
+            _battle_log_set("Tobi : l'attaquant prédit n'est plus disponible.")
+            return
+        var ally_candidates: Array[String] = []
+        for predicted_ally: YugitoCardActor in _living_cards("ally"):
+            ally_candidates.append(predicted_ally.card_id)
+        if ally_candidates.is_empty():
+            _close_replacement_overlay()
+            return
+        replacement_context = {
+            "mode":"tobi_prediction_ally_modal",
+            "actor":actor,
+            "action_id":str(replacement_context.get("action_id","special")),
+            "planning_slot":int(replacement_context.get("planning_slot",planning_slot)),
+            "enemy_uid":predicted_enemy.battle_uid,
+            "enemy_id":predicted_enemy.card_id,
+            "candidates":ally_candidates
+        }
+        replacement_modal.show_choices("TOBI — PRÉDICTION 2/2", "Qui sera la cible de la prochaine attaque de %s ?" % predicted_enemy.display_name, ally_candidates)
+        _battle_log_set("TOBI : choisis maintenant la cible alliée prédite.")
+        return
+
+    if mode == "tobi_prediction_ally_modal":
+        var predicted_enemy2: YugitoCardActor = _resolve_actor_uid(int(replacement_context.get("enemy_uid",0)))
+        var predicted_ally2: YugitoCardActor = _find_live_card("ally", chosen_id)
+        var stored_action_id: String = str(replacement_context.get("action_id","special"))
+        var stored_slot: int = int(replacement_context.get("planning_slot",planning_slot))
+        if predicted_enemy2 == null or predicted_ally2 == null:
+            _close_replacement_overlay()
+            _battle_log_set("Tobi : prédiction annulée, une carte n'est plus disponible.")
+            return
+        planning_slot = stored_slot
+        _store_planned_action(actor, predicted_enemy2, stored_action_id, {"prediction_ally_uid":predicted_ally2.battle_uid, "prediction_ally_id":predicted_ally2.card_id})
+        _close_replacement_overlay()
+        return
     var chosen_data: Dictionary = cards_by_id.get(chosen_id, {}) as Dictionary
     var chosen_name: String = str(chosen_data.get("name", chosen_id))
 
@@ -5028,13 +5048,6 @@ func _refresh_plan_ui() -> void:
         action_status_label.text = "Préparation : ACTION %d" % planning_slot if current_action == "" else "A%d : %s — choisis une cible" % [planning_slot, _action_display_name(current_action)]
     if validate_button:
         validate_button.disabled = resolving_action or ai_thinking or current_turn_team != "ally" or _replacement_overlay_active()
-
-    if MobilePlatform.is_android():
-        for legacy: Control in [timeline_free_button,timeline_a1_button,timeline_a2_button,cancel_free_button,cancel_a1_button,cancel_a2_button,selection_title_label,selection_subtitle_label,selection_stats_label,action_status_label,inspect_button,copy_action_button,direct_attack_button,journal_button,battle_log_label]:
-            if legacy != null: legacy.visible = false
-        for legacy_btn_v: Variant in action_buttons.values():
-            var legacy_btn: Button = legacy_btn_v as Button
-            if legacy_btn != null: legacy_btn.visible = false
 
 func _phase_timer_should_run() -> bool:
     return not duel_finished and phase_timer_running and current_turn_team == "ally" and not resolving_action and not ai_thinking and not _replacement_overlay_active()
