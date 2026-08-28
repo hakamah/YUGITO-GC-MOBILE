@@ -781,14 +781,19 @@ func _open_mobile_draft_sheet(cid: String) -> void:
     _label(card_box,"NIN %d" % int(data.get("ninjutsu",0)),Rect2(206,426,92,42),14,Color("58aff0"),HORIZONTAL_ALIGNMENT_CENTER,true)
     _label(card_box,"GEN %d" % int(data.get("genjutsu",0)),Rect2(300,426,108,42),14,Color("ba85ed"),HORIZONTAL_ALIGNMENT_CENTER,true)
 
-    # Droite : texte lisible et scrollable.
+    # Droite : toute la fiche texte + le CTA vivent maintenant dans le MÊME cadre.
+    # Le bouton n'est plus perdu sous la fiche : il est centré, large, tactile et
+    # visuellement traité comme une vraie action principale.
+    var info_panel: Panel = _panel(win,Rect2(492,76,836,660),Color(0.006,0.016,0.028,0.90),Color(0.42,0.68,0.86,0.34),15,6)
+
     var info_scroll := ScrollContainer.new()
-    info_scroll.position = Vector2(500,84)
-    info_scroll.size = Vector2(820,548)
+    info_scroll.position = Vector2(16,16)
+    info_scroll.size = Vector2(804,474)
     info_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-    win.add_child(info_scroll)
+    info_panel.add_child(info_scroll)
+
     var rich := RichTextLabel.new()
-    rich.custom_minimum_size = Vector2(790,650)
+    rich.custom_minimum_size = Vector2(776,650)
     rich.bbcode_enabled = true
     rich.fit_content = true
     rich.scroll_active = false
@@ -800,9 +805,33 @@ func _open_mobile_draft_sheet(cid: String) -> void:
 
     var reason: String = _draft_lock_reason("ally",data)
     var reason_color: Color = Color("55d58b") if reason == "DISPONIBLE" else Color("e85c66")
-    var add: Button = _button(win,Rect2(500,640,820,54),"AJOUTER À L'ÉQUIPE",Color("55d58b"),true)
-    _label(win,reason,Rect2(500,704,820,28),13,reason_color,HORIZONTAL_ALIGNMENT_CENTER,true)
-    add.add_theme_font_size_override("font_size",20)
+    _label(info_panel,reason,Rect2(28,498,780,34),14,reason_color,HORIZONTAL_ALIGNMENT_CENTER,true)
+
+    var add: Button = _button(info_panel,Rect2(92,544,652,96),"AJOUTER À L'ÉQUIPE",Color("55d58b"),true)
+    add.add_theme_font_size_override("font_size",24)
+
+    var add_normal := StyleBoxFlat.new()
+    add_normal.bg_color = Color(0.018,0.105,0.072,0.98)
+    add_normal.border_color = Color(0.33,0.92,0.62,1.0)
+    add_normal.set_border_width_all(3)
+    add_normal.set_corner_radius_all(14)
+    add_normal.shadow_color = Color(0,0,0,0.52)
+    add_normal.shadow_size = 8
+    add_normal.shadow_offset = Vector2(0,4)
+
+    var add_hover := add_normal.duplicate() as StyleBoxFlat
+    add_hover.bg_color = Color(0.028,0.145,0.095,1.0)
+    add_hover.border_color = Color(0.46,1.0,0.72,1.0)
+
+    var add_pressed := add_normal.duplicate() as StyleBoxFlat
+    add_pressed.bg_color = Color(0.012,0.078,0.054,1.0)
+    add_pressed.border_color = Color(0.25,0.80,0.53,1.0)
+
+    add.add_theme_stylebox_override("normal",add_normal)
+    add.add_theme_stylebox_override("hover",add_hover)
+    add.add_theme_stylebox_override("pressed",add_pressed)
+    add.add_theme_stylebox_override("focus",add_hover)
+
     add.disabled = _scheduled_team() != "ally" or not _draft_allowed("ally",data)
     add.pressed.connect(_confirm_draft_pick)
 
