@@ -581,12 +581,12 @@ func _close_battle_journal() -> void:
 func _build_tobi_bomb_overlay() -> void:
     tobi_bomb_overlay = Control.new()
     tobi_bomb_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-    tobi_bomb_overlay.z_index = 29500
+    tobi_bomb_overlay.z_index = 4000
     tobi_bomb_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
     tobi_bomb_overlay.visible = false
     add_child(tobi_bomb_overlay)
-    _modal_dim(tobi_bomb_overlay,0.72)
-    var win: Panel = _modal_window(tobi_bomb_overlay,Rect2(235,110,1130,680),Color(0.98,0.40,0.28,0.82))
+    _modal_dim(tobi_bomb_overlay,0.90)
+    var win: Panel = _modal_window(tobi_bomb_overlay,Rect2(235,92,1130,716),Color(0.98,0.40,0.28,0.82))
     _label_in(win,"PASSIF DE TOBI — BOMBE SECRÈTE",Rect2(38,26,820,42),28,Color("ffffff"),HORIZONTAL_ALIGNMENT_LEFT,true)
     _label_in(win,"Choisis obligatoirement le Ninja ennemi qui recevra la bombe.",Rect2(40,70,820,28),13,Color("efb7a8"),HORIZONTAL_ALIGNMENT_LEFT,false)
     _label_in(win,"Le choix reste secret pour l'adversaire.",Rect2(40,98,820,22),10,Color("a8bac8"),HORIZONTAL_ALIGNMENT_LEFT,false)
@@ -670,52 +670,57 @@ func _on_tobi_bomb_target_chosen(target_uid: int) -> void:
 func _build_inspection_overlay() -> void:
     inspection_overlay = Control.new()
     inspection_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-    inspection_overlay.z_index = 27000
+    # Godot CanvasItem Z is limited to [-4096,4096]. P48 used 27000, which
+    # is outside the supported range and made battlefield cards leak above the modal.
+    inspection_overlay.z_index = 4000
     inspection_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
     inspection_overlay.visible = false
     add_child(inspection_overlay)
-    _modal_dim(inspection_overlay,0.52)
-    var win: Panel = _modal_window(inspection_overlay,Rect2(330,88,940,724),Color(0.64,0.86,1.0,0.64))
-    _label_in(win,"FICHE NINJA",Rect2(34,24,420,42),28,Color("ffffff"),HORIZONTAL_ALIGNMENT_LEFT,true)
-    _label_in(win,"Inspection hors action • alliés et ennemis",Rect2(36,62,600,24),10,Color("a9bfd1"),HORIZONTAL_ALIGNMENT_LEFT,false)
-    var close_btn: Button = _action_button_in(win,Rect2(760,26,142,40),"FERMER",Color("8cb9d8"),false)
+    _modal_dim(inspection_overlay,0.90)
+    var win: Panel = _modal_window(inspection_overlay,Rect2(180,64,1240,772),Color(0.64,0.86,1.0,0.86))
+    _label_in(win,"FICHE NINJA",Rect2(34,20,560,42),30,Color("ffffff"),HORIZONTAL_ALIGNMENT_LEFT,true)
+    _label_in(win,"Choisis une action puis touche sa cible sur le terrain.",Rect2(36,60,720,26),12,Color("a9bfd1"),HORIZONTAL_ALIGNMENT_LEFT,false)
+    var close_btn: Button = _action_button_in(win,Rect2(1050,22,150,44),"FERMER",Color("8cb9d8"),false)
     close_btn.pressed.connect(_close_inspection)
+
     var scroll := ScrollContainer.new()
     scroll.position = Vector2(34,104)
-    scroll.size = Vector2(872,576)
+    scroll.size = Vector2(1172,430)
     scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
     win.add_child(scroll)
     inspection_rich = RichTextLabel.new()
-    inspection_rich.custom_minimum_size = Vector2(836,820)
+    inspection_rich.custom_minimum_size = Vector2(1136,560)
     inspection_rich.bbcode_enabled = true
     inspection_rich.fit_content = true
     inspection_rich.scroll_active = false
     inspection_rich.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-    inspection_rich.add_theme_font_size_override("normal_font_size",11)
+    inspection_rich.add_theme_font_size_override("normal_font_size",14)
     inspection_rich.add_theme_color_override("default_color",Color("dce8f2"))
     scroll.add_child(inspection_rich)
 
-    # P48 : actions tactiles directement dans la fiche. La SPÉCIALE est une
-    # action de premier rang, au même niveau que TAI/NIN/GEN.
     inspection_action_root = Control.new()
-    inspection_action_root.position = Vector2(34, 612)
-    inspection_action_root.size = Vector2(872, 76)
-    inspection_action_root.z_index = 4
+    inspection_action_root.position = Vector2(34, 548)
+    inspection_action_root.size = Vector2(1172, 188)
+    inspection_action_root.z_index = 20
     win.add_child(inspection_action_root)
     var sheet_actions: Array[Dictionary] = [
         {"id":"taijutsu","name":"Taijutsu","label":"TAIJUTSU","c":Color("ef6659")},
         {"id":"ninjutsu","name":"Ninjutsu","label":"NINJUTSU","c":Color("58aff0")},
         {"id":"genjutsu","name":"Genjutsu","label":"GENJUTSU","c":Color("ba85ed")},
-        {"id":"special","name":"Special","label":"SPÉCIALE","c":Color("e2b746")},
-        {"id":"reserve","name":"Reserve","label":"SWITCH RÉSERVE","c":Color("58cf8b")}
+        {"id":"special","name":"Special","label":"TECHNIQUE SPÉCIALE","c":Color("e2b746")},
+        {"id":"reserve","name":"Reserve","label":"ÉCHANGE AVEC LA RÉSERVE","c":Color("58cf8b")}
     ]
     for i: int in range(sheet_actions.size()):
         var item: Dictionary = sheet_actions[i]
-        var b: Button = _action_button_in(inspection_action_root, Rect2(i * 172.0, 4, 164, 54), str(item["label"]), item["c"] as Color, true)
+        var col: int = i % 3
+        var row: int = i / 3
+        var b: Button = _action_button_in(inspection_action_root, Rect2(col * 386.0, row * 82.0, 370, 68), str(item["label"]), item["c"] as Color, true)
         b.name = str(item["name"])
+        b.add_theme_font_size_override("font_size",16)
         b.pressed.connect(_sheet_action_pressed.bind(str(item["id"])))
-    var af: Button = _action_button_in(inspection_action_root, Rect2(688, 60, 164, 38), "AF • MINATO", Color("f0d25e"), true)
+    var af: Button = _action_button_in(inspection_action_root, Rect2(772, 82, 370, 68), "AF • MINATO", Color("f0d25e"), true)
     af.name = "Free"
+    af.add_theme_font_size_override("font_size",16)
     af.pressed.connect(_sheet_free_pressed)
 
 func _open_selected_inspection() -> void:

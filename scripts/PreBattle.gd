@@ -750,35 +750,59 @@ func _open_mobile_draft_sheet(cid: String) -> void:
     var root := Control.new()
     root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
     root.mouse_filter = Control.MOUSE_FILTER_STOP
-    root.z_index = 26000
+    root.z_index = 4000
     stage_root.add_child(root)
     draft_detail_root = root
     var dim := ColorRect.new()
     dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-    dim.color = Color(0.002,0.006,0.012,0.82)
+    dim.color = Color(0.002,0.006,0.012,0.92)
     dim.mouse_filter = Control.MOUSE_FILTER_STOP
     root.add_child(dim)
-    var win: Panel = _panel(root,Rect2(180,70,1200,650),Color(0.014,0.030,0.050,0.99),Color(0.42,0.68,0.86,0.62),18,10)
-    _label(win,"FICHE NINJA — DRAFT",Rect2(30,18,600,38),22,Color("f4f8fb"),HORIZONTAL_ALIGNMENT_LEFT,true)
-    var close: Button = _button(win,Rect2(1030,18,130,42),"FERMER",Color("8cb9d8"),false)
+    var win: Panel = _panel(root,Rect2(120,52,1360,746),Color(0.010,0.024,0.041,1.0),Color(0.42,0.68,0.86,0.82),18,12)
+    _label(win,"FICHE NINJA — DRAFT",Rect2(34,18,700,42),28,Color("f4f8fb"),HORIZONTAL_ALIGNMENT_LEFT,true)
+    var close: Button = _button(win,Rect2(1170,18,150,46),"FERMER",Color("8cb9d8"),false)
     close.pressed.connect(_close_mobile_draft_sheet.bind(root))
-    _card_detail(win,data,Rect2(30,78,1140,470))
+
+    # Gauche : vraie présentation de carte verticale, pas l'ancienne bannière horizontale.
+    var card_box: Panel = _panel(win,Rect2(38,84,430,548),Color(0.006,0.014,0.024,0.98),Color(0.55,0.75,0.90,0.55),16,6)
+    var art: TextureRect = TextureRect.new()
+    art.position = Vector2(16,52)
+    art.size = Vector2(398,320)
+    art.texture = _draft_atlas_art(cid)
+    art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+    art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+    art.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+    art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    card_box.add_child(art)
+    _label(card_box,str(data.get("name",cid)),Rect2(16,10,398,38),22,Color("ffffff"),HORIZONTAL_ALIGNMENT_CENTER,true)
+    _label(card_box,"%s★  •  %s" % [_stars_text(float(data.get("stars",0.0))),str(data.get("element","")).to_upper()],Rect2(16,382,398,30),15,_element_color(str(data.get("element",""))),HORIZONTAL_ALIGNMENT_CENTER,true)
+    _label(card_box,"PV %d" % int(data.get("hp",0)),Rect2(22,426,88,42),14,Color("f0f4f7"),HORIZONTAL_ALIGNMENT_CENTER,true)
+    _label(card_box,"TAI %d" % int(data.get("taijutsu",0)),Rect2(112,426,92,42),14,Color("ef6659"),HORIZONTAL_ALIGNMENT_CENTER,true)
+    _label(card_box,"NIN %d" % int(data.get("ninjutsu",0)),Rect2(206,426,92,42),14,Color("58aff0"),HORIZONTAL_ALIGNMENT_CENTER,true)
+    _label(card_box,"GEN %d" % int(data.get("genjutsu",0)),Rect2(300,426,108,42),14,Color("ba85ed"),HORIZONTAL_ALIGNMENT_CENTER,true)
+
+    # Droite : texte lisible et scrollable.
+    var info_scroll := ScrollContainer.new()
+    info_scroll.position = Vector2(500,84)
+    info_scroll.size = Vector2(820,548)
+    info_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+    win.add_child(info_scroll)
+    var rich := RichTextLabel.new()
+    rich.custom_minimum_size = Vector2(790,650)
+    rich.bbcode_enabled = true
+    rich.fit_content = true
+    rich.scroll_active = false
+    rich.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+    rich.add_theme_font_size_override("normal_font_size",15)
+    rich.add_theme_color_override("default_color",Color("d8e4ed"))
+    rich.text = "[color=#61d6a2][font_size=22][b]PASSIF — %s[/b][/font_size][/color]\n%s\n\n[color=#e4bf51][font_size=22][b]TECHNIQUE SPÉCIALE — %s[/b][/font_size][/color]\n%s\n\n[color=#58aff0][font_size=22][b]SYNERGIES[/b][/font_size][/color]\n%s" % [str(data.get("passive_name","—")),str(data.get("passive","—")),str(data.get("special_name","—")),str(data.get("special","—")),SynergyDB.description(cid,cards_by_id)]
+    info_scroll.add_child(rich)
+
     var reason: String = _draft_lock_reason("ally",data)
     var reason_color: Color = Color("55d58b") if reason == "DISPONIBLE" else Color("e85c66")
-    var reason_box: Panel = _panel(win,Rect2(340,548,520,38),Color(0.012,0.030,0.050,0.82),Color(reason_color.r,reason_color.g,reason_color.b,0.88),10,4)
-    reason_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
-    _label(reason_box,reason,Rect2(0,0,520,38),11,reason_color,HORIZONTAL_ALIGNMENT_CENTER,true)
-    var add: Button = _button(win,Rect2(340,596,520,54),"AJOUTER À L'ÉQUIPE",Color("55d58b"),true)
-    var add_normal := StyleBoxFlat.new()
-    add_normal.bg_color = Color(0.018,0.070,0.055,0.94)
-    add_normal.border_color = Color(0.33,0.92,0.62,0.96)
-    add_normal.set_border_width_all(2)
-    add_normal.set_corner_radius_all(12)
-    add_normal.shadow_color = Color(0,0,0,0.45)
-    add_normal.shadow_size = 8
-    add.add_theme_stylebox_override("normal",add_normal)
-    add.add_theme_stylebox_override("focus",add_normal)
-    add.add_theme_font_size_override("font_size",16)
+    _label(win,reason,Rect2(500,640,820,28),13,reason_color,HORIZONTAL_ALIGNMENT_CENTER,true)
+    var add: Button = _button(win,Rect2(500,680,820,54),"AJOUTER À L'ÉQUIPE",Color("55d58b"),true)
+    add.add_theme_font_size_override("font_size",20)
     add.disabled = _scheduled_team() != "ally" or not _draft_allowed("ally",data)
     add.pressed.connect(_confirm_draft_pick)
 

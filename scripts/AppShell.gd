@@ -679,14 +679,23 @@ func _draw_google_required_account(panel: Control, data: Dictionary) -> void:
             true
         )
 
-    var google_btn: Button = _button_in(panel,Rect2(260,382,596,64),"SE CONNECTER AVEC GOOGLE",Color("6ba7ff"),true)
+    var google_btn: Button = _button_in(panel,Rect2(120,350,876,142),"     SE CONNECTER AVEC GOOGLE",Color("6ba7ff"),true)
+    google_btn.add_theme_font_size_override("font_size",24)
     google_btn.disabled = AuthManager.is_busy()
     google_btn.pressed.connect(_begin_google_auth)
+    var google_icon := TextureRect.new()
+    google_icon.position = Vector2(54,31)
+    google_icon.size = Vector2(78,78)
+    google_icon.texture = load("res://assets/ui/google_g.svg")
+    google_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+    google_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+    google_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    google_btn.add_child(google_icon)
 
     _label_in(
         panel,
         "Une page Google sécurisée s'ouvre. Après validation, reviens dans YUGITO : le jeu détecte automatiquement la connexion.",
-        Rect2(180,458,756,54),
+        Rect2(180,510,756,54),
         9,
         Color("91a7bb"),
         HORIZONTAL_ALIGNMENT_CENTER,
