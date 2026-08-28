@@ -27,6 +27,7 @@ var battle_journal_sequence: int = 0
 var journal_overlay: Control = null
 var journal_rich: RichTextLabel = null
 var inspection_overlay: Control = null
+var inspection_layer: CanvasLayer = null
 var inspection_rich: RichTextLabel = null
 var inspection_action_root: Control = null
 var inspection_actor: YugitoCardActor = null
@@ -575,54 +576,70 @@ func _close_battle_journal() -> void:
         journal_overlay.visible = false
 
 func _build_inspection_overlay() -> void:
+    # P48.1 MOBILE UI — la fiche vit dans son propre CanvasLayer.
+    # Elle est donc garantie AU-DESSUS des CardActor, badges et effets de terrain.
+    inspection_layer = CanvasLayer.new()
+    inspection_layer.layer = 120
+    add_child(inspection_layer)
+
     inspection_overlay = Control.new()
-    inspection_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-    inspection_overlay.z_index = 27000
+    inspection_overlay.position = Vector2.ZERO
+    inspection_overlay.size = Vector2(1600,900)
     inspection_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
     inspection_overlay.visible = false
-    add_child(inspection_overlay)
-    _modal_dim(inspection_overlay,0.52)
-    var win: Panel = _modal_window(inspection_overlay,Rect2(330,88,940,724),Color(0.64,0.86,1.0,0.64))
-    _label_in(win,"FICHE NINJA",Rect2(34,24,420,42),28,Color("ffffff"),HORIZONTAL_ALIGNMENT_LEFT,true)
-    _label_in(win,"Inspection hors action • alliés et ennemis",Rect2(36,62,600,24),10,Color("a9bfd1"),HORIZONTAL_ALIGNMENT_LEFT,false)
-    var close_btn: Button = _action_button_in(win,Rect2(760,26,142,40),"FERMER",Color("8cb9d8"),false)
+    inspection_layer.add_child(inspection_overlay)
+    _modal_dim(inspection_overlay,0.78)
+
+    # Presque plein écran sur mobile paysage : aucune carte ne reste visible
+    # au-dessus et on récupère assez de place pour de vrais boutons tactiles.
+    var win: Panel = _modal_window(inspection_overlay,Rect2(70,45,1460,810),Color(0.64,0.86,1.0,0.82))
+    _label_in(win,"FICHE NINJA",Rect2(40,24,560,48),31,Color("ffffff"),HORIZONTAL_ALIGNMENT_LEFT,true)
+    _label_in(win,"Choisis une action puis touche la cible sur le terrain",Rect2(42,68,780,26),12,Color("a9bfd1"),HORIZONTAL_ALIGNMENT_LEFT,false)
+    var close_btn: Button = _action_button_in(win,Rect2(1230,22,185,58),"FERMER",Color("8cb9d8"),true)
     close_btn.pressed.connect(_close_inspection)
+
+    var info_panel: Panel = _modal_window(win,Rect2(38,108,1384,430),Color(0.32,0.52,0.70,0.35))
     var scroll := ScrollContainer.new()
-    scroll.position = Vector2(34,104)
-    scroll.size = Vector2(872,576)
+    scroll.position = Vector2(26,22)
+    scroll.size = Vector2(1332,386)
     scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-    win.add_child(scroll)
+    info_panel.add_child(scroll)
     inspection_rich = RichTextLabel.new()
-    inspection_rich.custom_minimum_size = Vector2(836,820)
+    inspection_rich.custom_minimum_size = Vector2(1288,760)
     inspection_rich.bbcode_enabled = true
     inspection_rich.fit_content = true
     inspection_rich.scroll_active = false
     inspection_rich.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-    inspection_rich.add_theme_font_size_override("normal_font_size",11)
+    inspection_rich.add_theme_font_size_override("normal_font_size",16 if MobilePlatform.is_android() else 13)
     inspection_rich.add_theme_color_override("default_color",Color("dce8f2"))
     scroll.add_child(inspection_rich)
 
-    # P48 : actions tactiles directement dans la fiche. La SPÉCIALE est une
-    # action de premier rang, au même niveau que TAI/NIN/GEN.
+    # Actions : 3 grosses touches sur la première ligne, puis
+    # SPÉCIALE / SWITCH / AF sur la seconde.
     inspection_action_root = Control.new()
-    inspection_action_root.position = Vector2(34, 612)
-    inspection_action_root.size = Vector2(872, 76)
-    inspection_action_root.z_index = 4
+    inspection_action_root.position = Vector2(38, 558)
+    inspection_action_root.size = Vector2(1384, 218)
     win.add_child(inspection_action_root)
     var sheet_actions: Array[Dictionary] = [
-        {"id":"taijutsu","name":"Taijutsu","label":"TAIJUTSU","c":Color("ef6659")},
-        {"id":"ninjutsu","name":"Ninjutsu","label":"NINJUTSU","c":Color("58aff0")},
-        {"id":"genjutsu","name":"Genjutsu","label":"GENJUTSU","c":Color("ba85ed")},
-        {"id":"special","name":"Special","label":"SPÉCIALE","c":Color("e2b746")},
-        {"id":"reserve","name":"Reserve","label":"SWITCH RÉSERVE","c":Color("58cf8b")}
+        {"id":"taijutsu","name":"Taijutsu","label":"TAIJUTSU","c":Color("ef6659"),"r":0,"cidx":0},
+        {"id":"ninjutsu","name":"Ninjutsu","label":"NINJUTSU","c":Color("58aff0"),"r":0,"cidx":1},
+        {"id":"genjutsu","name":"Genjutsu","label":"GENJUTSU","c":Color("ba85ed"),"r":0,"cidx":2},
+        {"id":"special","name":"Special","label":"TECHNIQUE SPÉCIALE","c":Color("e2b746"),"r":1,"cidx":0},
+        {"id":"reserve","name":"Reserve","label":"ÉCHANGE / RÉSERVE","c":Color("58cf8b"),"r":1,"cidx":1}
     ]
-    for i: int in range(sheet_actions.size()):
-        var item: Dictionary = sheet_actions[i]
-        var b: Button = _action_button_in(inspection_action_root, Rect2(i * 172.0, 4, 164, 54), str(item["label"]), item["c"] as Color, true)
+    var bw: float = 436.0
+    var bh: float = 84.0
+    var gap: float = 18.0
+    for item: Dictionary in sheet_actions:
+        var col: int = int(item["cidx"])
+        var row: int = int(item["r"])
+        var b: Button = _action_button_in(inspection_action_root, Rect2(col * (bw + gap), row * (bh + gap), bw, bh), str(item["label"]), item["c"] as Color, true)
         b.name = str(item["name"])
+        b.add_theme_font_size_override("font_size",20)
         b.pressed.connect(_sheet_action_pressed.bind(str(item["id"])))
-    var af: Button = _action_button_in(inspection_action_root, Rect2(688, 60, 164, 38), "AF • MINATO", Color("f0d25e"), true)
+    var af: Button = _action_button_in(inspection_action_root, Rect2(2 * (bw + gap), bh + gap, bw, bh), "AF • MINATO", Color("f0d25e"), true)
     af.name = "Free"
+    af.add_theme_font_size_override("font_size",20)
     af.pressed.connect(_sheet_free_pressed)
 
 func _open_selected_inspection() -> void:

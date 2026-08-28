@@ -747,25 +747,73 @@ func _open_mobile_draft_sheet(cid: String) -> void:
         var old_parent: Node = draft_detail_root.get_parent()
         if old_parent != null: old_parent.remove_child(draft_detail_root)
         draft_detail_root.queue_free()
+
     var root := Control.new()
     root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
     root.mouse_filter = Control.MOUSE_FILTER_STOP
-    root.z_index = 26000
+    root.z_index = 32000
     stage_root.add_child(root)
     draft_detail_root = root
+
     var dim := ColorRect.new()
     dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-    dim.color = Color(0.002,0.006,0.012,0.82)
+    dim.color = Color(0.002,0.006,0.012,0.90)
     dim.mouse_filter = Control.MOUSE_FILTER_STOP
     root.add_child(dim)
-    var win: Panel = _panel(root,Rect2(180,70,1200,650),Color(0.014,0.030,0.050,0.99),Color(0.42,0.68,0.86,0.62),18,10)
-    _label(win,"FICHE NINJA — DRAFT",Rect2(30,18,600,38),22,Color("f4f8fb"),HORIZONTAL_ALIGNMENT_LEFT,true)
-    var close: Button = _button(win,Rect2(1030,18,130,42),"FERMER",Color("8cb9d8"),false)
+
+    # P48.1 — vraie fiche mobile paysage : illustration à gauche, texte à
+    # droite, CTA énorme en bas. Plus de bannière 1140x150 qui recadrait
+    # l'image sur les yeux / le front du personnage.
+    var win: Panel = _panel(root,Rect2(90,35,1420,790),Color(0.014,0.030,0.050,0.995),Color(0.42,0.68,0.86,0.78),22,14)
+    _label(win,"FICHE NINJA — DRAFT",Rect2(34,20,650,44),27,Color("f4f8fb"),HORIZONTAL_ALIGNMENT_LEFT,true)
+    var close: Button = _button(win,Rect2(1214,16,170,58),"FERMER",Color("8cb9d8"),true)
+    close.add_theme_font_size_override("font_size",16)
     close.pressed.connect(_close_mobile_draft_sheet.bind(root))
-    _card_detail(win,data,Rect2(30,78,1140,470))
+
+    var accent: Color = _element_color(str(data.get("element","")))
+    var cid_local: String = str(data.get("id",""))
+    var art_panel: Panel = _panel(win,Rect2(34,92,430,532),Color(0.006,0.014,0.024,0.98),Color(accent.r,accent.g,accent.b,0.66),16,8)
+    art_panel.clip_contents = true
+    var art: TextureRect = TextureRect.new()
+    art.position = Vector2(10,10)
+    art.size = Vector2(410,420)
+    art.texture = _draft_atlas_art(cid_local)
+    art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+    art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+    art.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+    art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    art_panel.add_child(art)
+    _label(art_panel,str(data.get("name",cid_local)),Rect2(18,438,394,42),22,Color("f5f8fb"),HORIZONTAL_ALIGNMENT_CENTER,true)
+    _label(art_panel,"%s★  •  %s" % [_stars_text(float(data.get("stars",0.0))),str(data.get("element","")).to_upper()],Rect2(18,484,394,28),13,accent.lightened(0.12),HORIZONTAL_ALIGNMENT_CENTER,true)
+
+    var right_x: float = 494.0
+    _panel(win,Rect2(right_x,92,890,78),Color(0.018,0.040,0.065,0.86),Color(0.30,0.49,0.65,0.38),13)
+    _label(win,"PV  %d     TAI  %d     NIN  %d     GEN  %d" % [int(data.get("hp",0)),int(data.get("taijutsu",0)),int(data.get("ninjutsu",0)),int(data.get("genjutsu",0))],Rect2(right_x+18,111,854,40),18,Color("dbe8f2"),HORIZONTAL_ALIGNMENT_CENTER,true)
+
+    var info_scroll := ScrollContainer.new()
+    info_scroll.position = Vector2(right_x,186)
+    info_scroll.size = Vector2(890,438)
+    info_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+    win.add_child(info_scroll)
+    var rich := RichTextLabel.new()
+    rich.custom_minimum_size = Vector2(846,560)
+    rich.bbcode_enabled = true
+    rich.fit_content = true
+    rich.scroll_active = false
+    rich.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+    rich.add_theme_font_size_override("normal_font_size",16)
+    rich.add_theme_color_override("default_color",Color("d7e3ed"))
+    rich.text = "[color=#61d6a2][font_size=20][b]PASSIF — %s[/b][/font_size][/color]\n%s\n\n[color=#e4bf51][font_size=20][b]TECHNIQUE SPÉCIALE — %s[/b][/font_size][/color]\n%s\n\n[color=#58aff0][font_size=20][b]SYNERGIES[/b][/font_size][/color]\n%s" % [
+        str(data.get("passive_name","—")), str(data.get("passive","—")),
+        str(data.get("special_name","—")), str(data.get("special","—")),
+        SynergyDB.description(cid_local, cards_by_id)
+    ]
+    info_scroll.add_child(rich)
+
     var reason: String = _draft_lock_reason("ally",data)
-    _label(win,reason,Rect2(30,552,1140,24),10,Color("55d58b") if reason == "DISPONIBLE" else Color("e85c66"),HORIZONTAL_ALIGNMENT_CENTER,true)
-    var add: Button = _button(win,Rect2(340,584,520,52),"AJOUTER À L'ÉQUIPE",Color("55d58b"),true)
+    _label(win,reason,Rect2(34,644,430,34),13,Color("55d58b") if reason == "DISPONIBLE" else Color("e85c66"),HORIZONTAL_ALIGNMENT_CENTER,true)
+    var add: Button = _button(win,Rect2(494,650,890,104),"AJOUTER À L'ÉQUIPE",Color("55d58b"),true)
+    add.add_theme_font_size_override("font_size",24)
     add.disabled = _scheduled_team() != "ally" or not _draft_allowed("ally",data)
     add.pressed.connect(_confirm_draft_pick)
 
