@@ -800,8 +800,8 @@ func _open_mobile_draft_sheet(cid: String) -> void:
 
     var reason: String = _draft_lock_reason("ally",data)
     var reason_color: Color = Color("55d58b") if reason == "DISPONIBLE" else Color("e85c66")
-    _label(win,reason,Rect2(500,640,820,28),13,reason_color,HORIZONTAL_ALIGNMENT_CENTER,true)
-    var add: Button = _button(win,Rect2(500,680,820,54),"AJOUTER À L'ÉQUIPE",Color("55d58b"),true)
+    var add: Button = _button(win,Rect2(500,640,820,54),"AJOUTER À L'ÉQUIPE",Color("55d58b"),true)
+    _label(win,reason,Rect2(500,704,820,28),13,reason_color,HORIZONTAL_ALIGNMENT_CENTER,true)
     add.add_theme_font_size_override("font_size",20)
     add.disabled = _scheduled_team() != "ally" or not _draft_allowed("ally",data)
     add.pressed.connect(_confirm_draft_pick)

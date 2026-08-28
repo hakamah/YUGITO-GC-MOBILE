@@ -58,6 +58,7 @@ var phase_timer_expired_once: bool = false
 var action_buttons: Dictionary = {}
 var validate_button: Button
 var current_action: String = ""
+var mobile_target_release_guard: bool = false
 var turn_counter: int = 1
 var resolving_action: bool = false
 var resolving_delayed_action: bool = false
@@ -406,8 +407,37 @@ func _build_interface() -> void:
     _build_inspection_overlay()
     _build_tobi_bomb_overlay()
     _build_action_markers()
+    if MobilePlatform.is_android():
+        _apply_mobile_battle_layout(plan_glass)
 
     # Le remplacement/switch utilise maintenant un vrai écran modal plein écran.
+
+func _apply_mobile_battle_layout(plan_glass: Panel) -> void:
+    # P50 : plus de colonne PLAN DU TOUR. Le terrain utilise toute la largeur.
+    # On conserve seulement les commandes indispensables sous forme de barre compacte.
+    if plan_glass != null:
+        plan_glass.visible = false
+    var legacy_controls: Array[Control] = [timeline_free_button, timeline_a1_button, timeline_a2_button, cancel_free_button, cancel_a1_button, cancel_a2_button, selection_title_label, selection_subtitle_label, selection_stats_label, action_status_label, inspect_button, copy_action_button, direct_attack_button, validate_button, journal_button, battle_log_label, turn_capsule_label]
+    for c: Control in legacy_controls:
+        if c != null:
+            c.visible = false
+    for key: Variant in action_buttons.keys():
+        var old_btn: Button = action_buttons[key] as Button
+        if old_btn != null:
+            old_btn.visible = false
+
+    var a1 := _action_button(Rect2(1290, 790, 78, 46), "A1", Color("52d6a0"), true)
+    a1.z_index = 120
+    a1.pressed.connect(_set_planning_slot.bind(1))
+    var a2 := _action_button(Rect2(1374, 790, 78, 46), "A2", Color("f2a350"), true)
+    a2.z_index = 120
+    a2.pressed.connect(_set_planning_slot.bind(2))
+    var validate := _action_button(Rect2(1290, 842, 210, 46), "VALIDER LE TOUR", Color("55d58b"), true)
+    validate.z_index = 120
+    validate.pressed.connect(_on_validate_plan_pressed)
+    var journal := _action_button(Rect2(1506, 842, 78, 46), "LOG", Color("77c8f1"), false)
+    journal.z_index = 120
+    journal.pressed.connect(_open_battle_journal)
 
 func _build_action_markers() -> void:
     # Visibles uniquement sur nos cartes. L'adversaire ne reçoit aucune info
@@ -747,10 +777,19 @@ func _refresh_inspection_actions(actor: YugitoCardActor) -> void:
         var sheet_btn: Button = inspection_action_root.get_node_or_null(str(key).capitalize()) as Button
         if sheet_btn == null:
             continue
+        var action_key: String = str(key)
         var enabled: bool = can_act_now
-        if str(key) == "special": enabled = enabled and _actor_special_available(actor)
-        if str(key) == "reserve": enabled = not ally_reserve.is_empty() and _can_leave_field_voluntarily(actor)
+        if action_key in ["taijutsu", "ninjutsu", "genjutsu"]:
+            enabled = enabled and _actor_can_use_style(actor, action_key)
+        elif action_key == "special":
+            enabled = enabled and _actor_special_available(actor)
+        elif action_key == "reserve":
+            enabled = not ally_reserve.is_empty() and _can_leave_field_voluntarily(actor) and not resolving_action
         sheet_btn.disabled = not enabled
+    var af_btn: Button = inspection_action_root.get_node_or_null("Free") as Button
+    if af_btn != null:
+        af_btn.visible = actor.card_id == "minato"
+        af_btn.disabled = not (can_act_now and actor.card_id == "minato" and not bool(actor.status_tags.get("minato_free_used_cycle", false)))
 
 func _sheet_action_pressed(action_id: String) -> void:
     if inspection_actor == null or not is_instance_valid(inspection_actor):
@@ -958,6 +997,10 @@ func _planning_reserve_ids(team_name: String) -> Array[String]:
 func _on_card_selection_requested(actor: YugitoCardActor) -> void:
     if resolving_action or ai_thinking or current_turn_team != "ally" or _replacement_overlay_active() or _solo_overlay_active():
         return
+    # P50: le Clone explosif de Gengetsu est purement passif pour son propriétaire.
+    if actor.team_name == "ally" and actor.card_id == "gengetsu" and bool(actor.status_tags.get("gengetsu_clone_active", false)):
+        _battle_log_set("Clone explosif : aucune action ni sélection possible jusqu’à sa résolution.")
+        return
 
     # Tobi : la pose de bombe passe par une vraie fenêtre de choix bloquante.
     # Aucun clic de terrain ne doit servir de sélection implicite, sinon on recrée
@@ -1035,7 +1078,10 @@ func _on_card_selection_requested(actor: YugitoCardActor) -> void:
             _battle_log_set("%s : choisis secrètement la carte de réserve adverse à traquer." % selected_actor.display_name)
             _refresh_action_buttons()
             return
+        mobile_target_release_guard = MobilePlatform.is_android()
         _store_planned_action(selected_actor, actor, current_action)
+        if mobile_target_release_guard:
+            call_deferred("_clear_mobile_target_release_guard")
         return
 
     var selection_candidate: YugitoCardActor = _planning_virtual_for_clicked_actor(actor)
@@ -1059,8 +1105,11 @@ func _on_card_selection_requested(actor: YugitoCardActor) -> void:
     _refresh_action_buttons()
     # P48 mobile : toucher une carte ouvre sa fiche. Si une action est déjà
     # choisie, le même toucher reste évidemment le choix de cible.
-    if MobilePlatform.is_android() and current_action.is_empty():
+    if MobilePlatform.is_android() and current_action.is_empty() and not mobile_target_release_guard:
         _open_actor_sheet(selection_candidate)
+
+func _clear_mobile_target_release_guard() -> void:
+    mobile_target_release_guard = false
 
 func _set_planning_slot(slot: int) -> void:
     if resolving_action or ai_thinking or current_turn_team != "ally" or _replacement_overlay_active():
@@ -1221,7 +1270,7 @@ func _actor_special_already_planned(actor: YugitoCardActor, resource: String = "
     return false
 
 func _special_requires_no_target(card_id: String) -> bool:
-    return card_id in ["kankuro", "gaara", "jiraiya", "choji", "anko", "chiyo", "gengetsu", "konan", "kurotsuchi", "tenten", "tobirama", "shisui", "kimimaro", "konohamaru", "ao", "orochimaru"]
+    return card_id in ["kankuro", "gaara", "jiraiya", "choji", "anko", "chiyo", "gengetsu", "konan", "kurotsuchi", "tenten", "tobirama", "shisui", "kimimaro", "konohamaru", "ao", "orochimaru", "tobi"]
 
 func _special_targets_ally(card_id: String) -> bool:
     return card_id in ["kurenai", "karin", "rock_lee"]
@@ -2034,6 +2083,12 @@ func _launch_descriptor(descriptor: Dictionary, phase_label: String) -> void:
     var target: YugitoCardActor = _resolve_descriptor_target(descriptor, source.team_name)
     var accent: Color = _action_color(action_id)
 
+    # P50 : la spéciale de Tobi ne demande RIEN au moment de la planification.
+    # Le choix de prédiction n'apparaît que lorsque A1/A2 se lance réellement.
+    if action_id == "special" and _descriptor_special_id(descriptor, source) == "tobi":
+        _start_tobi_resolution_choice(source, descriptor, phase_label)
+        return
+
     if action_id == "special" and _special_requires_no_target(source.card_id):
         source.play_cast_fx(accent)
         _play_special_sound(source.card_id)
@@ -2361,6 +2416,37 @@ func _resolve_descriptor_target(descriptor: Dictionary, source_team: String) -> 
         if int(actor.status_tags.get("reactive_entry_cycle", -999)) == turn_counter:
             return actor
     return null
+
+func _start_tobi_resolution_choice(source: YugitoCardActor, descriptor: Dictionary, phase_label: String) -> void:
+    var enemies: Array[YugitoCardActor] = _living_cards(_opponent_team(source.team_name))
+    var allies: Array[YugitoCardActor] = _living_cards(source.team_name)
+    if enemies.is_empty() or allies.is_empty():
+        _battle_log_set("%s • C'était prévu ! : aucune prédiction valide." % phase_label)
+        _complete_resolution_step()
+        return
+    if source.team_name == "enemy":
+        var predicted_enemy: YugitoCardActor = enemies[0]
+        for c: YugitoCardActor in enemies:
+            if maxi(c.effective_stat("taijutsu"), maxi(c.effective_stat("ninjutsu"), c.effective_stat("genjutsu"))) > maxi(predicted_enemy.effective_stat("taijutsu"), maxi(predicted_enemy.effective_stat("ninjutsu"), predicted_enemy.effective_stat("genjutsu"))):
+                predicted_enemy = c
+        var predicted_ally: YugitoCardActor = allies[0]
+        for a: YugitoCardActor in allies:
+            if a.hp < predicted_ally.hp: predicted_ally = a
+        var resolved: Dictionary = descriptor.duplicate(true)
+        resolved["target_uid"] = predicted_enemy.battle_uid
+        resolved["target_id"] = predicted_enemy.card_id
+        resolved["target_team"] = predicted_enemy.team_name
+        resolved["target_slot"] = predicted_enemy.seed_index_value()
+        resolved["prediction_ally_uid"] = predicted_ally.battle_uid
+        resolved["prediction_ally_id"] = predicted_ally.card_id
+        _finish_special_descriptor(source, predicted_enemy, phase_label, resolved)
+        _complete_resolution_step(0.14)
+        return
+    var ids: Array[String] = []
+    for e: YugitoCardActor in enemies: ids.append(e.card_id)
+    replacement_context = {"mode":"tobi_resolve_enemy", "actor":source, "candidates":ids, "descriptor":descriptor.duplicate(true), "phase_label":phase_label}
+    replacement_modal.show_choices("TOBI — C'ÉTAIT PRÉVU !", "L'action se lance : choisis maintenant le Ninja ennemi que Tobi prédit comme attaquant.", ids, true)
+    _battle_log_set("%s • Tobi lance sa technique : choisis l'attaquant prédit." % phase_label)
 
 func _finish_descriptor_safe(descriptor: Dictionary, phase_label: String) -> void:
     var source: YugitoCardActor = _resolve_descriptor_source(descriptor)
@@ -4525,6 +4611,36 @@ func _on_replacement_choice_pressed(choice_index: int) -> void:
     var chosen_id: String = str(candidates[choice_index])
     var chosen_data: Dictionary = cards_by_id.get(chosen_id, {}) as Dictionary
     var chosen_name: String = str(chosen_data.get("name", chosen_id))
+
+    if mode == "tobi_resolve_enemy":
+        var desc: Dictionary = (replacement_context.get("descriptor", {}) as Dictionary).duplicate(true)
+        var phase: String = str(replacement_context.get("phase_label", "ACTION"))
+        var enemy_actor: YugitoCardActor = _find_live_card(_opponent_team(actor.team_name), chosen_id)
+        if enemy_actor == null:
+            _close_replacement_overlay(); _battle_log_set("Tobi : attaquant prédit indisponible."); _complete_resolution_step(); return
+        var own_ids: Array[String] = []
+        for own: YugitoCardActor in _living_cards(actor.team_name): own_ids.append(own.card_id)
+        _close_replacement_overlay()
+        replacement_context = {"mode":"tobi_resolve_ally", "actor":actor, "candidates":own_ids, "descriptor":desc, "phase_label":phase, "pred_enemy_uid":enemy_actor.battle_uid}
+        replacement_modal.show_choices("TOBI — C'ÉTAIT PRÉVU !", "Choisis maintenant le Ninja allié que cet ennemi devrait attaquer.", own_ids, true)
+        return
+    if mode == "tobi_resolve_ally":
+        var desc2: Dictionary = (replacement_context.get("descriptor", {}) as Dictionary).duplicate(true)
+        var phase2: String = str(replacement_context.get("phase_label", "ACTION"))
+        var pred_enemy: YugitoCardActor = _resolve_actor_uid(int(replacement_context.get("pred_enemy_uid",0)))
+        var pred_ally: YugitoCardActor = _find_live_card(actor.team_name, chosen_id)
+        _close_replacement_overlay()
+        if pred_enemy == null or pred_ally == null:
+            _battle_log_set("Tobi : prédiction devenue invalide."); _complete_resolution_step(); return
+        desc2["target_uid"] = pred_enemy.battle_uid
+        desc2["target_id"] = pred_enemy.card_id
+        desc2["target_team"] = pred_enemy.team_name
+        desc2["target_slot"] = pred_enemy.seed_index_value()
+        desc2["prediction_ally_uid"] = pred_ally.battle_uid
+        desc2["prediction_ally_id"] = pred_ally.card_id
+        _finish_special_descriptor(actor, pred_enemy, phase2, desc2)
+        _complete_resolution_step(0.14)
+        return
 
     if mode == "ao_tracker_plan":
         _store_planned_action(actor, null, "special", {"tracker_id":chosen_id})

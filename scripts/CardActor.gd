@@ -1039,6 +1039,11 @@ func refresh_status_badges() -> void:
         _label(more, "+%d AUTRES EFFETS" % hidden, Rect2(7,0,CARD_W-30.0,21), 8, Color("ffe4a0"), HORIZONTAL_ALIGNMENT_LEFT, true)
 
 func _visual_art_id() -> String:
+    # P50 Ino : le vrai corps possédé reste logiquement ici, mais visuellement
+    # cette case montre le corps astral/intangible d'Ino. La victime elle-même
+    # est dessinée sur la case d'Ino via ino_target.
+    if int(status_tags.get("possessed_by_uid", 0)) > 0 and ResourceLoader.exists("res://assets/cards/ino_ghost_field.png"):
+        return "ino_ghost"
     if card_id == "gengetsu" and bool(status_tags.get("gengetsu_clone_active", false)):
         return "gengetsu_clone"
     if card_id == "naruto" and hp * 2 < maxi(1, max_hp) and ResourceLoader.exists("res://assets/cards/naruto_passif_field.png"):
@@ -1073,7 +1078,9 @@ func refresh_dynamic_identity() -> void:
     var visual_tai: int = effective_stat("taijutsu")
     var visual_nin: int = effective_stat("ninjutsu")
     var visual_gen: int = effective_stat("genjutsu")
-    if card_id == "gengetsu" and bool(status_tags.get("gengetsu_clone_active", false)):
+    if int(status_tags.get("possessed_by_uid", 0)) > 0:
+        visual_name = "Ino • Inciblable"
+    elif card_id == "gengetsu" and bool(status_tags.get("gengetsu_clone_active", false)):
         visual_name = "Clone de Gengetsu"
         visual_tai = 0
         visual_nin = 0
@@ -1310,9 +1317,9 @@ func refresh_status_visuals() -> void:
     # Ino : le voile blanc fait l'essentiel ; un seul bandeau fixe confirme
     # l'état au lieu de dupliquer plusieurs badges.
     if possessed:
-        _status_band("SOUS CONTRÔLE INO", CARD_H * 0.38, Color(0.30,0.20,0.28,0.90), Color("f3b6d5"), Color("fff1f8"), 9)
-    elif ino_active:
         _status_band("CORPS D'INO • INCIBLABLE", CARD_H * 0.38, Color(0.93,0.93,0.97,0.96), Color("9b75b7"), Color("5b3a73"), 9)
+    elif ino_active:
+        _status_band("SOUS CONTRÔLE INO", CARD_H * 0.38, Color(0.30,0.20,0.28,0.90), Color("f3b6d5"), Color("fff1f8"), 9)
 
     # Jashin près du bas, exactement comme la carte Tkinter.
     if doom > 0:
