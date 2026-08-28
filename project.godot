@@ -40,6 +40,7 @@ AudioManager="*res://scripts/AudioManager.gd"
 IdentityManager="*res://scripts/IdentityManager.gd"
 AuthManager="*res://scripts/AuthManager.gd"
 MobilePlatform="*res://scripts/MobilePlatform.gd"
+MobileZoomController="*res://scripts/MobileZoomController.gd"
 
 [input_devices]
 
