@@ -1,6 +1,6 @@
 class_name YugitoPreBattle
 extends Control
-# P47M.4-DP/DT: Android draft virtualization + direct touch/mouse drag scrolling.
+# P47M.5: Android draft rendered as one cached CanvasItem over one atlas texture.
 
 signal battle_requested
 signal cancelled
@@ -9,6 +9,7 @@ const MenuCard = preload("res://scripts/MenuCard.gd")
 const SynergyDB = preload("res://scripts/SynergyDB.gd")
 const HomeVideoBackground = preload("res://scripts/HomeVideoBackground.gd")
 const AssetCache = preload("res://scripts/AssetCache.gd")
+const DraftCanvas = preload("res://scripts/DraftCanvas.gd")
 
 const DRAFT_SIZE: int = 8
 const STARTER_COUNT: int = 3
@@ -51,38 +52,14 @@ var ai_reveal_id: String = ""
 var last_pick_id: String = ""
 var last_pick_team: String = ""
 
-# P47M.4-DP — Android draft fast path.
-# The old draft instantiated all ~70 rich MenuCard trees and rebuilt the whole
-# screen after every tap. On older Android devices this creates thousands of
-# Control/StyleBox operations and large frame spikes.
-const MOBILE_DRAFT_COLUMNS: int = 3
-const MOBILE_DRAFT_CARD_SIZE: Vector2 = Vector2(240, 306)
-const MOBILE_DRAFT_H_GAP: float = 8.0
-const MOBILE_DRAFT_V_GAP: float = 10.0
-const MOBILE_DRAFT_ROW_HEIGHT: float = 316.0
-const MOBILE_DRAFT_ROW_MARGIN: int = 1
-
+# P47M.5 — Native Canvas Draft.
+# Android now scrolls ONE cached CanvasItem made from ONE atlas texture.
+# No Button/Label/TextureRect card trees are created while scrolling.
 var draft_mobile_scroll: ScrollContainer = null
-var draft_mobile_pool: Control = null
-var draft_mobile_rows: Dictionary = {}
-var draft_mobile_card_nodes: Dictionary = {}
-var draft_mobile_visible_first: int = -1
-var draft_mobile_visible_last: int = -1
+var draft_mobile_canvas: YugitoDraftCanvas = null
 var draft_mobile_saved_scroll: float = 0.0
-var draft_mobile_active: String = ""
+var draft_mobile_index_by_id: Dictionary = {}
 var draft_detail_root: Control = null
-
-# P47M.4-DT — direct drag scrolling on the draft pool.
-# Touch: press + slide anywhere on the card pool.
-# Mouse: wheel remains native, and left-click + drag also scrolls.
-const MOBILE_DRAFT_DRAG_DEADZONE: float = 10.0
-var draft_drag_active: bool = false
-var draft_drag_moved: bool = false
-var draft_drag_start_pos: Vector2 = Vector2.ZERO
-var draft_drag_last_pos: Vector2 = Vector2.ZERO
-var draft_drag_start_scroll: float = 0.0
-var draft_touch_active: bool = false
-var draft_ignore_mouse_until_msec: int = 0
 
 # Do not invalidate the whole Canvas/UI 60 times per second for a timer that
 # visually changes only once per second.
@@ -252,6 +229,9 @@ func _load_cards() -> void:
                     cards_by_id[cid] = d
                     cards.append(d)
     cards.sort_custom(_sort_prebattle_cards)
+    draft_mobile_index_by_id.clear()
+    for i: int in range(cards.size()):
+        draft_mobile_index_by_id[str(cards[i].get("id",""))] = i
 
 func _sort_prebattle_cards(a: Dictionary, b: Dictionary) -> bool:
     var sa: float = float(a.get("stars", 0.0))
@@ -352,19 +332,9 @@ func _logo_in_panel(parent: Node, pos: Vector2, side: float) -> void:
     parent.add_child(logo)
 
 func _clear_stage() -> void:
-    # Keep the scroll position between full draft refreshes, but release every
-    # reference to the old virtualized UI tree immediately.
     draft_mobile_scroll = null
-    draft_mobile_pool = null
-    draft_mobile_rows.clear()
-    draft_mobile_card_nodes.clear()
-    draft_mobile_visible_first = -1
-    draft_mobile_visible_last = -1
-    draft_mobile_active = ""
+    draft_mobile_canvas = null
     draft_detail_root = null
-    draft_drag_active = false
-    draft_drag_moved = false
-    draft_touch_active = false
     for child: Node in stage_root.get_children():
         stage_root.remove_child(child)
         child.queue_free()
@@ -600,7 +570,7 @@ func _draw_pick_history(team: String, rect: Rect2, title: String, accent: Color)
             var art: TextureRect = TextureRect.new()
             art.position = Vector2(rect.position.x+16,y+5)
             art.size = Vector2(40,50)
-            art.texture = AssetCache.texture("res://assets/cards/%s_field.png" % cid)
+            art.texture = _draft_atlas_art(cid)
             art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
             art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
             art.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
@@ -642,14 +612,14 @@ func _draw_draft() -> void:
     scroll.size = Vector2(766,544)
     scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
     scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
-    scroll.scroll_deadzone = 6
+    # Let Godot's native C++ touch scrolling / inertia do the work.
+    scroll.scroll_deadzone = 10
+    scroll.follow_focus = false
     stage_root.add_child(scroll)
 
     if MobilePlatform.is_android():
-        # Android: virtualized pool. Only the rows around the viewport exist.
-        # This keeps ~12-15 lightweight card nodes alive instead of 70 rich
-        # MenuCard trees (well over a thousand Controls).
-        _build_mobile_draft_pool(scroll, active)
+        # P47M.5: a single cached atlas-backed CanvasItem.
+        _build_mobile_native_canvas(scroll, active)
     else:
         var grid: GridContainer = GridContainer.new()
         grid.columns = 3
@@ -664,7 +634,7 @@ func _draw_draft() -> void:
         _draw_ai_pick_reveal(ai_reveal_id)
     elif active == "enemy":
         _label(stage_root,"L'ADVERSAIRE RÉFLÉCHIT…",Rect2(450,675,358,28),9,Color("e85c66"),HORIZONTAL_ALIGNMENT_CENTER,true)
-    footer.text = "Centre : pool disponible • Gauche/droite : historique permanent des 16 choix • Clique pour prévisualiser, CONFIRMER pour drafter."
+    footer.text = "Centre : glisse directement sur les cartes pour défiler • Molette compatible • Tap pour prévisualiser • CONFIRMER pour drafter."
 
 func _draw_ai_pick_reveal(cid: String) -> void:
     var data: Dictionary = cards_by_id.get(cid,{}) as Dictionary
@@ -681,7 +651,7 @@ func _draw_ai_pick_reveal(cid: String) -> void:
     var art: TextureRect = TextureRect.new()
     art.position = Vector2(50,58)
     art.size = Vector2(320,218)
-    art.texture = AssetCache.texture("res://assets/cards/%s_field.png" % cid)
+    art.texture = _draft_atlas_art(cid)
     art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
     art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
     art.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
@@ -690,321 +660,59 @@ func _draw_ai_pick_reveal(cid: String) -> void:
     _label(p,"%s★  •  %s" % [_stars_text(float(data.get("stars",0.0))),str(data.get("element","")).to_upper()],Rect2(24,330,372,24),9,_element_color(str(data.get("element",""))),HORIZONTAL_ALIGNMENT_CENTER,true)
     _animate_result_panel(p,Vector2(0,34))
 
-func _build_mobile_draft_pool(scroll: ScrollContainer, active: String) -> void:
+func _build_mobile_native_canvas(scroll: ScrollContainer, active: String) -> void:
     draft_mobile_scroll = scroll
-    draft_mobile_active = active
-    draft_mobile_rows.clear()
-    draft_mobile_card_nodes.clear()
-    draft_mobile_visible_first = -1
-    draft_mobile_visible_last = -1
 
-    var total_rows: int = int(ceil(float(cards.size()) / float(MOBILE_DRAFT_COLUMNS)))
-    var pool_width: float = MOBILE_DRAFT_COLUMNS * MOBILE_DRAFT_CARD_SIZE.x + (MOBILE_DRAFT_COLUMNS - 1) * MOBILE_DRAFT_H_GAP
-    var pool_height: float = maxf(scroll.size.y, float(total_rows) * MOBILE_DRAFT_ROW_HEIGHT - MOBILE_DRAFT_V_GAP)
+    var available_by_id: Dictionary = {}
+    var interactive_by_id: Dictionary = {}
+    var reason_by_id: Dictionary = {}
 
-    var pool: Control = Control.new()
-    pool.custom_minimum_size = Vector2(pool_width, pool_height)
-    pool.size = Vector2(pool_width, pool_height)
-    pool.mouse_filter = Control.MOUSE_FILTER_PASS
-    scroll.add_child(pool)
-    draft_mobile_pool = pool
-    pool.gui_input.connect(_on_mobile_draft_pool_input)
+    for data: Dictionary in cards:
+        var cid: String = str(data.get("id",""))
+        var available: bool = _draft_allowed(active, data) if not active.is_empty() else false
+        available_by_id[cid] = available
+        interactive_by_id[cid] = (
+            active == "ally"
+            and available
+            and str(draft_owner.get(cid,"")).is_empty()
+        )
+        reason_by_id[cid] = _draft_lock_reason(active, data)
 
-    var vbar: VScrollBar = scroll.get_v_scroll_bar()
-    if vbar != null:
-        vbar.value_changed.connect(_on_mobile_draft_scroll_changed)
+    var canvas: YugitoDraftCanvas = DraftCanvas.new()
+    canvas.configure(
+        cards,
+        draft_owner,
+        available_by_id,
+        interactive_by_id,
+        reason_by_id,
+        draft_selected_id
+    )
+    canvas.card_tapped.connect(_on_draft_card_pressed)
+    scroll.add_child(canvas)
+    draft_mobile_canvas = canvas
 
+    # Restore only when a draft screen is rebuilt after a pick.
+    # During the actual drag there is no GDScript scroll assignment at all.
     call_deferred("_restore_mobile_draft_scroll")
 
 func _restore_mobile_draft_scroll() -> void:
     if not is_instance_valid(draft_mobile_scroll):
         return
     draft_mobile_scroll.scroll_vertical = int(maxf(0.0, draft_mobile_saved_scroll))
-    _refresh_mobile_draft_window(true)
 
-func _on_mobile_draft_scroll_changed(value: float) -> void:
-    draft_mobile_saved_scroll = value
-    _refresh_mobile_draft_window(false)
-
-func _refresh_mobile_draft_window(force: bool = false) -> void:
-    if not is_instance_valid(draft_mobile_scroll) or not is_instance_valid(draft_mobile_pool):
+func _capture_mobile_draft_scroll() -> void:
+    if not MobilePlatform.is_android():
         return
+    if is_instance_valid(draft_mobile_scroll):
+        draft_mobile_saved_scroll = float(draft_mobile_scroll.scroll_vertical)
 
-    var total_rows: int = int(ceil(float(cards.size()) / float(MOBILE_DRAFT_COLUMNS)))
-    if total_rows <= 0:
-        return
-
-    var viewport_top: float = float(draft_mobile_scroll.scroll_vertical)
-    var first_row: int = maxi(0, int(floor(viewport_top / MOBILE_DRAFT_ROW_HEIGHT)) - MOBILE_DRAFT_ROW_MARGIN)
-    var visible_count: int = int(ceil(draft_mobile_scroll.size.y / MOBILE_DRAFT_ROW_HEIGHT)) + MOBILE_DRAFT_ROW_MARGIN * 2 + 1
-    var last_row: int = mini(total_rows - 1, first_row + visible_count - 1)
-
-    if not force and first_row == draft_mobile_visible_first and last_row == draft_mobile_visible_last:
-        return
-
-    draft_mobile_visible_first = first_row
-    draft_mobile_visible_last = last_row
-
-    var existing_rows: Array = draft_mobile_rows.keys()
-    for row_key: Variant in existing_rows:
-        var row_index: int = int(row_key)
-        if row_index < first_row or row_index > last_row:
-            _remove_mobile_draft_row(row_index)
-
-    for row_index: int in range(first_row, last_row + 1):
-        if draft_mobile_rows.has(row_index):
-            continue
-        _create_mobile_draft_row(row_index)
-
-func _remove_mobile_draft_row(row_index: int) -> void:
-    var row_node: Control = draft_mobile_rows.get(row_index, null) as Control
-    if not is_instance_valid(row_node):
-        draft_mobile_rows.erase(row_index)
-        return
-    for child: Node in row_node.get_children():
-        if child.has_meta("draft_card_id"):
-            draft_mobile_card_nodes.erase(str(child.get_meta("draft_card_id")))
-    row_node.queue_free()
-    draft_mobile_rows.erase(row_index)
-
-func _create_mobile_draft_row(row_index: int) -> void:
-    if not is_instance_valid(draft_mobile_pool):
-        return
-
-    var row: Control = Control.new()
-    row.position = Vector2(0, float(row_index) * MOBILE_DRAFT_ROW_HEIGHT)
-    row.size = Vector2(draft_mobile_pool.size.x, MOBILE_DRAFT_CARD_SIZE.y)
-    row.mouse_filter = Control.MOUSE_FILTER_PASS
-    draft_mobile_pool.add_child(row)
-    draft_mobile_rows[row_index] = row
-
-    for col: int in range(MOBILE_DRAFT_COLUMNS):
-        var card_index: int = row_index * MOBILE_DRAFT_COLUMNS + col
-        if card_index >= cards.size():
-            break
-        var data: Dictionary = cards[card_index]
-        var btn: Button = _draft_card_mobile(data, draft_mobile_active)
-        btn.position = Vector2(float(col) * (MOBILE_DRAFT_CARD_SIZE.x + MOBILE_DRAFT_H_GAP), 0)
-        row.add_child(btn)
-        var cid: String = str(data.get("id",""))
-        draft_mobile_card_nodes[cid] = btn
-
-func _draft_card_mobile(data: Dictionary, active: String) -> Button:
-    var cid: String = str(data.get("id",""))
-    var owner: String = str(draft_owner.get(cid,""))
-    var allowed: bool = _draft_allowed(active,data) if not active.is_empty() else false
-    var muted: bool = not owner.is_empty() or not allowed
-    var accent: Color = _element_color(str(data.get("element","")))
-
-    var btn: Button = Button.new()
-    btn.custom_minimum_size = MOBILE_DRAFT_CARD_SIZE
-    btn.size = MOBILE_DRAFT_CARD_SIZE
-    btn.text = ""
-    btn.flat = false
-    btn.focus_mode = Control.FOCUS_NONE
-    btn.clip_contents = true
-    btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-    # Input is handled by the virtual pool so a finger can start dragging
-    # directly on top of a card without the Button swallowing the gesture.
-    btn.mouse_filter = Control.MOUSE_FILTER_IGNORE
-
-    var normal: StyleBoxFlat = StyleBoxFlat.new()
-    normal.bg_color = Color(0.018,0.038,0.062,0.96)
-    normal.border_color = Color("fff0a0") if cid == draft_selected_id else Color(accent.r,accent.g,accent.b,0.48 if not muted else 0.20)
-    normal.set_border_width_all(2 if cid == draft_selected_id else 1)
-    normal.set_corner_radius_all(10)
-    # No shadow on Android draft cards: 12-15 visible cards remain very cheap.
-
-    var hover: StyleBoxFlat = normal.duplicate() as StyleBoxFlat
-    hover.border_color = Color(accent.r,accent.g,accent.b,0.88)
-    hover.bg_color = Color(0.030,0.055,0.082,0.98)
-
-    var disabled_style: StyleBoxFlat = normal.duplicate() as StyleBoxFlat
-    disabled_style.bg_color = Color(0.012,0.026,0.044,0.94)
-
-    btn.add_theme_stylebox_override("normal",normal)
-    btn.add_theme_stylebox_override("hover",hover)
-    btn.add_theme_stylebox_override("pressed",hover)
-    btn.add_theme_stylebox_override("disabled",disabled_style)
-    btn.set_meta("draft_card_id",cid)
-    btn.set_meta("draft_normal_style",normal)
-    btn.set_meta("draft_accent",accent)
-    btn.set_meta("draft_muted",muted)
-
-    var header: ColorRect = ColorRect.new()
-    header.position = Vector2(5,5)
-    header.size = Vector2(MOBILE_DRAFT_CARD_SIZE.x-10,34)
-    header.color = Color(0.02,0.04,0.065,0.90)
-    header.mouse_filter = Control.MOUSE_FILTER_IGNORE
-    btn.add_child(header)
-    _label(btn,str(data.get("name",cid)),Rect2(12,6,158,32),11,Color("f1f5f9"),HORIZONTAL_ALIGNMENT_LEFT,true)
-    _label(btn,"%s★" % _stars_text(float(data.get("stars",0.0))),Rect2(172,6,55,32),10,Color("ffe477"),HORIZONTAL_ALIGNMENT_RIGHT,true)
-
-    var art: TextureRect = TextureRect.new()
-    art.position = Vector2(6,42)
-    art.size = Vector2(MOBILE_DRAFT_CARD_SIZE.x-12,205)
-    art.texture = AssetCache.texture("res://assets/cards/%s_field.png" % cid)
-    art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-    art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-    art.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
-    art.mouse_filter = Control.MOUSE_FILTER_IGNORE
-    art.modulate = Color(1,1,1,0.34 if muted else 1.0)
-    btn.add_child(art)
-
-    var footer_bg: ColorRect = ColorRect.new()
-    footer_bg.position = Vector2(6,249)
-    footer_bg.size = Vector2(MOBILE_DRAFT_CARD_SIZE.x-12,51)
-    footer_bg.color = Color(0.02,0.04,0.065,0.94)
-    footer_bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
-    btn.add_child(footer_bg)
-
-    _label(btn,str(data.get("element","")).to_upper(),Rect2(12,251,78,20),8,accent.lightened(0.12),HORIZONTAL_ALIGNMENT_LEFT,true)
-    _label(btn,"PV %d • TAI %d • NIN %d • GEN %d" % [
-        int(data.get("hp",0)), int(data.get("taijutsu",0)), int(data.get("ninjutsu",0)), int(data.get("genjutsu",0))
-    ],Rect2(12,270,216,18),7,Color("a8bbcc"),HORIZONTAL_ALIGNMENT_LEFT,false)
-
-    var status: String = _draft_lock_reason(active,data)
-    _label(btn,status,Rect2(92,251,136,20),7,Color("6f8396") if muted else Color("64d5a3"),HORIZONTAL_ALIGNMENT_RIGHT,true)
-
-    btn.disabled = active != "ally" or not owner.is_empty() or not allowed
-    return btn
-
-func _on_mobile_draft_pool_input(event: InputEvent) -> void:
-    if not is_instance_valid(draft_mobile_scroll) or not is_instance_valid(draft_mobile_pool):
-        return
-
-    # Native touchscreen path.
-    if event is InputEventScreenTouch:
-        var touch: InputEventScreenTouch = event as InputEventScreenTouch
-        if touch.pressed:
-            draft_touch_active = true
-            draft_drag_active = true
-            draft_drag_moved = false
-            draft_drag_start_pos = touch.position
-            draft_drag_last_pos = touch.position
-            draft_drag_start_scroll = float(draft_mobile_scroll.scroll_vertical)
-        else:
-            var was_dragging: bool = draft_drag_moved
-            draft_drag_active = false
-            draft_touch_active = false
-            draft_ignore_mouse_until_msec = Time.get_ticks_msec() + 250
-            if not was_dragging:
-                _mobile_draft_tap_at(touch.position)
-        draft_mobile_pool.accept_event()
-        return
-
-    if event is InputEventScreenDrag:
-        var drag: InputEventScreenDrag = event as InputEventScreenDrag
-        if not draft_drag_active:
-            draft_drag_active = true
-            draft_drag_start_pos = drag.position
-            draft_drag_last_pos = drag.position
-            draft_drag_start_scroll = float(draft_mobile_scroll.scroll_vertical)
-
-        var total_move: Vector2 = drag.position - draft_drag_start_pos
-        if total_move.length() >= MOBILE_DRAFT_DRAG_DEADZONE:
-            draft_drag_moved = true
-
-        if draft_drag_moved:
-            var delta_y: float = drag.position.y - draft_drag_last_pos.y
-            draft_mobile_scroll.scroll_vertical = int(
-                maxf(0.0, float(draft_mobile_scroll.scroll_vertical) - delta_y)
-            )
-            draft_mobile_saved_scroll = float(draft_mobile_scroll.scroll_vertical)
-            draft_drag_last_pos = drag.position
-        draft_mobile_pool.accept_event()
-        return
-
-    # Hardware mouse / DeX / desktop testing:
-    # mouse wheel is intentionally NOT accepted here, so ScrollContainer keeps
-    # its native wheel scrolling. Left-click + drag behaves like touch.
-    if event is InputEventMouseButton:
-        var mb: InputEventMouseButton = event as InputEventMouseButton
-        if mb.button_index != MOUSE_BUTTON_LEFT:
-            return
-        if Time.get_ticks_msec() < draft_ignore_mouse_until_msec:
-            return
-
-        if mb.pressed:
-            draft_drag_active = true
-            draft_drag_moved = false
-            draft_drag_start_pos = mb.position
-            draft_drag_last_pos = mb.position
-            draft_drag_start_scroll = float(draft_mobile_scroll.scroll_vertical)
-        else:
-            var was_dragging: bool = draft_drag_moved
-            draft_drag_active = false
-            if not was_dragging:
-                _mobile_draft_tap_at(mb.position)
-        draft_mobile_pool.accept_event()
-        return
-
-    if event is InputEventMouseMotion and draft_drag_active and not draft_touch_active:
-        var mm: InputEventMouseMotion = event as InputEventMouseMotion
-        var total_move: Vector2 = mm.position - draft_drag_start_pos
-        if total_move.length() >= MOBILE_DRAFT_DRAG_DEADZONE:
-            draft_drag_moved = true
-
-        if draft_drag_moved:
-            var delta_y: float = mm.position.y - draft_drag_last_pos.y
-            draft_mobile_scroll.scroll_vertical = int(
-                maxf(0.0, float(draft_mobile_scroll.scroll_vertical) - delta_y)
-            )
-            draft_mobile_saved_scroll = float(draft_mobile_scroll.scroll_vertical)
-            draft_drag_last_pos = mm.position
-            draft_mobile_pool.accept_event()
-
-func _mobile_draft_tap_at(local_pos: Vector2) -> void:
-    if _scheduled_team() != "ally":
-        return
-
-    var cell_width: float = MOBILE_DRAFT_CARD_SIZE.x + MOBILE_DRAFT_H_GAP
-    var row_height: float = MOBILE_DRAFT_ROW_HEIGHT
-    var col: int = int(floor(local_pos.x / cell_width))
-    var row: int = int(floor(local_pos.y / row_height))
-
-    if col < 0 or col >= MOBILE_DRAFT_COLUMNS or row < 0:
-        return
-
-    var inside_x: float = local_pos.x - float(col) * cell_width
-    var inside_y: float = local_pos.y - float(row) * row_height
-    if inside_x < 0.0 or inside_x > MOBILE_DRAFT_CARD_SIZE.x:
-        return
-    if inside_y < 0.0 or inside_y > MOBILE_DRAFT_CARD_SIZE.y:
-        return
-
-    var card_index: int = row * MOBILE_DRAFT_COLUMNS + col
-    if card_index < 0 or card_index >= cards.size():
-        return
-
-    var data: Dictionary = cards[card_index]
-    var cid: String = str(data.get("id",""))
-    if cid.is_empty():
-        return
-    if not str(draft_owner.get(cid,"")).is_empty():
-        return
-    if not _draft_allowed("ally", data):
-        return
-
-    _on_draft_card_pressed(cid)
-
-func _mobile_update_draft_selection(previous_id: String, current_id: String) -> void:
-    _mobile_set_draft_card_selected(previous_id, false)
-    _mobile_set_draft_card_selected(current_id, true)
-
-func _mobile_set_draft_card_selected(cid: String, selected: bool) -> void:
-    var btn: Button = draft_mobile_card_nodes.get(cid, null) as Button
-    if not is_instance_valid(btn):
-        return
-    var style: StyleBoxFlat = btn.get_meta("draft_normal_style", null) as StyleBoxFlat
-    if style == null:
-        return
-    var accent: Color = btn.get_meta("draft_accent", Color("7c94ad"))
-    var muted: bool = bool(btn.get_meta("draft_muted", false))
-    style.border_color = Color("fff0a0") if selected else Color(accent.r,accent.g,accent.b,0.48 if not muted else 0.20)
-    style.set_border_width_all(2 if selected else 1)
-    btn.queue_redraw()
-
+func _draft_atlas_art(cid: String) -> Texture2D:
+    if not MobilePlatform.is_android():
+        return AssetCache.texture("res://assets/cards/%s_field.png" % cid)
+    var index: int = int(draft_mobile_index_by_id.get(cid, -1))
+    if index < 0:
+        return AssetCache.texture("res://assets/cards/%s_field.png" % cid)
+    return DraftCanvas.card_art_texture(index)
 
 func _draft_card(data: Dictionary, active: String) -> Button:
     var cid: String = str(data.get("id", ""))
@@ -1023,12 +731,11 @@ func _on_draft_card_pressed(cid: String) -> void:
     if _scheduled_team() != "ally":
         return
     _play_pick()
-    var previous_id: String = draft_selected_id
     draft_selected_id = cid
 
     if MobilePlatform.is_android():
-        # Do NOT rebuild the 70-card draft on a simple preview tap.
-        _mobile_update_draft_selection(previous_id, cid)
+        if is_instance_valid(draft_mobile_canvas):
+            draft_mobile_canvas.set_selected(cid)
         _draw_draft_detail(Rect2(1034,158,294,564), _scheduled_team())
     else:
         _draw_draft()
@@ -1071,6 +778,7 @@ func _confirm_draft_pick() -> void:
     _apply_draft_pick("ally",draft_selected_id)
 
 func _apply_draft_pick(team: String, cid: String) -> void:
+    _capture_mobile_draft_scroll()
     var data: Dictionary = cards_by_id.get(cid,{}) as Dictionary
     if data.is_empty() or team != _scheduled_team() or not _draft_allowed(team, data):
         return
@@ -1188,7 +896,7 @@ func _draw_lineup() -> void:
             var art: TextureRect = TextureRect.new()
             art.position = Vector2(sx+7,585)
             art.size = Vector2(76,102)
-            art.texture = AssetCache.texture("res://assets/cards/%s_field.png" % cid)
+            art.texture = _draft_atlas_art(cid)
             art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
             art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
             stage_root.add_child(art)
@@ -1274,7 +982,7 @@ func _card_detail(parent: Node, data: Dictionary, rect: Rect2) -> void:
     var art: TextureRect = TextureRect.new()
     art.position = Vector2.ZERO
     art.size = art_panel.size
-    art.texture = AssetCache.texture("res://assets/cards/%s_field.png" % cid)
+    art.texture = _draft_atlas_art(cid)
     art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
     art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
     art.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
