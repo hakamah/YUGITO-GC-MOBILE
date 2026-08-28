@@ -28,6 +28,7 @@ var journal_overlay: Control = null
 var journal_rich: RichTextLabel = null
 var inspection_overlay: Control = null
 var inspection_rich: RichTextLabel = null
+var inspection_art: TextureRect = null
 var inspection_action_root: Control = null
 var inspection_actor: YugitoCardActor = null
 var action_marker_labels: Dictionary = {}
@@ -598,6 +599,52 @@ func _action_button_in(parent: Control, rect: Rect2, text_value: String, accent:
     parent.add_child(btn)
     return btn
 
+func _inspection_action_button(parent: Control, rect: Rect2, text_value: String, accent: Color) -> Button:
+    var btn := Button.new()
+    btn.position = rect.position
+    btn.size = rect.size
+    btn.text = text_value
+    btn.flat = false
+    btn.focus_mode = Control.FOCUS_ALL
+    btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+    btn.add_theme_font_size_override("font_size",18)
+    btn.add_theme_color_override("font_color",Color("ffffff"))
+    btn.add_theme_color_override("font_hover_color",Color("ffffff"))
+    btn.add_theme_color_override("font_pressed_color",Color("ffffff"))
+    btn.add_theme_color_override("font_focus_color",Color("ffffff"))
+    btn.add_theme_color_override("font_disabled_color",Color("aeb8c0"))
+
+    var normal := StyleBoxFlat.new()
+    normal.bg_color = Color(accent.r * 0.34, accent.g * 0.34, accent.b * 0.34, 0.98)
+    normal.border_color = Color(accent.r, accent.g, accent.b, 1.0)
+    normal.set_border_width_all(3)
+    normal.set_corner_radius_all(14)
+    normal.shadow_color = Color(0,0,0,0.52)
+    normal.shadow_size = 7
+    normal.shadow_offset = Vector2(0,4)
+
+    var hover := normal.duplicate() as StyleBoxFlat
+    hover.bg_color = Color(accent.r * 0.48, accent.g * 0.48, accent.b * 0.48, 1.0)
+    hover.border_color = accent.lightened(0.16)
+
+    var pressed := normal.duplicate() as StyleBoxFlat
+    pressed.bg_color = Color(accent.r * 0.23, accent.g * 0.23, accent.b * 0.23, 1.0)
+    pressed.shadow_size = 3
+    pressed.shadow_offset = Vector2(0,2)
+
+    var disabled := normal.duplicate() as StyleBoxFlat
+    disabled.bg_color = Color(0.055,0.065,0.075,0.96)
+    disabled.border_color = Color(accent.r,accent.g,accent.b,0.30)
+    disabled.shadow_size = 2
+
+    btn.add_theme_stylebox_override("normal",normal)
+    btn.add_theme_stylebox_override("hover",hover)
+    btn.add_theme_stylebox_override("pressed",pressed)
+    btn.add_theme_stylebox_override("focus",hover)
+    btn.add_theme_stylebox_override("disabled",disabled)
+    parent.add_child(btn)
+    return btn
+
 func _open_battle_journal() -> void:
     if journal_overlay == null:
         return
@@ -700,26 +747,41 @@ func _on_tobi_bomb_target_chosen(target_uid: int) -> void:
 func _build_inspection_overlay() -> void:
     inspection_overlay = Control.new()
     inspection_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-    # Godot CanvasItem Z is limited to [-4096,4096]. P48 used 27000, which
-    # is outside the supported range and made battlefield cards leak above the modal.
     inspection_overlay.z_index = 4000
     inspection_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
     inspection_overlay.visible = false
     add_child(inspection_overlay)
-    _modal_dim(inspection_overlay,0.90)
-    var win: Panel = _modal_window(inspection_overlay,Rect2(180,64,1240,772),Color(0.64,0.86,1.0,0.86))
-    _label_in(win,"FICHE NINJA",Rect2(34,20,560,42),30,Color("ffffff"),HORIZONTAL_ALIGNMENT_LEFT,true)
-    _label_in(win,"Choisis une action puis touche sa cible sur le terrain.",Rect2(36,60,720,26),12,Color("a9bfd1"),HORIZONTAL_ALIGNMENT_LEFT,false)
-    var close_btn: Button = _action_button_in(win,Rect2(1050,22,150,44),"FERMER",Color("8cb9d8"),false)
+    _modal_dim(inspection_overlay,0.92)
+
+    # P50.1 — vraie fiche Ninja mobile en combat :
+    # illustration complète à gauche, informations à droite, actions en bas.
+    var win: Panel = _modal_window(inspection_overlay,Rect2(70,45,1460,810),Color(0.64,0.86,1.0,0.88))
+    _label_in(win,"FICHE NINJA",Rect2(40,22,620,48),31,Color("ffffff"),HORIZONTAL_ALIGNMENT_LEFT,true)
+    _label_in(win,"Choisis une action puis touche sa cible sur le terrain.",Rect2(42,68,820,26),12,Color("a9bfd1"),HORIZONTAL_ALIGNMENT_LEFT,false)
+    var close_btn: Button = _action_button_in(win,Rect2(1230,22,185,58),"FERMER",Color("8cb9d8"),true)
     close_btn.pressed.connect(_close_inspection)
 
+    # Illustration : cadrage intégral, jamais recadré en bandeau.
+    var art_panel: Panel = _modal_window(win,Rect2(38,108,350,430),Color(0.32,0.52,0.70,0.38))
+    inspection_art = TextureRect.new()
+    inspection_art.position = Vector2(10,10)
+    inspection_art.size = Vector2(330,410)
+    inspection_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+    inspection_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+    inspection_art.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+    inspection_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    art_panel.add_child(inspection_art)
+
+    # Fiche complète : nom, stats, passif, spéciale, synergie, rôles et états.
+    var info_panel: Panel = _modal_window(win,Rect2(410,108,1012,430),Color(0.32,0.52,0.70,0.38))
     var scroll := ScrollContainer.new()
-    scroll.position = Vector2(34,104)
-    scroll.size = Vector2(1172,430)
+    scroll.position = Vector2(24,20)
+    scroll.size = Vector2(964,386)
     scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-    win.add_child(scroll)
+    info_panel.add_child(scroll)
+
     inspection_rich = RichTextLabel.new()
-    inspection_rich.custom_minimum_size = Vector2(1136,560)
+    inspection_rich.custom_minimum_size = Vector2(930,760)
     inspection_rich.bbcode_enabled = true
     inspection_rich.fit_content = true
     inspection_rich.scroll_active = false
@@ -728,29 +790,43 @@ func _build_inspection_overlay() -> void:
     inspection_rich.add_theme_color_override("default_color",Color("dce8f2"))
     scroll.add_child(inspection_rich)
 
+    # Actions : 3 arts en première ligne ; spéciale / réserve / AF Minato en seconde.
     inspection_action_root = Control.new()
-    inspection_action_root.position = Vector2(34, 548)
-    inspection_action_root.size = Vector2(1172, 188)
+    inspection_action_root.position = Vector2(38,558)
+    inspection_action_root.size = Vector2(1384,218)
     inspection_action_root.z_index = 20
     win.add_child(inspection_action_root)
+
     var sheet_actions: Array[Dictionary] = [
-        {"id":"taijutsu","name":"Taijutsu","label":"TAIJUTSU","c":Color("ef6659")},
-        {"id":"ninjutsu","name":"Ninjutsu","label":"NINJUTSU","c":Color("58aff0")},
-        {"id":"genjutsu","name":"Genjutsu","label":"GENJUTSU","c":Color("ba85ed")},
-        {"id":"special","name":"Special","label":"TECHNIQUE SPÉCIALE","c":Color("e2b746")},
-        {"id":"reserve","name":"Reserve","label":"ÉCHANGE AVEC LA RÉSERVE","c":Color("58cf8b")}
+        {"id":"taijutsu","name":"Taijutsu","label":"TAIJUTSU","c":Color("ef6659"),"r":0,"cidx":0},
+        {"id":"ninjutsu","name":"Ninjutsu","label":"NINJUTSU","c":Color("58aff0"),"r":0,"cidx":1},
+        {"id":"genjutsu","name":"Genjutsu","label":"GENJUTSU","c":Color("ba85ed"),"r":0,"cidx":2},
+        {"id":"special","name":"Special","label":"TECHNIQUE SPÉCIALE","c":Color("e2b746"),"r":1,"cidx":0},
+        {"id":"reserve","name":"Reserve","label":"ÉCHANGE / RÉSERVE","c":Color("58cf8b"),"r":1,"cidx":1}
     ]
-    for i: int in range(sheet_actions.size()):
-        var item: Dictionary = sheet_actions[i]
-        var col: int = i % 3
-        var row: int = i / 3
-        var b: Button = _action_button_in(inspection_action_root, Rect2(col * 386.0, row * 82.0, 370, 68), str(item["label"]), item["c"] as Color, true)
+
+    var bw: float = 436.0
+    var bh: float = 84.0
+    var gap: float = 18.0
+    for item: Dictionary in sheet_actions:
+        var col: int = int(item["cidx"])
+        var row: int = int(item["r"])
+        var b: Button = _inspection_action_button(
+            inspection_action_root,
+            Rect2(col * (bw + gap), row * (bh + gap), bw, bh),
+            str(item["label"]),
+            item["c"] as Color
+        )
         b.name = str(item["name"])
-        b.add_theme_font_size_override("font_size",16)
         b.pressed.connect(_sheet_action_pressed.bind(str(item["id"])))
-    var af: Button = _action_button_in(inspection_action_root, Rect2(772, 82, 370, 68), "AF • MINATO", Color("f0d25e"), true)
+
+    var af: Button = _inspection_action_button(
+        inspection_action_root,
+        Rect2(2 * (bw + gap), bh + gap, bw, bh),
+        "AF • MINATO",
+        Color("f0d25e")
+    )
     af.name = "Free"
-    af.add_theme_font_size_override("font_size",16)
     af.pressed.connect(_sheet_free_pressed)
 
 func _open_selected_inspection() -> void:
@@ -813,6 +889,16 @@ func _populate_inspection(actor: YugitoCardActor) -> void:
     if inspection_rich == null:
         return
     var data: Dictionary = cards_by_id.get(actor.card_id,{}) as Dictionary
+    if inspection_art != null:
+        var art_id: String = actor.card_id
+        # Ino affiche le corps réellement contrôlé lorsqu'elle en possède un.
+        if actor.card_id == "ino":
+            var controlled_for_art: YugitoCardActor = _ino_controlled_body(actor)
+            if controlled_for_art != null:
+                art_id = controlled_for_art.card_id
+        var art_path: String = "res://assets/cards/%s_field.png" % art_id
+        inspection_art.texture = AssetCache.texture(art_path) if ResourceLoader.exists(art_path) else null
+
     var team_label: String = "ALLIÉ" if actor.team_name == "ally" else "ENNEMI"
     var status_lines: Array[String] = []
     if actor.shield > 0:
