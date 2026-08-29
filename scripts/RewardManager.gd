@@ -27,6 +27,8 @@ var abandon_tier: int = 0
 var clean_matches_since_abandon: int = 0
 var opponent_history: Dictionary = {}
 var settlements_seen: Dictionary = {}
+var owned_cards: Dictionary = {}
+var server_weekly_rotation: Dictionary = {}
 
 func _ready() -> void:
     _load()
@@ -44,6 +46,169 @@ func penalty_weight() -> int:
 
 func clean_progress() -> int:
     return clean_matches_since_abandon
+
+func is_base_unlocked(stars: float) -> bool:
+    return stars <= 3.0
+
+func is_permanently_owned(card_id: String, stars: float) -> bool:
+    if is_base_unlocked(stars):
+        return true
+    return bool(owned_cards.get(card_id,false))
+
+func set_server_weekly_rotation(payload: Dictionary) -> bool:
+    if not _validate_server_weekly_rotation(payload):
+        return false
+    server_weekly_rotation = payload.duplicate(true)
+    _save()
+    return true
+
+func clear_server_weekly_rotation() -> void:
+    server_weekly_rotation.clear()
+    _save()
+
+func weekly_rotation_source() -> String:
+    return "SERVER" if _server_rotation_is_usable() else "INDISPONIBLE"
+
+func weekly_rotation_week_key() -> String:
+    if not _server_rotation_is_usable():
+        return ""
+    return str(server_weekly_rotation.get("week_key",""))
+
+func weekly_rotation_count() -> int:
+    if not _server_rotation_is_usable():
+        return 0
+    var counts: Dictionary = server_weekly_rotation.get("counts",{}) as Dictionary
+    return (
+        int(counts.get("3.5",0))
+        + int(counts.get("4.0",0))
+        + int(counts.get("4.5",0))
+        + int(counts.get("5.0",0))
+    )
+
+func weekly_free_ids(catalog: Array[Dictionary]) -> Array[String]:
+    if not _server_rotation_is_usable():
+        return []
+
+    var counts: Dictionary = server_weekly_rotation.get("counts",{}) as Dictionary
+    var seeds: Dictionary = server_weekly_rotation.get("seeds",{}) as Dictionary
+    var rarities: Array[String] = ["3.5","4.0","4.5","5.0"]
+    var result: Array[String] = []
+
+    for rarity_key: String in rarities:
+        var rarity: float = float(rarity_key)
+        var count: int = maxi(0,int(counts.get(rarity_key,0)))
+        var seed: String = str(seeds.get(rarity_key,""))
+        if count <= 0 or seed.is_empty():
+            continue
+
+        var pool: Array[String] = []
+        for data: Dictionary in catalog:
+            if not is_equal_approx(float(data.get("stars",0.0)),rarity):
+                continue
+            var cid: String = str(data.get("id",""))
+            if not cid.is_empty():
+                pool.append(cid)
+
+        pool.sort_custom(func(a: String,b: String) -> bool:
+            return _weekly_card_rank(seed,a) < _weekly_card_rank(seed,b)
+        )
+
+        for i: int in range(mini(count,pool.size())):
+            if not result.has(pool[i]):
+                result.append(pool[i])
+
+    return result
+
+func is_weekly_free(card_id: String, catalog: Array[Dictionary]) -> bool:
+    return weekly_free_ids(catalog).has(card_id)
+
+func _weekly_card_rank(seed: String, card_id: String) -> String:
+    var ctx := HashingContext.new()
+    ctx.start(HashingContext.HASH_SHA256)
+    ctx.update(("%s|%s|YUGITO-WEEKLY-V1" % [seed,card_id]).to_utf8_buffer())
+    return ctx.finish().hex_encode()
+
+func _server_rotation_is_usable() -> bool:
+    if server_weekly_rotation.is_empty():
+        return false
+    if not _validate_server_weekly_rotation(server_weekly_rotation):
+        return false
+    var expires_at: int = int(server_weekly_rotation.get("next_rotation_unix",0))
+    if expires_at <= 0:
+        return false
+    # Petite tolérance réseau, mais jamais une nouvelle rotation locale.
+    return int(Time.get_unix_time_from_system()) < expires_at + 6 * 60 * 60
+
+func _validate_server_weekly_rotation(payload: Dictionary) -> bool:
+    if not bool(payload.get("ok",false)):
+        return false
+    if int(payload.get("version",0)) != 1:
+        return false
+    if str(payload.get("week_key","")).is_empty():
+        return false
+    if int(payload.get("next_rotation_unix",0)) <= 0:
+        return false
+
+    var counts: Dictionary = payload.get("counts",{}) as Dictionary
+    var seeds: Dictionary = payload.get("seeds",{}) as Dictionary
+    var expected: Dictionary = {
+        "3.5":8,
+        "4.0":6,
+        "4.5":4,
+        "5.0":4,
+    }
+    for rarity_key: String in expected.keys():
+        if int(counts.get(rarity_key,-1)) != int(expected[rarity_key]):
+            return false
+        if str(seeds.get(rarity_key,"")).length() < 16:
+            return false
+    return true
+
+func is_currently_owned(card_id: String, stars: float, catalog: Array[Dictionary]) -> bool:
+    return is_permanently_owned(card_id,stars) or is_weekly_free(card_id,catalog)
+
+func card_ownership_status(card_id: String, stars: float, catalog: Array[Dictionary]) -> String:
+    if is_base_unlocked(stars):
+        return "base"
+    if bool(owned_cards.get(card_id,false)):
+        return "permanent"
+    if is_weekly_free(card_id,catalog):
+        return "weekly"
+    return "missing"
+
+func card_ownership_label(card_id: String, stars: float, catalog: Array[Dictionary]) -> String:
+    match card_ownership_status(card_id,stars,catalog):
+        "base":
+            return "DÉBLOQUÉE DE BASE"
+        "permanent":
+            return "POSSÉDÉE DÉFINITIVEMENT"
+        "weekly":
+            return "GRATUITE CETTE SEMAINE"
+        _:
+            return "NON POSSÉDÉE"
+
+func purchase_card(card_id: String, stars: float, price: int) -> Dictionary:
+    if is_permanently_owned(card_id,stars):
+        return {"ok":false,"message":"Carte déjà possédée définitivement.","balance":yt_balance}
+    if price <= 0:
+        owned_cards[card_id] = true
+        _save()
+        return {"ok":true,"message":"Carte obtenue définitivement.","balance":yt_balance}
+    if yt_balance < price:
+        return {"ok":false,"message":"YT insuffisants.","balance":yt_balance}
+    yt_balance -= price
+    owned_cards[card_id] = true
+    balance_changed.emit(yt_balance)
+    _save()
+    return {"ok":true,"message":"Achat réussi • -%d YT" % price,"balance":yt_balance}
+
+func owned_card_ids() -> Array[String]:
+    var result: Array[String] = []
+    for key: Variant in owned_cards.keys():
+        if bool(owned_cards[key]):
+            result.append(str(key))
+    result.sort()
+    return result
 
 func settle_solo(victory: bool, match_id: String = "") -> Dictionary:
     var unique_id: String = _normalized_match_id(match_id, "solo")
@@ -261,7 +426,9 @@ func _save() -> void:
         "abandon_tier":abandon_tier,
         "clean_matches_since_abandon":clean_matches_since_abandon,
         "opponent_history":opponent_history,
-        "settlements_seen":settlements_seen
+        "settlements_seen":settlements_seen,
+        "owned_cards":owned_cards,
+        "server_weekly_rotation":server_weekly_rotation
     }
     var file: FileAccess = FileAccess.open(SAVE_PATH,FileAccess.WRITE)
     if file != null:
@@ -282,3 +449,5 @@ func _load() -> void:
     clean_matches_since_abandon = clampi(int(data.get("clean_matches_since_abandon",0)),0,CLEAN_MATCHES_TO_REDUCE_PENALTY-1)
     opponent_history = data.get("opponent_history",{}) as Dictionary
     settlements_seen = data.get("settlements_seen",{}) as Dictionary
+    owned_cards = data.get("owned_cards",{}) as Dictionary
+    server_weekly_rotation = data.get("server_weekly_rotation",{}) as Dictionary
