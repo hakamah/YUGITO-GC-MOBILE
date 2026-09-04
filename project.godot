@@ -40,9 +40,12 @@ renderer/rendering_method.mobile="gl_compatibility"
 GameSession="*res://scripts/GameSession.gd"
 AudioManager="*res://scripts/AudioManager.gd"
 IdentityManager="*res://scripts/IdentityManager.gd"
-AuthManager="*res://scripts/AuthManager.gd"
+AuthManager="*res://scripts/AuthManagerV13.gd"
 MobilePlatform="*res://scripts/MobilePlatform.gd"
 MobileZoomController="*res://scripts/MobileZoomController.gd"
+
+[editor_plugins]
+enabled=PackedStringArray("res://addons/YugitoCredentialBridge/plugin.cfg")
 
 [input_devices]
 
