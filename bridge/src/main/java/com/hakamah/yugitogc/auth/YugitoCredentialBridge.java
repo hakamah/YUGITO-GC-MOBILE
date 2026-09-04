@@ -20,7 +20,6 @@ import androidx.credentials.exceptions.GetCredentialProviderConfigurationExcepti
 import androidx.credentials.exceptions.GetCredentialUnsupportedException;
 import androidx.credentials.exceptions.NoCredentialException;
 
-import com.google.android.libraries.identity.googleid.GetGoogleIdOption;
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption;
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential;
 
@@ -31,10 +30,10 @@ import java.util.concurrent.Executor;
 /**
  * YUGITO GC native Android Credential Manager bridge.
  *
- * Security rules:
- * - never log ID token, e-mail, display name or profile identity;
- * - bind the Google ID token to the server-issued device_code via nonce;
- * - keep the token in memory only until Godot calls takeIdToken().
+ * V13.1 changes:
+ * - explicit button clicks now use GetSignInWithGoogleOption directly, as recommended by Google;
+ * - cancellation exceptions preserve their sanitized class/message for diagnostics;
+ * - never logs ID token, e-mail, display name or profile identity.
  */
 public final class YugitoCredentialBridge {
     private static final String TAG = "YugitoCM";
@@ -53,12 +52,11 @@ public final class YugitoCredentialBridge {
     private static volatile String errorMessage = "";
     private static volatile String idToken = "";
     private static volatile CancellationSignal cancellationSignal = null;
-    private static volatile boolean explicitFallbackAttempted = false;
 
     private YugitoCredentialBridge() {}
 
     public static String getBridgeVersion() {
-        return "YUGITO-CM-BRIDGE-1.0|credentials-1.6.0|googleid-1.2.0";
+        return "YUGITO-CM-BRIDGE-1.1|credentials-1.6.0|googleid-1.2.0|direct-button-flow";
     }
 
     public static String getPackageName(Activity activity) {
@@ -140,7 +138,6 @@ public final class YugitoCredentialBridge {
             errorMessage = "";
             idToken = "";
             cancellationSignal = null;
-            explicitFallbackAttempted = false;
         }
     }
 
@@ -162,15 +159,14 @@ public final class YugitoCredentialBridge {
             if (state == STATE_RUNNING) return false;
             state = STATE_RUNNING;
             stage = "accepted";
-            flow = "google_id_option";
+            flow = "sign_in_with_google_option";
             errorCode = "";
             errorMessage = "";
             idToken = "";
-            explicitFallbackAttempted = false;
         }
 
         try {
-            activity.runOnUiThread(() -> requestGoogleIdOption(activity, serverClientId, nonce));
+            activity.runOnUiThread(() -> requestExplicitGoogle(activity, serverClientId, nonce));
             return true;
         } catch (Throwable t) {
             failThrowable("ui_dispatch_failed", t);
@@ -178,38 +174,13 @@ public final class YugitoCredentialBridge {
         }
     }
 
-    private static void requestGoogleIdOption(Activity activity, String serverClientId, String nonce) {
+    private static void requestExplicitGoogle(Activity activity, String serverClientId, String nonce) {
         try {
+            flow = "sign_in_with_google_option";
             stage = "credential_manager_create";
-            flow = "google_id_option";
             CredentialManager manager = CredentialManager.create(activity);
 
-            stage = "build_google_id_option";
-            GetGoogleIdOption option = new GetGoogleIdOption.Builder()
-                    .setFilterByAuthorizedAccounts(false)
-                    .setAutoSelectEnabled(false)
-                    .setServerClientId(serverClientId)
-                    .setNonce(nonce)
-                    .build();
-
-            GetCredentialRequest request = new GetCredentialRequest.Builder()
-                    .addCredentialOption(option)
-                    .build();
-
-            stage = "native_sheet_requested";
-            runRequest(activity, manager, request, serverClientId, nonce, false);
-        } catch (Throwable t) {
-            failThrowable("google_id_request_build_failed", t);
-        }
-    }
-
-    private static void requestExplicitGoogle(Activity activity, CredentialManager manager,
-                                              String serverClientId, String nonce) {
-        try {
-            explicitFallbackAttempted = true;
-            flow = "sign_in_with_google_option";
             stage = "build_explicit_google_option";
-
             GetSignInWithGoogleOption option = new GetSignInWithGoogleOption.Builder(serverClientId)
                     .setNonce(nonce)
                     .build();
@@ -219,15 +190,14 @@ public final class YugitoCredentialBridge {
                     .build();
 
             stage = "native_explicit_google_requested";
-            runRequest(activity, manager, request, serverClientId, nonce, true);
+            runRequest(activity, manager, request);
         } catch (Throwable t) {
             failThrowable("explicit_google_request_build_failed", t);
         }
     }
 
     private static void runRequest(Activity activity, CredentialManager manager,
-                                   GetCredentialRequest request, String serverClientId,
-                                   String nonce, boolean explicitFlow) {
+                                   GetCredentialRequest request) {
         final CancellationSignal signal = new CancellationSignal();
         cancellationSignal = signal;
         final Executor mainExecutor = command -> activity.runOnUiThread(command);
@@ -247,11 +217,6 @@ public final class YugitoCredentialBridge {
                     @Override
                     public void onError(GetCredentialException e) {
                         cancellationSignal = null;
-                        if (!explicitFlow && e instanceof NoCredentialException && !explicitFallbackAttempted) {
-                            stage = "no_credential_fallback_to_explicit_google";
-                            requestExplicitGoogle(activity, manager, serverClientId, nonce);
-                            return;
-                        }
                         handleCredentialError(e);
                     }
                 }
@@ -300,13 +265,11 @@ public final class YugitoCredentialBridge {
 
     private static void handleCredentialError(GetCredentialException e) {
         if (e instanceof GetCredentialCancellationException) {
-            synchronized (LOCK) {
-                state = STATE_CANCELLED;
-                stage = "user_cancelled";
-                errorCode = "user_cancelled";
-                errorMessage = "";
-                idToken = "";
-            }
+            // Some Google Play services authorization/configuration failures are surfaced
+            // through this exception after the user taps an account. Preserve the sanitized
+            // exception message so Godot diagnostics can distinguish a real Back/Cancel from
+            // a downstream OAuth/reauth failure. Never include identity or token data.
+            failThrowable("credential_cancelled", e);
             return;
         }
 
