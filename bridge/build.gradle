@@ -1,0 +1,31 @@
+plugins {
+    id 'com.android.library' version '8.9.1'
+}
+
+android {
+    namespace 'com.hakamah.yugitogc.auth'
+    compileSdk 36
+
+    defaultConfig {
+        minSdk 24
+        consumerProguardFiles 'consumer-rules.pro'
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    // The final Godot Gradle export supplies these dependencies too.
+    compileOnly 'androidx.credentials:credentials:1.6.0'
+    compileOnly 'androidx.credentials:credentials-play-services-auth:1.6.0'
+    compileOnly 'com.google.android.libraries.identity.googleid:googleid:1.2.0'
+}
