@@ -40,7 +40,7 @@ renderer/rendering_method.mobile="gl_compatibility"
 GameSession="*res://scripts/GameSession.gd"
 AudioManager="*res://scripts/AudioManager.gd"
 IdentityManager="*res://scripts/IdentityManager.gd"
-AuthManager="*res://scripts/AuthManagerV13.gd"
+AuthManager="*res://scripts/AuthManagerV13ColdStart.gd"
 MobilePlatform="*res://scripts/MobilePlatform.gd"
 MobileZoomController="*res://scripts/MobileZoomController.gd"
 
