@@ -1,0 +1,21 @@
+name: Temp P5.12 secret check
+on:
+  push:
+    branches: [temp-p512-check]
+    paths: ['.github/workflows/temp-p512-check.yml']
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check official signing secret availability
+        env:
+          K: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          P: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          A: ${{ secrets.ANDROID_KEY_ALIAS }}
+        run: |
+          if [ -n "$K" ] && [ -n "$P" ] && [ -n "$A" ]; then
+            echo "OFFICIAL_SIGNING_SECRETS=YES"
+          else
+            echo "OFFICIAL_SIGNING_SECRETS=NO"
+            exit 1
+          fi
