@@ -1,21 +1,44 @@
-name: Temp P5.12 secret check
+name: Temp P5.12 spawn syntax test
 on:
   push:
     branches: [temp-p512-check]
     paths: ['.github/workflows/temp-p512-check.yml']
 jobs:
-  check:
+  test:
     runs-on: ubuntu-latest
     steps:
-      - name: Check official signing secret availability
-        env:
-          K: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-          P: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-          A: ${{ secrets.ANDROID_KEY_ALIAS }}
+      - name: Download Godot
         run: |
-          if [ -n "$K" ] && [ -n "$P" ] && [ -n "$A" ]; then
-            echo "OFFICIAL_SIGNING_SECRETS=YES"
-          else
-            echo "OFFICIAL_SIGNING_SECRETS=NO"
-            exit 1
-          fi
+          curl -L --fail --retry 4 "https://github.com/godotengine/godot/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip" -o /tmp/g.zip
+          unzip -q /tmp/g.zip -d /tmp/g
+          chmod +x /tmp/g/Godot_v4.7.2-stable_linux.x86_64
+      - name: Runtime typed-array conditional test
+        run: |
+          mkdir -p /tmp/test
+          cat >/tmp/test/project.godot <<'EOF'
+          [application]
+          run/main_scene="res://main.tscn"
+          [display]
+          window/size/viewport_width=1600
+          window/size/viewport_height=900
+          EOF
+          cat >/tmp/test/main.tscn <<'EOF'
+          [gd_scene load_steps=2 format=3]
+          [ext_resource path="res://main.gd" type="Script" id="1"]
+          [node name="Main" type="Node"]
+          script = ExtResource("1")
+          EOF
+          cat >/tmp/test/main.gd <<'EOF'
+          extends Node
+          const FLAG: bool = true
+          func _ready():
+              var xs: Array[float] = [400.0, 800.0, 1200.0] if FLAG else [410.0, 760.0, 1110.0]
+              print("XS_OK=", xs)
+              get_tree().quit()
+          EOF
+          set +e
+          /tmp/g/Godot_v4.7.2-stable_linux.x86_64 --headless --path /tmp/test 2>&1 | tee /tmp/out.log
+          rc=${PIPESTATUS[0]}
+          echo "RC=$rc"
+          grep -E "XS_OK|SCRIPT ERROR|Invalid|assign|Array" /tmp/out.log || true
+          exit $rc
